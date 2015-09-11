@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta charset="utf-8">
+
+<title>zurb-foundation-wysihtml5</title>
+
+
+<link rel="stylesheet" type="text/css" href="lib/css/foundation.min.css"></link>
+<link rel="stylesheet" type="text/css" href="lib/css/prettify.css"></link>
+<link rel="stylesheet" type="text/css" href="lib/css/foundation-glyphicons.css"></link>
+<link rel="stylesheet" type="text/css" href="src/zurb-foundation-wysihtml5.css"></link>
+
+<style type="text/css" media="screen">
+	.btn.jumbo {
+		font-size: 20px;
+		font-weight: normal;
+		padding: 14px 24px;
+		margin-right: 10px;
+		-webkit-border-radius: 6px;
+		-moz-border-radius: 6px;
+		border-radius: 6px;
+	}
+</style>
+</head>
+<body>
+<div class="row">
+	<div class="twelve columns" style="margin-top:40px">
+		<h1 style="font-size:58px">zurb-foundation-wysihtml5 </h1>
+		<h2>Simple, beautiful wysiwyg editors</h2>
+		<hr/>
+		<textarea class="textarea" placeholder="Enter text ..." style="width: 810px; height: 200px"></textarea>
+	</div>
+
+</div>
+
+<div class="row">
+		<div class="six columns">
+	        <h2>About</h2>
+	        <p>
+				zurb-foundation-wysihtml5 is a straightforward port based on jhollingworth's brilliant bootstrap-wysihtml5. this is a javascript plugin that makes it easy to create simple, beautiful wysiwyg editors with the help of <a href="https://github.com/xing/wysihtml5">wysihtml5</a> and <a href="http://foundation.zurb.com/">Zurb Foundation</a>
+			</p>
+			
+			<p style="text-align:left; margin-top:20px">
+				<a class="button large" href="https://github.com/garrytan/zurb-foundation-wysihtml5">View project on Github</a>
+			</p>
+		</div>
+		<div class="six columns">
+			<h2>Usage</h2>
+
+
+		    <p>
+				<pre class="prettyprint linenums">$('.textarea').wysihtml5();</pre>     
+			</p>
+		
+			<h4>Dependencies</h4>
+	        <p>
+				<ol>
+					<li><a href="https://github.com/xing/wysihtml5">wysihtml5</a></li>
+					<li><a href="http://foundation.zurb.com/">Zurb Foundation</a></li>
+					<li><a href="https://github.com/phretor/foundation-glyphicons">foundation glyphicons</a></li>
+				</ol>
+	    	</p> 
+		</div>
+	</div>
+
+<script src="lib/js/wysihtml5-0.3.0.js"></script>
+<script src="lib/js/jquery-1.7.2.min.js"></script>
+<script src="lib/js/prettify.js"></script>
+<script src="lib/js/foundation.min.js"></script>
+<script src="lib/js/jquery.foundation.reveal.js"></script>
+<script src="lib/js/jquery.foundation.buttons.js"></script>
+<script src="src/zurb-foundation-wysihtml5.js"></script>
+
+<script>
+	$('.textarea').wysihtml5();
+</script>
+
+<script type="text/javascript" charset="utf-8">
+	$(prettyPrint);
+</script>
+
+</body>
+</html>

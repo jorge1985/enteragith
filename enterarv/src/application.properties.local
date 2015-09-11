@@ -1,0 +1,32 @@
+#Application
+version=1.0
+password.hash=enteratv
+
+application.path=http://localhost:8888/
+#application.path=http://enteratv-bbva.appspot.com/
+
+application.title=EnteraTV & BBVA
+application.title.en=EnteraTV
+
+application.copyright=Copyright©2015 Powered by Webservice
+application.copyright.en=Copyright©2015
+
+database.driver=com.google.appengine.api.rdbms.AppEngineDriver
+
+#SET THE SAME MYSQL'S HOST PORT DBNAME USER PASSWORD AS IN COMMAND LINE
+database.url=jdbc:google:rdbms://localhost:3306/saml2?user=root&password=root
+
+
+hibernate.dialect=org.hibernate.dialect.MySQL5Dialect
+hibernate.show_sql=false
+hibernate.hbm2ddl.auto=create-drop
+
+
+#Configuration
+session.timeout=1500
+default.language=en
+list.pagesize=10
+
+#Thumbnail
+thumbnail.width=150
+thumbnail.height=150

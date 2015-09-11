@@ -1,0 +1,938 @@
+package com.youandbbva.enteratv.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.springframework.stereotype.Repository;
+
+import com.youandbbva.enteratv.DAO;
+import com.youandbbva.enteratv.Utils;
+import com.youandbbva.enteratv.domain.ChannelCityInfo;
+import com.youandbbva.enteratv.domain.ChannelDivisionInfo;
+import com.youandbbva.enteratv.domain.ChannelInfo;
+import com.youandbbva.enteratv.domain.ChannelJobgradeInfo;
+import com.youandbbva.enteratv.domain.ChannelPayownerInfo;
+import com.youandbbva.enteratv.domain.ChannelPromoteInfo;
+import com.youandbbva.enteratv.domain.FamilyInfo;
+
+/**
+ * 
+ * Handle all query for category.
+ * 
+ * @author CJH
+ *
+ */
+
+@Repository("CategoryDAO")
+public class CategoryDAO extends DAO{
+
+	private final String COLUMN_NAME__FAMILY="FamilyId,Familyname,FamilyPosition,FamilyIsVisible";
+	
+	private final String COUNT_BY_NAME__FAMILY = " select count(*) from Family  where Familyname=? ";
+	private final String COUNT_BY_NAME2__FAMILY = " select count(*) from Family  where Familyname=? and FamilyId<>? ";
+	private final String MAX_POS__FAMILY = " select max(FamilyPosition) from Family ";
+	private final String SELECT__FAMILY = " select " + COLUMN_NAME__FAMILY + " from Family order by FamilyPosition ";
+	private final String SELECT_BY_ID__FAMILY = " select " + COLUMN_NAME__FAMILY + " from Family where FamilyId=? ";
+	private final String INSERT__FAMILY = " insert into Family(" + "Familyname,FamilyPosition,FamilyIsVisible" + ") values ( ?, ?, ? ) ";
+	private final String UPDATE_BY_ID__FAMILY = " update Family set Familyname=?, FamilyIsVisible=? where FamilyId=? ";
+	private final String UPDATE_POSITION__FAMILY = " update Family set FamilyPosition=? where FamilyId=? ";
+	private final String DELETE_BY_ID__FAMILY = " delete from Family where FamilyId=? ";
+
+	private final String TABLE_NAME__CHANNEL="bbva_channel";
+	private final String COLUMN_NAME__CHANNEL="id,name,family_id,email,password,parent_id,access_level,security_level,people_manager,newhire,pos";
+	private final String COUNT_BY_NAME__CHANNEL= " select count(*) from " + TABLE_NAME__CHANNEL + " f where f.name=? ";
+	private final String SELECT__CHANNEL = " select " + COLUMN_NAME__CHANNEL + " from " + TABLE_NAME__CHANNEL + " order by pos ";
+	private final String SELECT_BY_ID__CHANNEL = " select " + COLUMN_NAME__CHANNEL + " from " + TABLE_NAME__CHANNEL + " where id=? ";
+	private final String SELECT_BY_FAMILY_PARENT_ID__CHANNEL = " select " + COLUMN_NAME__CHANNEL + " from " + TABLE_NAME__CHANNEL + " where family_id=? and parent_id=? order by pos ";
+	private final String SELECT_BY_PARENT_ID__CHANNEL = " select " + COLUMN_NAME__CHANNEL + " from " + TABLE_NAME__CHANNEL + " where parent_id=? order by pos ";
+	private final String INSERT_EXIST__CHANNEL = " insert into " + TABLE_NAME__CHANNEL + " (" + "name,family_id,email,password,parent_id,access_level,security_level,people_manager,newhire,id" + ") values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
+	private final String INSERT__CHANNEL = " insert into " + TABLE_NAME__CHANNEL + " (" + "name,family_id,email,password,parent_id,access_level,security_level,people_manager,newhire" + ") values ( ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
+	private final String UPDATE_BY_ID__CHANNEL = " update " + TABLE_NAME__CHANNEL + " set name=? where id=? ";
+	private final String UPDATE_POSITION__CHANNEL = " update " + TABLE_NAME__CHANNEL + " set pos=?  where id=? ";
+	private final String UPDATE_PARENT__CHANNEL = " update " + TABLE_NAME__CHANNEL + " set parent_id=?  where id=? ";
+	private final String DELETE_BY_ID__CHANNEL = " delete from " + TABLE_NAME__CHANNEL + " where id=? ";
+
+	private final String TABLE_NAME__CHANNEL_DIVISION="bbva_channel_division";
+	private final String COLUMN_NAME__CHANNEL_DIVISION="id,type,channel_id,division_id";
+	private final String SELECT_BY_CHANNEL_ID__CHANNEL_DIVISION = " select " + COLUMN_NAME__CHANNEL_DIVISION + " from " + TABLE_NAME__CHANNEL_DIVISION + " where type=? and channel_id=? ";
+	private final String INSERT__CHANNEL_DIVISION = " insert into " + TABLE_NAME__CHANNEL_DIVISION + " (" + "type,channel_id,division_id" + ") values ( ?, ?, ? ) ";
+	private final String DELETE_BY_CHANNEL_ID__CHANNEL_DIVISION = " delete from " + TABLE_NAME__CHANNEL_DIVISION + " where channel_id=? ";
+	
+	private final String TABLE_NAME__CHANNEL_CITY="bbva_channel_city";
+	private final String COLUMN_NAME__CHANNEL_CITY="id,type,channel_id,city_id";
+	private final String SELECT_BY_CHANNEL_ID__CHANNEL_CITY = " select " + COLUMN_NAME__CHANNEL_CITY + " from " + TABLE_NAME__CHANNEL_CITY + " where type=? and channel_id=? ";
+	private final String INSERT__CHANNEL_CITY = " insert into " + TABLE_NAME__CHANNEL_CITY + " (" + "type,channel_id,city_id" + ") values ( ?, ?, ? ) ";
+	private final String DELETE_BY_CHANNEL_ID__CHANNEL_CITY = " delete from " + TABLE_NAME__CHANNEL_CITY + " where channel_id=? ";
+	
+	private final String TABLE_NAME__CHANNEL_PROMOTE="bbva_channel_promote";
+	private final String COLUMN_NAME__CHANNEL_PROMOTE="id,channel_id,promote_id";
+	private final String SELECT_BY_CHANNEL_ID__CHANNEL_PROMOTE = " select " + COLUMN_NAME__CHANNEL_PROMOTE + " from " + TABLE_NAME__CHANNEL_PROMOTE + " where channel_id=? ";
+	private final String INSERT__CHANNEL_PROMOTE = " insert into " + TABLE_NAME__CHANNEL_PROMOTE + " (" + "channel_id,promote_id" + ") values ( ?, ? ) ";
+	private final String DELETE_BY_CHANNEL_ID__CHANNEL_PROMOTE = " delete from " + TABLE_NAME__CHANNEL_PROMOTE + " where channel_id=? ";
+	
+	private final String TABLE_NAME__CHANNEL_JOBGRADE="bbva_channel_jobgrade";
+	private final String COLUMN_NAME__CHANNEL_JOBGRADE="id,channel_id,jobgrade_id";
+	private final String SELECT_BY_CHANNEL_ID__CHANNEL_JOBGRADE = " select " + COLUMN_NAME__CHANNEL_JOBGRADE + " from " + TABLE_NAME__CHANNEL_JOBGRADE + " where channel_id=? ";
+	private final String INSERT__CHANNEL_JOBGRADE = " insert into " + TABLE_NAME__CHANNEL_JOBGRADE + " (" + "channel_id,jobgrade_id" + ") values ( ?, ? ) ";
+	private final String DELETE_BY_CHANNEL_ID__CHANNEL_JOBGRADE = " delete from " + TABLE_NAME__CHANNEL_JOBGRADE + " where channel_id=? ";
+	
+	private final String TABLE_NAME__CHANNEL_PAYOWNER="bbva_channel_payowner";
+	private final String COLUMN_NAME__CHANNEL_PAYOWNER="id,channel_id,payowner_id";
+	private final String SELECT_BY_CHANNEL_ID__CHANNEL_PAYOWNER= " select " + COLUMN_NAME__CHANNEL_PAYOWNER + " from " + TABLE_NAME__CHANNEL_PAYOWNER + " where channel_id=? ";
+	private final String INSERT__CHANNEL_PAYOWNER = " insert into " + TABLE_NAME__CHANNEL_PAYOWNER + " (" + "channel_id,payowner_id" + ") values ( ?, ? ) ";
+	private final String DELETE_BY_CHANNEL_ID__CHANNEL_PAYOWNER = " delete from " + TABLE_NAME__CHANNEL_PAYOWNER + " where channel_id=? ";
+
+	
+	public CategoryDAO() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	public CategoryDAO(Connection conn) {
+		// TODO Auto-generated constructor stub
+		super(conn);
+	}
+	
+	/**
+	 * Check whether if same family exist or not.
+	 * 
+	 * @param name
+	 * @return boolean
+	 */
+	public boolean isValidFamily(String name){
+		try{
+			long result = 0;
+			PreparedStatement stmt = conn.prepareStatement(COUNT_BY_NAME__FAMILY);
+			stmt.setString(1, name);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()){
+				result = rs.getLong(1);
+			}
+			
+			return result==0 ? true : false;
+		}catch (Exception e){
+			log.error("CategoryDAO", "isValidFamily", e.toString());
+		}
+
+		return false;
+	}
+	
+	/**
+	 * Check whether if same family exist or not.
+	 * 
+	 * @param name
+	 * @param familyID
+	 * @return boolean
+	 */
+	public boolean isValidFamily(String name, int familyID){
+		try{
+			long result = 0;
+			PreparedStatement stmt = conn.prepareStatement(COUNT_BY_NAME2__FAMILY);
+			stmt.setString(1, name);
+			stmt.setLong(2, familyID);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()){
+				result = rs.getLong(1);
+			}
+			
+			return result==0 ? true : false;
+		}catch (Exception e){
+			log.error("CategoryDAO", "isValidFamily", e.toString());
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get max position. last order.
+	 * 
+	 * @return position
+	 */
+	public Long getMaxPosition(){
+		try{
+			long result = 0;
+			PreparedStatement stmt = conn.prepareStatement(MAX_POS__FAMILY);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()){
+				result = rs.getLong(1);
+			}
+			
+			return result;
+		}catch (Exception e){
+			log.error("CategoryDAO", "getMaxPosition", e.toString());
+		}
+
+		return (long)0;
+	}
+	
+	/**
+	 * Get All Family Data.
+	 * 
+	 * @return list
+	 */
+	public JSONArray getFamilyListOfJSON(){
+		JSONArray result = new JSONArray();
+		try{
+			
+			PreparedStatement stmt = conn.prepareStatement(SELECT__FAMILY);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()){
+				FamilyInfo item = new FamilyInfo();
+				item.setId(rs.getInt("FamilyId"));
+				item.setName(rs.getString("Familyname"));
+				item.setPos(rs.getInt("FamilyPosition"));
+				item.setVisible(rs.getBoolean("FamilyIsVisible"));
+				
+				result.put(item.toJSONObject());
+			}
+		}catch (Exception e){
+			log.error("CategoryDAO", "getFamilyListOfJSON", e.toString());
+		}
+
+		return result;
+	}
+
+	public JSONObject getFamilyOfJSON(int FamilyId){
+		JSONObject result = new JSONObject();
+		try{
+			
+			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID__FAMILY);
+			stmt.setLong(1, FamilyId);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()){
+				FamilyInfo item = new FamilyInfo();
+				item.setId(rs.getInt("FamilyId"));
+				item.setName(rs.getString("Familyname"));
+				item.setPos(rs.getInt("FamilyPosition"));
+				item.setVisible(rs.getBoolean("FamilyIsVisible"));
+				
+				return item.toJSONObject();
+			}
+		}catch (Exception e){
+			log.error("CategoryDAO", "getFamilyOfJSON", e.toString());
+		}
+
+		return result;
+	}
+	
+	/**
+	 * Get All Family Data.
+	 * 
+	 * @return list
+	 */
+	public ArrayList getFamilyList(){
+		ArrayList result = new ArrayList();
+		try{
+			PreparedStatement stmt = conn.prepareStatement(SELECT__FAMILY);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()){
+				FamilyInfo item = new FamilyInfo();
+				item.setId(rs.getInt("FamilyId"));
+				item.setName(rs.getString("Familyname"));
+				item.setPos(rs.getInt("FamilyPosition"));
+				item.setVisible(rs.getBoolean("FamilyIsVisible"));
+				result.add(item);
+			}
+		}catch (Exception e){
+			log.error("CategoryDAO", "getFamilyList", e.toString());
+		}
+
+		return result;
+	}	
+	
+	/**
+	 * Insert data to Family.
+	 * 
+	 * @param family
+	 */
+	public void insertFamily(String family, boolean visible) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(INSERT__FAMILY);
+		stmt.setString(1, family);
+		stmt.setBoolean(3, visible);
+		stmt.execute();
+	}
+	
+	/**
+	 * Update family name.
+	 * 
+	 * @param id
+	 * @param family
+	 */
+	public void updateFamily(int id, String family, boolean visible) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(UPDATE_BY_ID__FAMILY);
+		stmt.setString(1, family);
+		stmt.setBoolean(2, visible);
+		stmt.setLong(3, id);
+		stmt.executeUpdate();
+	}
+	
+	/**
+	 * Update family position.
+	 * 
+	 * @param id
+	 * @param position
+	 */
+	public void updateFamilyPosition(Long id, Long position) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(UPDATE_POSITION__FAMILY);
+		stmt.setLong(1, position);
+		stmt.setLong(2, id);
+		stmt.executeUpdate();
+	}
+
+	/**
+	 * Delete data from Family by ID.
+	 * 
+	 * @param id
+	 */
+	public void deleteFamily(int id) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(DELETE_BY_ID__FAMILY);
+		stmt.setLong(1, id);
+		stmt.executeUpdate();
+	}
+	
+	/**
+	 * Insert Data to Channel.
+	 * 
+	 * @param familyID
+	 * @param parentID
+	 * @param name
+	 * @param email
+	 * @param password
+	 * @param access_level
+	 * @param security_level
+	 * @param people_manager
+	 * @param newhire
+	 * @return Channel ID
+	 * @throws Exception
+	 */
+	public Long insertChannel(Long familyID, Long parentID, String name, String email, String password, String access_level, String security_level, String people_manager, String newhire) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(INSERT__CHANNEL, Statement.RETURN_GENERATED_KEYS);
+		stmt.setString(1, name);
+		stmt.setLong(2, familyID);
+		stmt.setString(3, email);
+		stmt.setString(4, password);
+		stmt.setLong(5, parentID);
+		stmt.setString(6, access_level);
+		stmt.setString(7, security_level);
+		stmt.setString(8, people_manager);
+		stmt.setString(9, newhire);
+		
+		stmt.executeUpdate();
+		ResultSet generatedKeys = stmt.getGeneratedKeys();
+		generatedKeys.next();
+        return generatedKeys.getLong(1);
+	}
+
+	/**
+	 * Insert Data to Channel.
+	 * 
+	 * @param id
+	 * @param familyID
+	 * @param parentID
+	 * @param name
+	 * @param email
+	 * @param password
+	 * @param access_level
+	 * @param security_level
+	 * @param people_manager
+	 * @param newhire
+	 * @throws Exception
+	 */
+	public void insertChannel(Long id, Long familyID, Long parentID, String name, String email, String password, String access_level, String security_level, String people_manager, String newhire) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(INSERT_EXIST__CHANNEL);
+		stmt.setString(1, name);
+		stmt.setLong(2, familyID);
+		stmt.setString(3, email);
+		stmt.setString(4, password);
+		stmt.setLong(5, parentID);
+		stmt.setString(6, access_level);
+		stmt.setString(7, security_level);
+		stmt.setString(8, people_manager);
+		stmt.setString(9, newhire);
+		stmt.setLong(10, id);
+		
+		stmt.executeUpdate();
+	}
+
+	/**
+	 * Update channel position.
+	 * 
+	 * @param id
+	 * @param position
+	 */
+	public void updateChannelPosition(Long id, Long position) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(UPDATE_POSITION__CHANNEL);
+		stmt.setLong(1, position);
+		stmt.setLong(2, id);
+		stmt.executeUpdate();
+	}
+	
+	/**
+	 * Update channel parent.
+	 * 
+	 * @param id
+	 * @param parentID
+	 */
+	public void updateChannelParent(Long id, Long parentID) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(UPDATE_PARENT__CHANNEL);
+		stmt.setLong(1, parentID);
+		stmt.setLong(2, id);
+		stmt.executeUpdate();
+	}
+
+	/**
+	 * Delete data from Channel by ID.
+	 * 
+	 * @param id
+	 */
+	public void deleteChannel(Long id) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(DELETE_BY_ID__CHANNEL);
+		stmt.setLong(1, id);
+		stmt.executeUpdate();
+	}
+
+	/**
+	 * Insert data to channel_promote
+	 * 
+	 * @param channelID
+	 * @param promoteID
+	 * @throws Exception
+	 */
+	public void insertChannelPromote(Long channelID, String promoteID) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(INSERT__CHANNEL_PROMOTE);
+		stmt.setLong(1, channelID);
+		stmt.setString(2, promoteID);
+		
+		stmt.executeUpdate();
+	}
+
+	/**
+	 * Delete data from ChannelPromote by ChannelID.
+	 * 
+	 * @param id
+	 */
+	public void deleteChannelPromote(Long id) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(DELETE_BY_CHANNEL_ID__CHANNEL_PROMOTE);
+		stmt.setLong(1, id);
+		stmt.executeUpdate();
+	}
+
+	/**
+	 * Get All ChannelPromote Data.
+	 * 
+	 * @param channelID
+	 * @return list
+	 */
+	public JSONArray getChannelPromoteListOfJSON(Long channelID){
+		JSONArray result = new JSONArray();
+		try{
+			
+			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_CHANNEL_ID__CHANNEL_PROMOTE);
+			stmt.setLong(1, channelID);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()){
+				ChannelPromoteInfo item = new ChannelPromoteInfo();
+				item.setId(rs.getLong("id"));
+				item.setChannelID(rs.getLong("channel_id"));
+				item.setPromoteID(rs.getString("promote_id"));
+				
+				result.put(item.toJSONObject());
+			}
+		}catch (Exception e){
+			log.error("CategoryDAO", "getChannelPromoteListOfJSON", e.toString());
+		}
+
+		return result;
+	}
+	
+	/**
+	 * Insert data to channel_division
+	 * 
+	 * @param type Parent or Not
+	 * @param channelID
+	 * @param divisionID
+	 * @throws Exception
+	 */
+	public void insertChannelDivision(String type, Long channelID, Long divisionID) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(INSERT__CHANNEL_DIVISION);
+		stmt.setString(1, type);
+		stmt.setLong(2, channelID);
+		stmt.setLong(3, divisionID);
+		
+		stmt.executeUpdate();
+	}
+	
+	/**
+	 * Delete data from ChannelDivison by ChannelID.
+	 * 
+	 * @param id
+	 */
+	public void deleteChannelDivision(Long id) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(DELETE_BY_CHANNEL_ID__CHANNEL_DIVISION);
+		stmt.setLong(1, id);
+		stmt.executeUpdate();
+	}
+	
+	/**
+	 * Get All ChannelDivision Data.
+	 * 
+	 * @param type
+	 * @param channelID
+	 * @return list
+	 */
+	public JSONArray getChannelDivisionListOfJSON(String type, Long channelID){
+		JSONArray result = new JSONArray();
+		try{
+			
+			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_CHANNEL_ID__CHANNEL_DIVISION);
+			stmt.setString(1, type);
+			stmt.setLong(2, channelID);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()){
+				ChannelDivisionInfo item = new ChannelDivisionInfo();
+				item.setId(rs.getLong("id"));
+				item.setChannelID(rs.getLong("channel_id"));
+				item.setDivisionID(rs.getLong("division_id"));
+				item.setType(rs.getString("type"));
+				
+				result.put(item.toJSONObject());
+			}
+		}catch (Exception e){
+			log.error("CategoryDAO", "getChannelDivisionListOfJSON", e.toString());
+		}
+
+		return result;
+	}
+	
+	/**
+	 * Insert data to channel_city
+	 * 
+	 * @param type Parent or Not
+	 * @param channelID
+	 * @param cityID
+	 * @throws Exception
+	 */
+	public void insertChannelCity(String type, Long channelID, Long cityID) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(INSERT__CHANNEL_CITY);
+		stmt.setString(1, type);
+		stmt.setLong(2, channelID);
+		stmt.setLong(3, cityID);
+		
+		stmt.executeUpdate();
+	}
+
+	/**
+	 * Delete data from ChannelCity by ChannelID.
+	 * 
+	 * @param id
+	 */
+	public void deleteChannelCity(Long id) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(DELETE_BY_CHANNEL_ID__CHANNEL_CITY);
+		stmt.setLong(1, id);
+		stmt.executeUpdate();
+	}
+
+	/**
+	 * Get All ChannelCity Data.
+	 * 
+	 * @param type
+	 * @param channelID
+	 * @return list
+	 */
+	public JSONArray getChannelCityListOfJSON(String type, Long channelID){
+		JSONArray result = new JSONArray();
+		try{
+			
+			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_CHANNEL_ID__CHANNEL_CITY);
+			stmt.setString(1, type);
+			stmt.setLong(2, channelID);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()){
+				ChannelCityInfo item = new ChannelCityInfo();
+				item.setId(rs.getLong("id"));
+				item.setChannelID(rs.getLong("channel_id"));
+				item.setCityID(rs.getLong("city_id"));
+				item.setType(rs.getString("type"));
+				
+				result.put(item.toJSONObject());
+			}
+		}catch (Exception e){
+			log.error("CategoryDAO", "getChannelCityListOfJSON", e.toString());
+		}
+
+		return result;
+	}
+
+	/**
+	 * Get Channel Data
+	 * 
+	 * @param channelID
+	 * @return Channel Information
+	 */
+	public ChannelInfo getChannelInfo(Long channelID){
+		ChannelInfo item = new ChannelInfo();
+		try{
+			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID__CHANNEL);
+			stmt.setLong(1, channelID);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()){
+				item.setId(rs.getLong("id"));
+				item.setParentID(rs.getLong("parent_id"));
+				item.setFamilyID(rs.getLong("family_id"));
+				item.setName(rs.getString("name"));
+				item.setEmail(rs.getString("email"));
+				item.setPassword(rs.getString("password"));
+				item.setAccessLevel(rs.getString("access_level"));
+				item.setSecurityLevel(rs.getString("security_level"));
+				item.setPeopleManager(rs.getString("people_manager"));
+				item.setNewHire(rs.getString("newhire"));
+				item.setPos(rs.getLong("pos"));
+			}
+		}catch (Exception e){
+			log.error("CategoryDAO", "getChannelInfo", e.toString());
+		}
+
+		return item;
+	}	
+	
+	/**
+	 * Get Channel Data by FamilyID, ParentID.
+	 * 
+	 * @param familyID
+	 * @param parentID
+	 * @return list
+	 */
+	public JSONArray getChannelListOfJSON(Long familyID, Long parentID){
+		JSONArray result = new JSONArray();
+		try{
+			
+			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_PARENT_ID__CHANNEL);
+			stmt.setLong(1, familyID);
+			stmt.setLong(2, parentID);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()){
+				ChannelInfo item = new ChannelInfo();
+				item.setId(rs.getLong("id"));
+				item.setParentID(rs.getLong("parent_id"));
+				item.setFamilyID(rs.getLong("family_id"));
+				item.setName(rs.getString("name"));
+				item.setEmail(rs.getString("email"));
+				item.setPassword(rs.getString("password"));
+				item.setAccessLevel(rs.getString("access_level"));
+				item.setSecurityLevel(rs.getString("security_level"));
+				item.setPeopleManager(rs.getString("people_manager"));
+				item.setNewHire(rs.getString("newhire"));
+				item.setPos(rs.getLong("pos"));
+				
+				result.put(item.toJSONObject());
+			}
+		}catch (Exception e){
+			log.error("CategoryDAO", "getChannelListOfJSON", e.toString());
+		}
+
+		return result;
+	}
+	
+	/**
+	 * Get Channel Data by FamilyID, ParentID.
+	 * 
+	 * @param familyID
+	 * @param parentID
+	 * @return list
+	 */
+	public ArrayList getChannelList(Long familyID, Long parentID){
+		ArrayList result = new ArrayList();
+		try{
+			
+			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_FAMILY_PARENT_ID__CHANNEL);
+			stmt.setLong(1, familyID);
+			stmt.setLong(2, parentID);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()){
+				ChannelInfo item = new ChannelInfo();
+				item.setId(rs.getLong("id"));
+				item.setParentID(rs.getLong("parent_id"));
+				item.setFamilyID(rs.getLong("family_id"));
+				item.setName(rs.getString("name"));
+				item.setEmail(rs.getString("email"));
+				item.setPassword(rs.getString("password"));
+				item.setAccessLevel(rs.getString("access_level"));
+				item.setSecurityLevel(rs.getString("security_level"));
+				item.setPeopleManager(rs.getString("people_manager"));
+				item.setNewHire(rs.getString("newhire"));
+				item.setPos(rs.getLong("pos"));
+
+				result.add(item);
+			}
+		}catch (Exception e){
+			log.error("CategoryDAO", "getChannelList", e.toString());
+		}
+
+		return result;
+	}	
+	
+	/**
+	 * Get Channel Data by ParentID.
+	 * 
+	 * @param parentID
+	 * @return list
+	 */
+	public ArrayList getChannelList(Long parentID){
+		ArrayList result = new ArrayList();
+		try{
+			
+			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_PARENT_ID__CHANNEL);
+			stmt.setLong(1, parentID);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()){
+				ChannelInfo item = new ChannelInfo();
+				item.setId(rs.getLong("id"));
+				item.setParentID(rs.getLong("parent_id"));
+				item.setFamilyID(rs.getLong("family_id"));
+				item.setName(rs.getString("name"));
+				item.setEmail(rs.getString("email"));
+				item.setPassword(rs.getString("password"));
+				item.setAccessLevel(rs.getString("access_level"));
+				item.setSecurityLevel(rs.getString("security_level"));
+				item.setPeopleManager(rs.getString("people_manager"));
+				item.setNewHire(rs.getString("newhire"));
+				item.setPos(rs.getLong("pos"));
+				
+				result.add(item);
+			}
+		}catch (Exception e){
+			log.error("CategoryDAO", "getChannelList", e.toString());
+		}
+
+		return result;
+	}	
+	
+	/**
+	 * Get All Channel Data by FamilyID, ParentID.
+	 * 
+	 * @param familyID
+	 * @param parentID
+	 * @return list
+	 */
+	public JSONArray recallChannelList(Long familyID, Long parentID, String type, String channel_id){
+		JSONArray result = new JSONArray();
+		try{
+			ArrayList list = getChannelList(familyID, parentID);
+			for (int i=0; i<list.size(); i++){
+				ChannelInfo item = (ChannelInfo) list.get(i);
+				if (type.equals("edit") && Utils.getLong(channel_id)==item.getId()){
+					
+				}else{
+					JSONObject obj = new JSONObject();
+					obj.put("parent", item.toJSONObject());
+					obj.put("child", recallChannelList(familyID, item.getId(), type, channel_id));
+					result.put(obj);
+				}
+			}
+		}catch (Exception e){
+			log.error("CategoryDAO", "recallChannelList", e.toString());
+		}
+
+		return result;
+	}
+	
+	/**
+	 * Delete All Channel Data by ParentID.
+	 * 
+	 * @param parentID
+	 */
+	public void deleteChannelList(Long parentID){
+		JSONArray result = new JSONArray();
+		try{
+			ArrayList list = getChannelList(parentID);
+			for (int i=0; i<list.size(); i++){
+				ChannelInfo item = (ChannelInfo) list.get(i);
+				deleteChannelList(item.getId());
+				
+				deleteChannel(item.getId());
+				deleteChannelList(item.getId(), "ciudad");
+				deleteChannelList(item.getId(), "empresa");
+				deleteChannelList(item.getId(), "direccion");
+				
+//				deleteChannelCity(item.getId());
+//				deleteChannelPromote(item.getId());
+//				deleteChannelDivision(item.getId());
+//				deleteChannelJobgrade(item.getId());
+//				deleteChannelPayowner(item.getId());
+			}
+		}catch (Exception e){
+			log.error("CategoryDAO", "deleteChannelList", e.toString());
+		}
+	}	
+	
+	/**
+	 * Update Position and Parent in Channel.
+	 * 
+	 * @param parentID
+	 * @param list List of Position and Parent
+	 */
+	public void updateChannel(Long parentID, JSONArray list){
+		try{
+			for (int i=0; i<list.length(); i++){
+				JSONObject obj = (JSONObject)list.get(i);
+				String ids = Utils.checkNull(obj.get("id"));
+				String childs = Utils.checkNull(obj.get("child"));
+				if (ids.length()>0){
+					Long pID = Utils.getLong(ids);
+					
+					updateChannelPosition(pID, (long)i+1);
+					updateChannelParent(pID, parentID);
+					updateChannel(pID, new JSONArray(childs));
+				}
+			}
+		}catch (Exception e){
+			log.error("CategoryDAO", "updateChannel", e.toString());
+		}
+	}
+	
+	/**
+	 * Insert data to channel_jobgrade
+	 * 
+	 * @param channelID
+	 * @param jobgradeID
+	 * @throws Exception
+	 */
+	public void insertChannelJobgrade(Long channelID, String jobgradeID) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(INSERT__CHANNEL_JOBGRADE);
+		stmt.setLong(1, channelID);
+		stmt.setString(2, jobgradeID);
+		
+		stmt.executeUpdate();
+	}
+
+	/**
+	 * Delete data from channel_jobgrade by ChannelID.
+	 * 
+	 * @param id
+	 */
+	public void deleteChannelJobgrade(Long id) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(DELETE_BY_CHANNEL_ID__CHANNEL_JOBGRADE);
+		stmt.setLong(1, id);
+		stmt.executeUpdate();
+	}
+
+	/**
+	 * Get All channel_jobgrade Data.
+	 * 
+	 * @param channelID
+	 * @return list
+	 */
+	public JSONArray getChannelJobgradeListOfJSON(Long channelID){
+		JSONArray result = new JSONArray();
+		try{
+			
+			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_CHANNEL_ID__CHANNEL_JOBGRADE);
+			stmt.setLong(1, channelID);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()){
+				ChannelJobgradeInfo item = new ChannelJobgradeInfo();
+				item.setId(rs.getLong("id"));
+				item.setChannelID(rs.getLong("channel_id"));
+				item.setJobgradeID(rs.getString("jobgrade_id"));
+				
+				result.put(item.toJSONObject());
+			}
+		}catch (Exception e){
+			log.error("CategoryDAO", "getChannelJobgradeListOfJSON", e.toString());
+		}
+
+		return result;
+	}
+
+	/**
+	 * Insert data to channel_payowner
+	 * 
+	 * @param channelID
+	 * @param payownerID
+	 * @throws Exception
+	 */
+	public void insertChannelPayowner(Long channelID, String payownerID) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(INSERT__CHANNEL_PAYOWNER);
+		stmt.setLong(1, channelID);
+		stmt.setString(2, payownerID);
+		
+		stmt.executeUpdate();
+	}
+
+	/**
+	 * Delete data from channel_payowner by ChannelID.
+	 * 
+	 * @param id
+	 */
+	public void deleteChannelPayowner(Long id) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(DELETE_BY_CHANNEL_ID__CHANNEL_PAYOWNER);
+		stmt.setLong(1, id);
+		stmt.executeUpdate();
+	}
+
+	/**
+	 * Get All channel_payowner Data.
+	 * 
+	 * @param channelID
+	 * @return list
+	 */
+	public JSONArray getChannelPayownerListOfJSON(Long channelID){
+		JSONArray result = new JSONArray();
+		try{
+			
+			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_CHANNEL_ID__CHANNEL_PAYOWNER);
+			stmt.setLong(1, channelID);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()){
+				ChannelPayownerInfo item = new ChannelPayownerInfo();
+				item.setId(rs.getLong("id"));
+				item.setChannelID(rs.getLong("channel_id"));
+				item.setPayownerID(rs.getString("payowner_id"));
+				
+				result.put(item.toJSONObject());
+			}
+		}catch (Exception e){
+			log.error("CategoryDAO", "getChannelPayownerListOfJSON", e.toString());
+		}
+
+		return result;
+	}
+	
+	public JSONArray getListOfJSON(Long channelID, String table, String field){
+		JSONArray result = new JSONArray();
+		try{
+			
+			PreparedStatement stmt = conn.prepareStatement("select * from bbva_channel_" + table + " where channel_id=? ");
+			stmt.setLong(1, channelID);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()){
+				JSONObject item = new JSONObject();
+				item.put("channel_id", rs.getLong("channel_id"));
+				item.put(field, rs.getString(field));
+				
+				result.put(item);
+			}
+		}catch (Exception e){
+			log.error("CategoryDAO", "getListOfJSON", e.toString());
+		}
+
+		return result;
+	}
+
+	public void insertChannelList(Long channelID, Long subID, String table) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(" insert into bbva_channel_" + table + " ( channel_id, " + table+ "_id ) values ( ?, ? ) ");
+		stmt.setLong(1, channelID);
+		stmt.setLong(2, subID);
+		stmt.executeUpdate();
+	}
+	
+	public void deleteChannelList(Long channelID, String table) throws Exception{
+		PreparedStatement stmt = conn.prepareStatement(" delete from bbva_channel_" + table + " where channel_id=? ");
+		stmt.setLong(1, channelID);
+		stmt.executeUpdate();
+	}
+}

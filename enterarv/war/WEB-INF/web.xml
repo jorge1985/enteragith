@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	version="2.5">
+	
+	<display-name>EnteraTV</display-name>
+
+	<!-- Configuration -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/enteratv-servlet.xml</param-value>
+	</context-param>
+
+	<!-- Servlet, mapping -->
+	<servlet>
+		<servlet-name>enteratv</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<load-on-startup>5</load-on-startup>
+	</servlet>
+	
+	<security-constraint>
+        <web-resource-collection>
+            <web-resource-name>profile</web-resource-name>
+            <url-pattern>/profile/*</url-pattern>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+	<servlet-mapping>
+		<servlet-name>enteratv</servlet-name>
+		<url-pattern>*.html</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>image</servlet-name>
+		<servlet-class>com.youandbbva.enteratv.gae.Image</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>image</servlet-name>
+		<url-pattern>/image</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>Upload</servlet-name>
+		<servlet-class>com.youandbbva.enteratv.gae.Upload</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Upload</servlet-name>
+		<url-pattern>/upload</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>Import</servlet-name>
+		<servlet-class>com.youandbbva.enteratv.gae.Import</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Import</servlet-name>
+		<url-pattern>/import</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>Export</servlet-name>
+		<servlet-class>com.youandbbva.enteratv.gae.Export</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Export</servlet-name>
+		<url-pattern>/export</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>Serve</servlet-name>
+		<servlet-class>com.youandbbva.enteratv.gae.Serve</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Serve</servlet-name>
+		<url-pattern>/serve</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>Receive</servlet-name>
+		<servlet-class>com.youandbbva.enteratv.gae.Receive</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Receive</servlet-name>
+		<url-pattern>/receive</url-pattern>
+	</servlet-mapping>
+
+	<!-- Listener -->
+	<listener>
+		<listener-class>com.youandbbva.enteratv.beans.SessionListener</listener-class>
+	</listener>
+
+	<listener>
+		<listener-class>com.youandbbva.enteratv.beans.ContextListener</listener-class>
+	</listener>
+
+	<!-- Error Page -->
+	<error-page>
+		<error-code>404</error-code>
+		<location>/resources/error.jsp</location>
+	</error-page>
+
+	<error-page>
+		<exception-type>java.io.PageNotFoundException</exception-type>
+		<location>/resources/error.jsp</location>
+	</error-page>
+
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+
+</web-app>

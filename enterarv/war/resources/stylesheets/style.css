@@ -1,0 +1,143 @@
+@charset "UTF-8";
+
+div#msg_alert {
+	display: none;
+	margin: 20px 0 20px 20px;
+}
+
+div#msg_alert span {
+	color: red;
+	font-weight: bold;
+}
+
+div.banner_window:HOVER, div.banner_window:FOCUS, div.banner_window:ACTIVE
+	{
+	border: 1px solid #808080;
+	box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.setting {
+	border: 1px solid #808080 !important;
+	box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+	background-color: #fafafa;
+}
+
+div.banner_window {
+	border: 1px solid #c0c0c0;
+	box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+div.banner-window	{
+	padding: 10px 10px 0px 10px !important;
+	border: 1px solid #c0c0c0;
+	box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+	margin-top: 5px !important;
+	margin-left: 5px !important;
+}
+
+div.banner-window .large-8 {
+	margin-top: 6px !important;	
+}
+
+div.banner-window select {
+	margin-bottom: 0 !important;
+}
+
+div.banner {
+	display: none;
+}
+
+
+div.features_window {
+	border: 1px solid #c0c0c0;
+	box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+div.features_window .row {
+	margin-top: 10px;
+}
+
+div.features {
+	display: none;
+}
+
+.explorer ul {
+	list-style-type: none;
+}
+
+div.media_manager {
+	border: 1px solid #c0c0c0;
+	box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+tr.file_row:HOVER {
+	background-color: #e9e9e9;
+}
+
+div#top_bar	a {
+	margin: 10px;
+}
+
+#explorer a.active {
+	background-color: #e9e9e9;
+}
+
+#filelist tr.active {
+	background-color: #e9e9e9;
+}
+
+.label.describe {
+	background-color: #fafafa;
+	color: #666;
+}
+
+div.row.describe {
+	margin-top: 15px;
+}
+
+div.content_detail {
+	display: none;
+}
+
+a.gallery_link_a {
+/* 	position: relative;
+	top: -70px;
+	left: -10px; */
+}
+
+#content_gallery_list a.gallery_margin{
+	margin-left: 10px;
+}
+
+#explorer a:HOVER{
+	cursor: pointer;
+}
+
+#filelist tr:HOVER {
+	cursor: pointer;
+}
+
+img.banner_image{
+	width: 100%;
+	height: 40px;
+}
+
+li.divider	{
+}
+
+ul.line-legend{
+	list-style-type: none;
+}
+
+div.features_padding{
+	padding-left: 20px;
+	padding-right: 20px;
+}
+
+#content_tag_list span {
+	margin: 1px 2px 1px 1px;
+}
+
+#content_tag_list a i {
+	color:black;
+}

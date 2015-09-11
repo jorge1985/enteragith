@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context-4.0.xsd
+http://www.springframework.org/schema/aop
+http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+http://www.springframework.org/schema/tx
+http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+    <bean id="ExceptionController" class="com.youandbbva.enteratv.controller.ExceptionController" />
+    
+    <!-- Backend -->
+    <bean id="UserController" class="com.youandbbva.enteratv.controller.UserController" />
+    <bean id="DashboardController" class="com.youandbbva.enteratv.controller.DashboardController" />
+    <bean id="CategoryController" class="com.youandbbva.enteratv.controller.CategoryController" />
+    <bean id="MediaController" class="com.youandbbva.enteratv.controller.MediaController" />
+    <bean id="ContentController" class="com.youandbbva.enteratv.controller.ContentController" />
+    <bean id="WidgetController" class="com.youandbbva.enteratv.controller.WidgetController" />
+    <bean id="SystemController" class="com.youandbbva.enteratv.controller.SystemController" />
+    <bean id="LogController" class="com.youandbbva.enteratv.controller.LogController" />
+    
+    <!-- Frontend -->
+    <bean id="PublicController" class="com.youandbbva.enteratv.controller.PublicController" />
+    
+    <!-- Opportunities -->
+ 	<bean id="OpportunitiesController" class="com.youandbbva.enteratv.controller.OpportunitiesController" />     
+    
+	<tx:annotation-driven transaction-manager="txManager" />
+
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix">
+			<value>/resources/</value>
+		</property>
+		<property name="suffix">
+			<value>.jsp</value>
+		</property>
+	</bean>	
+</beans>

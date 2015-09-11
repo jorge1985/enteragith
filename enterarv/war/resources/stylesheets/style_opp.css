@@ -1,0 +1,62 @@
+@charset "UTF-8";
+
+div#msg_alert {
+	display: none;
+	margin: 20px 0 20px 20px;
+}
+
+div#msg_alert span {
+	color: red;
+	font-weight: bold;
+}
+
+#content-login h1 {
+	font-family: "bbvasans-light", Arial, sans-serif;
+	padding-bottom: 10px;
+	margin-bottom: 20px;
+	border-bottom: solid 1px #ccc;
+}
+
+#content-publish h1{
+	font-family: "bbvasans-light", Arial, sans-serif;
+	padding-bottom: 10px;
+	margin-bottom: 20px;
+	border-bottom: solid 1px #ccc;
+}
+
+#content-publish div.publish{
+	display: none;
+}
+
+#content-mis-anuncios div, #content-mis-anuncios label, #content-mis-anuncios ul li a	{
+	color: #fff;
+}
+
+.row#results tr	{
+	cursor: pointer;
+}
+
+.row#results tr:HOVER	{
+	background-color: #ccc;
+}
+
+#wizard a.active	{
+	background: #2e90cc !important;
+}
+
+.adjudicado table {
+	width: 100%;
+}
+
+.adjudicado li {
+	list-style: decimal;
+}
+
+.adjudicado td.title {
+	background: #b7dff5
+}
+
+.adjudicado h3 {
+	color: #154984;
+	padding: 30px 0 30px 0;
+}
