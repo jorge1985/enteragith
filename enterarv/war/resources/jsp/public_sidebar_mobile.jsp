@@ -12,7 +12,7 @@
 		<ul>
 			<li><a href="javascript:open_search()"><span class="tool-item-wrapper"><img src="<%=resPath_sidebar_mobile%>images/icons/magnify-glass.svg"></span></a></li>
 			<li><a href="<%=basePath_sidebar_mobile%>public/galerias.html"><span class="tool-item-wrapper"><img src="<%=resPath_sidebar_mobile%>images/icons/camera.svg"></span></a></li>
-			<li><a href="<%=basePath_sidebar_mobile%>user/logout.html"><span class="tool-item-wrapper"><img src="<%=resPath_sidebar_mobile%>images/icons/exit.svg"></span></a></li>
+<%-- 			<li><a href="<%=basePath_sidebar_mobile%>user/logout.html"><span class="tool-item-wrapper"><img src="<%=resPath_sidebar_mobile%>images/icons/exit.svg"></span></a></li> --%>
 		</ul>
 	</div>
 </div>

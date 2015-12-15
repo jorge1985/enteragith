@@ -14,7 +14,7 @@ boolean isPublish_body=false;
 UserInfo user_body = handler.getOpportUserInfo(session);
 if (user_body!=null && user_body.getUserId()!=0){
 	userid_body = user_body.getUserId();
-	isPublish_body = Utils.canPublish(userid_body);
+	//isPublish_body = Utils.canPublish(userid_body);
 }
 %>
 <div class="row" id="content-mis-anuncios">
@@ -23,18 +23,16 @@ if (user_body!=null && user_body.getUserId()!=0){
 		<div class="panel">
 			<h3>
 				<img src="<%=resPath%>images/automovil.svg" alt=""> <%=registry.getStringOfLanguage("opport.car", language) %> 
-<% 
+<%
 	if (userid_body==0 || !isPublish_body){
-%>
-
-<% 
+%>			
+<%
 	}	else{
-%>		
-			<a href="<%=basePath %>opportunities/add.html" class="button round tiny right"><i class="fa fa-plus fa-lg"></i> <%=registry.getStringOfLanguage("opport.btn.add", language) %></a>				 
-<% 
- 	}
+%>			
+				<a href="<%=basePath %>opportunities/add.html" class="button round tiny right"><i class="fa fa-plus fa-lg"></i> <%=registry.getStringOfLanguage("opport.btn.add", language) %></a>
+<%
+	}
 %>
-
 			</h3>
 			
 			<table id="automovil" class="display" cellspacing="0" cellpadding="0" width="100%">

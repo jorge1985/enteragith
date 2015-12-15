@@ -209,9 +209,9 @@ public class HTML {
 					String thumbnail = img.substring(start_src+5, end_src);
 					
 					int width=473;
-					int height=244;
+					int height=245;
 					if (!have){
-						style="width:473px; height:244px;";
+						style="width:473px; height:245px;";
 					}else{
 						try{
 							int s = style.indexOf("width");
@@ -228,10 +228,11 @@ public class HTML {
 						}catch (Exception fdf){}
 						
 						if (style.indexOf("%")>-1){
-							style="width:473px; height:244px;";
+							style="width:473px; height:245px;";
 						}
 					}
-					
+//					width=473;
+//					height=245;
 					result += "<object type=\"application/x-shockwave-flash\" " +  
 							 "data=\"/resources/swf/playerLite.swf\" " + 
 							 "width=\""+width+"\" height=\""+height+"\" style=\"visibility: visible; "+style +"\">" +

@@ -21,6 +21,9 @@ function selectFromEditor(kind){
 }
 
 function selectFromChannel(){
+	
+	debugger;
+	
    	$.ajax({
    		type: "POST",
         url: 'getContentOfVideo.html',
@@ -32,6 +35,9 @@ function selectFromChannel(){
         			alert("There is no video in same channel!")
         		}else{
         			$("#video_list").html('');
+        			
+        			debugger;
+        			
         			$.each(data.content, function(index, row){
         				$("#video_list").append(
     						'<li><a href="javascript:setArticleData(\'article\', \''+row.video+'\', \''+row.image+'\')">'+row.name+'</a></li>'
@@ -55,11 +61,17 @@ function selectFromChannel(){
 }
 
 function setArticleData(kind, video, image){
+	
+	debugger;
+	
 	$('#mediaVideoModal').foundation('reveal', 'close');
 	setEmbedDataToEditor(kind, video, image);
 }
 
 function setEmbedDataToEditor(kind, name, key){
+	
+	debugger;
+	
 	key = $("#basePath").val()+"serve?blob-key="+key;
 	if (kind=="article"){
 		name = $("#basePath").val()+"serve?blob-key="+name;
@@ -753,10 +765,11 @@ function selectVideo(kind, t){
 
 function setVideoPlayer(v_id, path){
 	var flashvars = {
-			vidWidth: "400",
-			vidHeight: "300",
+			vidWidth: "473",
+			vidHeight: "245",
 			vidPath: path,
-			thumbPath: $("#resPath").val()+"images/player_logo.png",
+			//thumbPath: $("#resPath").val()+"images/player_logo.png",
+			thumbPath: $("#resPath").val(),
 			autoPlay: "false",
 			autoLoop: "false",
 			watermark: "hide",

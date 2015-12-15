@@ -93,9 +93,6 @@ public class Import extends HttpServlet {
 			UserDAO dao = new UserDAO(conn);
 
 			String today = Utils.getTodayWithTime();
-			//dao.rename(today);
-			//dao.copy(today);
-			
 			BlobKey blobKey = blobKeys.get(0);
 			
 			FileService fileService = FileServiceFactory.getFileService();
@@ -111,162 +108,12 @@ public class Import extends HttpServlet {
 					
 			String line=null;
 			do{
-//				try{
 					line = reader.readLine();
 					if (line!=null){
 						data.put(line.replaceAll("\"", ""));
 						l++;
 					}
 					
-//					String[] row = line.split(",");
-//					if (isHeader){
-//						for (int i=0; i<row.length; i++){
-//							String field = row[i].toLowerCase();
-//							if (field.indexOf("number")>-1 || field.indexOf("employee")>-1){
-//								user_id=i;
-//								continue;
-//							}
-//							
-//							if (field.indexOf("firstname")>-1 || field.indexOf("first")>-1){
-//								firstname=i;
-//								continue;
-//							}
-//							
-//							if (field.indexOf("lastname")>-1 || field.indexOf("last")>-1){
-//								lastname=i;
-//								continue;
-//							}
-//							
-//							if (field.indexOf("aka")>-1 || field.indexOf("a.k.a")>-1){
-//								username=i;
-//								continue;
-//							}
-//							
-//							if (field.indexOf("email")>-1 || field.indexOf("e-mail")>-1){
-//								email=i;
-//								continue;
-//							}
-//							
-//							if (field.indexOf("password")>-1){
-//								password=i;
-//								continue;
-//							}
-//							
-//							if (field.indexOf("newhire")>-1 || field.indexOf("new_hire")>-1){
-//								newhire=i;
-//								continue;
-//							}
-//	
-//							if (field.indexOf("owner")>-1 || field.indexOf("pay")>-1){
-//								owner=i;
-//								continue;
-//							}
-//							
-//							if (field.indexOf("manager")>-1 || field.indexOf("people")>-1){
-//								manager=i;
-//								continue;
-//							}
-//	
-//							if (field.indexOf("promo")>-1 || field.indexOf("promostat")>-1){
-//								promote=i;
-//								continue;
-//							}
-//							
-//							if (field.indexOf("grade")>-1 || field.indexOf("jobgrade")>-1){
-//								jobgrade=i;
-//								continue;
-//							}
-//							
-//						}
-//					}else{
-//						if (user_id!=-1){
-//							String csv_userid = row[user_id];
-//							csv_userid = Utils.toStringfromCSV(csv_userid);
-//							
-//							String csv_firstname = "";
-//							if (firstname!=-1)
-//								csv_firstname = row[firstname];
-//							csv_firstname = Utils.toStringfromCSV(csv_firstname);
-//							
-//							String csv_lastname = "";
-//							if (lastname!=-1)
-//								csv_lastname = row[lastname];
-//							csv_lastname = Utils.toStringfromCSV(csv_lastname);
-//							
-//							String csv_username = "";
-//							if (username!=-1)
-//								csv_username = row[username];
-//							csv_username = Utils.toStringfromCSV(csv_username);
-//							
-//							String csv_email="";
-//							if (email!=-1)
-//								csv_email = row[email];
-//							csv_email = Utils.toStringfromCSV(csv_email);
-//							
-//							String csv_password="user";
-//							if (password!=-1)
-//								csv_password = row[password];
-//							csv_password = Utils.toStringfromCSV(csv_password);
-//							csv_password = DigestUtils.md5Hex(csv_password + Constants.PASSWORD_HASH);
-//							
-//							String csv_newhire = "002";
-//							if (newhire!=-1){
-//								String temp = row[newhire];
-//								temp = Utils.toStringfromCSV(temp);
-//								if (temp!=null && ( temp.toLowerCase().equals("y") || temp.toLowerCase().equals("yes")))
-//									csv_newhire = "001";
-//							}
-//							
-//							String csv_manager = "002";
-//							if (manager!=-1){
-//								String temp = row[manager];
-//								temp = Utils.toStringfromCSV(temp);
-//								if (temp!=null && ( temp.toLowerCase().equals("y") || temp.toLowerCase().equals("yes")))
-//									csv_manager = "001";
-//							}
-//							
-//							String csv_owner = "";
-//							if (owner!=-1){
-//								String temp = row[owner];
-//								temp = Utils.toStringfromCSV(temp);
-//								if (temp!=null && temp.length()>0){
-//									temp = dao.getCode("code", "chn7", temp);
-//									csv_manager = temp;
-//								}
-//							}
-//	
-//							String csv_promote = "";
-//							if (promote!=-1){
-//								String temp = row[promote];
-//								temp = Utils.toStringfromCSV(temp);
-//								if (temp!=null && temp.length()>0){
-//									temp = dao.getCode("code", "chn3", temp);
-//									csv_promote = temp;
-//								}
-//							}
-//	
-//							String csv_jobgrade = "";
-//							if (jobgrade!=-1){
-//								String temp = row[jobgrade];
-//								temp = Utils.toStringfromCSV(temp);
-//								if (temp!=null && temp.length()>0){
-//									temp = dao.getCode("code", "chn6", temp);
-//									csv_jobgrade = temp;
-//								}
-//							}
-//	
-//							String csv_active = "1";
-//							
-//							try{
-//								UserInfo u = dao.getUserInfo(csv_userid);
-//								if (u==null)
-//									dao.insert(csv_userid, csv_username, csv_firstname, csv_lastname, csv_email, csv_password, (long)0, (long)0, csv_manager, csv_newhire, csv_jobgrade, csv_owner, csv_promote, csv_active, (long)0, (long)0 , "002", "000");
-//							}catch (Exception eee){}
-//						}
-//					}
-//					
-//					isHeader = false;
-//				}catch (Exception ff){}
 			}while (line!=null);
 			
 			System.out.println(line);
@@ -282,7 +129,6 @@ public class Import extends HttpServlet {
 			result.put(Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
 
 		} catch (Exception e) {
-//			e.printStackTrace();
 			
 			try{
 				conn.rollback();

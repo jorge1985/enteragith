@@ -69,7 +69,7 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 
 		UserInfo user = session.getUserInfo(req.getSession());
 		if (user==null){
-			return new ModelAndView("redirect:/user/login.html");
+			return new ModelAndView("redirect:/user/adios.html");
 		}
 		
 		return new ModelAndView("options");
@@ -92,12 +92,12 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 
 		try{
+			//dao connection
 			SystemDAO dao = new SystemDAO(conn);
 			
 			result = setResponse(result, Constants.OPTION_ONLINE, dao.getOptions(Constants.OPTION_ONLINE));
 			result = setResponse(result, Constants.OPTION_ALLOW_IP, dao.getOptions(Constants.OPTION_ALLOW_IP));
-			result = setResponse(result, Constants.OPTION_ALLOW_HOST, dao.getOptions(Constants.OPTION_ALLOW_HOST));
-			
+			result = setResponse(result, Constants.OPTION_ALLOW_HOST, dao.getOptions(Constants.OPTION_ALLOW_HOST));			
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
 			
@@ -142,7 +142,7 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 
 		try{
 			conn.setAutoCommit(false);
-			
+			//dao connection
 			SystemDAO dao = new SystemDAO(conn);
 			
 			dao.update(Constants.OPTION_ONLINE, online);
@@ -197,7 +197,7 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 
 		UserInfo user = session.getUserInfo(req.getSession());
 		if (user==null){
-			return new ModelAndView("redirect:/user/login.html");
+			return new ModelAndView("redirect:/user/adios.html");
 		}
 		
 		ModelAndView mv = new ModelAndView("users");
@@ -205,24 +205,22 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 		Connection conn = DSManager.getConnection();
 		
 		try{
+			//dao connection
 			UtilityDAO codeDao = new UtilityDAO(conn);
-
+			//handle the form submission
 			mv.addObject("securitylist", codeDao.getCodeList("chn1", session.getLanguage(req.getSession())));
-			mv.addObject("levellist", codeDao.getCodeList("usr1", session.getLanguage(req.getSession())));
-			
+			mv.addObject("levellist", codeDao.getCodeList("usr1", session.getLanguage(req.getSession())));			
 			mv.addObject("direccionlist", codeDao.getList("maindirection"));
 			mv.addObject("empresalist", codeDao.getList("company"));
-			mv.addObject("ciudadlist", codeDao.getList("city"));
-			
+			mv.addObject("ciudadlist", codeDao.getList("city"));		
 			
 		}catch (Exception e){
+			//handle the form submission
 			mv.addObject("securitylist", new ArrayList());
-			mv.addObject("levellist", new ArrayList());
-			
+			mv.addObject("levellist", new ArrayList());			
 			mv.addObject("direccionlist", new ArrayList());
 			mv.addObject("empresalist", new ArrayList());
 			mv.addObject("ciudadlist", new ArrayList());
-			
 			
 			log.error("SystemController", "users", e.toString());
 		}finally{
@@ -253,8 +251,7 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 	    int start = 0;
 	    int col = 7;
 	 
-	    String dir = "desc";
-	 
+	    String dir = "desc";	 
 	    String sStart = Utils.checkNull(request.getParameter("start"));
 	    String sAmount = Utils.checkNull(request.getParameter("length"));
 	    String sCol = Utils.checkNull(request.getParameter("iSortCol_0"));
@@ -297,7 +294,7 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 	    Connection conn = DSManager.getConnection();
 
 		try{
-			
+			//dao connection
 			UserDAO dao = new UserDAO(conn);
 			
 			String sql = " select count(userId) from user ";
@@ -345,7 +342,7 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 				sql += searchSQL;
 				totalAfterFilter = dao.getCount(sql);
 			}
-
+			// Initialize value.
 			result.put("recordsTotal", total);
 	        result.put("recordsFiltered", totalAfterFilter);
 	        result.put("data", array);
@@ -394,14 +391,13 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
-
+			//dao connection
 			UserDAO dao = new UserDAO(conn);
 			
 			int userId = dao.searchEmployeeNumber(user_id);
-			
 			UserInfo item = dao.getUserInfo(userId);
-			result = setResponse(result, "user", item.toJSONObject());
 			
+			result = setResponse(result, "user", item.toJSONObject());
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
 			
@@ -453,11 +449,9 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 			@RequestParam(value = "user_id", required = false) String NumberEmpleyoo,
 			@RequestParam(value = "user_name", required = false) String UseName,
 			@RequestParam(value = "firstname", required = false) String FirstName,
-			@RequestParam(value = "lastname", required = false) String LastName,
-			
+			@RequestParam(value = "lastname", required = false) String LastName,			
 			@RequestParam(value = "email", required = false) String Email,
-			@RequestParam(value = "password", required = false) String Password,
-			
+			@RequestParam(value = "password", required = false) String Password,			
 			@RequestParam(value = "musuario", required = false) String Muser,
 			@RequestParam(value = "gender", required = false) String Gender,
 			@RequestParam(value = "birthday", required = false) String Birthday,
@@ -469,13 +463,10 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 			@RequestParam(value = "horario", required = false) String Horary,
 			@RequestParam(value = "entered", required = false) String Entered,
 			@RequestParam(value = "arbol", required = false) String Hierarchy,
-			@RequestParam(value = "token", required = false) String Token,
-			
-			
+			@RequestParam(value = "token", required = false) String Token,						
 			@RequestParam(value = "empresa", required = false) String Company,
 			@RequestParam(value = "ciudad", required = false) String City,
-			@RequestParam(value = "direccion", required = false) String Direction,
-			
+			@RequestParam(value = "direccion", required = false) String Direction,			
 			@RequestParam(value = "active", required = false) String Status,
 			@RequestParam(value = "level", required = false) String RolProfile,
 			@RequestParam(value = "security_level", required = false) String Acceslevel,
@@ -491,11 +482,9 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 		NumberEmpleyoo = Utils.checkNull(NumberEmpleyoo);
 		UseName = Utils.encode(Utils.checkNull(UseName));
 		FirstName = Utils.encode(Utils.checkNull(FirstName));
-		LastName = Utils.encode(Utils.checkNull(LastName));
-		
+		LastName = Utils.encode(Utils.checkNull(LastName));		
 		Email = Utils.checkNull(Email);
-		Password = Utils.checkNull(Password);
-		
+		Password = Utils.checkNull(Password);		
 		Muser = Utils.checkNull(Muser);
 		Gender = Utils.checkNull(Gender);
 		Birthday = Utils.checkNull(Birthday);
@@ -506,16 +495,12 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 		Appoiment = Utils.checkNull(Appoiment);
 		Horary = Utils.checkNull(Horary);
 		Entered = Utils.checkNull(Entered);
-		Hierarchy = Utils.checkNull(Hierarchy);
-		
-		Token = Utils.checkNull(Token);
-		
+		Hierarchy = Utils.checkNull(Hierarchy);		
+		Token = Utils.checkNull(Token);		
 		Company = Utils.checkNull(Company);
 		City = Utils.checkNull(City);
-		Direction = Utils.checkNull(Direction);
-		
-		Status = Utils.checkNull(Status);
-		
+		Direction = Utils.checkNull(Direction);		
+		Status = Utils.checkNull(Status);		
 		RolProfile = Utils.checkNull(RolProfile);
 		Acceslevel = Utils.checkNull(Acceslevel);
 
@@ -525,7 +510,7 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
-
+			//evaluated value Type 
 			if (Type.length()==0){
 				result.put(Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
@@ -538,11 +523,13 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 
 			conn.setAutoCommit(false);
 			
+			//dao connection
 			UserDAO dao = new UserDAO(conn);
 			
 			Password = DigestUtils.md5Hex(Password + Constants.PASSWORD_HASH);
 			int userId = dao.searchEmployeeNumber(NumberEmpleyoo);
 			UserInfo item = dao.getUserInfo(userId);
+			//evaluated value Type 
 			if (Type.equals("add")){
 				if (item!=null){
 					result.put(Constants.ERROR_MSG, reg.getMessage("USR0001", session.getLanguage(req.getSession())));
@@ -554,26 +541,25 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 					throw new Exception(reg.getMessage("USR0001"));
 				
 				}
-				                                            //Towa SAB Fin 
+				                                            
 				dao.insert(NumberEmpleyoo, UseName, FirstName, LastName, Email, Password, Status, RolProfile, Acceslevel, Utils.getInt(Direction), Utils.getInt(Company), Utils.getInt(City));
-				conn.commit();
-												
+				conn.commit();												
 				dao.updateAdditional(NumberEmpleyoo, Gender, Keyjob, Token, KeyDepartament, Birthday, Location, Appoiment, Admission, Muser, Horary, Entered, Hierarchy);
+				
 			}else if (Type.equals("edit")){
 				if (item==null){
 					result.put(Constants.ERROR_MSG, reg.getMessage("USR0004", session.getLanguage(req.getSession())));
 					throw new Exception(reg.getMessage("USR0004"));
 				}
 				
-				                                            //Towa SAB inicio
+				                                           
 				if (!dao.isValidUserWithMusuario(Muser, NumberEmpleyoo)){
 					result.put(Constants.ERROR_MSG, reg.getMessage("USR0001", session.getLanguage(req.getSession())));
 					throw new Exception(reg.getMessage("USR0001"));
 				}
-				                                            //Towa SAB fin
+				                                            
 				dao.update(NumberEmpleyoo, UseName, FirstName, LastName, Email, Status, RolProfile, Acceslevel, Utils.getInt(Direction), Utils.getInt(Company), Utils.getInt(City));
 				conn.commit();
-				
 				dao.updateAdditional(NumberEmpleyoo, Gender, Keyjob, Token, KeyDepartament, Birthday, Location, Appoiment, Admission, Muser, Horary, Entered, Hierarchy);
 
 			}else if (Type.equals("delete")){
@@ -629,6 +615,7 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 		try{
 			conn.setAutoCommit(false);
 			
+			//dao connection
 			UserDAO dao = new UserDAO(conn);
 			
 			int user_id=-1, firstname=-1, lastname=-1, username=-1, email=-1, password=-1;
@@ -934,10 +921,11 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 		search = Utils.encode(Utils.checkNull(search));
 		UserInfo user = session.getUserInfo(req.getSession());
 		if (user==null){
-			return new ModelAndView("redirect:/user/login.html");
+			return new ModelAndView("redirect:/user/adios.html");
 		}
 		
 		ModelAndView mv = new ModelAndView("search");
+		//handle the form submission
 		mv.addObject("global_search", search);
 		
 		return mv;

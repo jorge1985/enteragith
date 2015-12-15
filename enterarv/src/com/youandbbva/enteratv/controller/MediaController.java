@@ -64,10 +64,10 @@ public class MediaController extends com.youandbbva.enteratv.Controller {
 
 		
 		  UserInfo user = session.getUserInfo(req.getSession()); if
-		  (user==null){ return new ModelAndView("redirect:/user/login.html"); }
+		  (user==null){ return new ModelAndView("redirect:/user/adios.html"); }
 		 
 
-		// Connection conn = DSManager.getConnection();
+	
 
 		ModelAndView mv = new ModelAndView("mediamanager");
 
@@ -77,10 +77,7 @@ public class MediaController extends com.youandbbva.enteratv.Controller {
 			log.error("MediaController", "manager", e.toString());
 
 		} finally {
-			// try{
-			// if (conn!=null)
-			// conn.close();
-			// }catch (Exception f){}
+	
 		}
 
 		return mv;
@@ -113,11 +110,10 @@ public class MediaController extends com.youandbbva.enteratv.Controller {
 								session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
-
+			//dao connection
 			MediaDAO dao = new MediaDAO(conn);
 
 			result = setResponse(result, "list", dao.recallFolderList((long) 0));
-
 			result = setResponse(result, Constants.ERROR_CODE,
 					Constants.ACTION_SUCCESS);
 			result = setResponse(
@@ -172,7 +168,7 @@ public class MediaController extends com.youandbbva.enteratv.Controller {
 								session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
-
+			//dao connection
 			MediaDAO dao = new MediaDAO(conn);
 
 			result = setResponse(result, "file_id",
@@ -181,7 +177,6 @@ public class MediaController extends com.youandbbva.enteratv.Controller {
 					dao.getFoldersOfJSON(Utils.getLong(folder_id)));
 			result = setResponse(result, "file",
 					dao.getFilesOfJSON(Utils.getLong(folder_id)));
-
 			result = setResponse(result, Constants.ERROR_CODE,
 					Constants.ACTION_SUCCESS);
 			result = setResponse(
@@ -216,17 +211,7 @@ public class MediaController extends com.youandbbva.enteratv.Controller {
 	 * @throws IOException 
 	 */
 	@RequestMapping("updateFolder.html")
-	// JR Original
-	/*
-	 * public void updateFolder(
-	 * 
-	 * @RequestParam(value = "folder_id", required = false) String folder_id,
-	 * 
-	 * @RequestParam(value = "type", required = false) String type,
-	 * 
-	 * @RequestParam(value = "name", required = false) String name,
-	 * HttpServletRequest req, HttpServletResponse res)
-	 */
+
 	public void updateFolder(String folder_id, String type, String name,
 			HttpServletRequest req, HttpServletResponse res)  {
 
@@ -252,6 +237,7 @@ public class MediaController extends com.youandbbva.enteratv.Controller {
 								session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
+			//evaluated value type
 
 			if (type.length() == 0) {
 				result.put(
@@ -271,11 +257,12 @@ public class MediaController extends com.youandbbva.enteratv.Controller {
 			}
 
 			conn.setAutoCommit(false);
-
+			//dao connection
 			MediaDAO dao = new MediaDAO(conn);
 
 			Long folderID = Utils.getLong(folder_id);
 			FolderInfo info = dao.getFolder(folderID);
+			//evaluated value type
 			if (type.equals("add") || type.equals("edit")) {
 				if (type.equals("add")) {
 					if (dao.isValidFolder(name)) {
@@ -312,7 +299,6 @@ public class MediaController extends com.youandbbva.enteratv.Controller {
 			result = setResponse(result, "folder",
 					dao.getFoldersOfJSON(folderID));
 			result = setResponse(result, "file", dao.getFilesOfJSON(folderID));
-
 			result = setResponse(result, Constants.ERROR_CODE,
 					Constants.ACTION_SUCCESS);
 			result = setResponse(
@@ -351,26 +337,7 @@ public class MediaController extends com.youandbbva.enteratv.Controller {
 	 * @param res
 	 */
 	@RequestMapping("updateFile.html")
-	/*
-	 * public void updateFile(
-	 * 
-	 * @RequestParam(value = "file_id", required = false) String file_id,
-	 * 
-	 * @RequestParam(value = "folder_id", required = false) String folder_id,
-	 * 
-	 * @RequestParam(value = "type", required = false) String type,
-	 * 
-	 * @RequestParam(value = "name", required = false) String name,
-	 * 
-	 * @RequestParam(value = "size", required = false) String size,
-	 * 
-	 * @RequestParam(value = "key", required = false) String key,
-	 * 
-	 * @RequestParam(value = "kind", required = false) String kind,
-	 * 
-	 * @RequestParam(value = "thumb", required = false) String thumb,
-	 * HttpServletRequest req, HttpServletResponse res){
-	 */
+
 	public void updateFile(String file_id, String folder_id, String type,
 			String name, String size, String key, String kind, String thumb,
 			HttpServletRequest req, HttpServletResponse res) {
@@ -403,6 +370,8 @@ public class MediaController extends com.youandbbva.enteratv.Controller {
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			System.out.println("valor de type "+ type);
+			
+			//evaluated value type
 			if (type.length() == 0) {
 				result.put(
 						Constants.ERROR_MSG,
@@ -421,9 +390,9 @@ public class MediaController extends com.youandbbva.enteratv.Controller {
 			}
 
 			conn.setAutoCommit(false);
-
+			//dao connection
 			MediaDAO dao = new MediaDAO(conn);
-
+			//evaluated value type
 			if (type.equals("add") || type.equals("edit")) {
 				if (dao.isValidFile(name, Utils.getLong(folder_id))) {
 					if (type.equals("add")) {
@@ -487,12 +456,7 @@ public class MediaController extends com.youandbbva.enteratv.Controller {
 	 * @param res
 	 */
 	@RequestMapping("getFile.html")
-	/*
-	 * public void getFile(
-	 * 
-	 * @RequestParam(value = "file_id", required = false) String file_id,
-	 * HttpServletRequest req, HttpServletResponse res)
-	 */
+
 	public void getFile(String file_id, HttpServletRequest req,
 			HttpServletResponse res) {
 
@@ -516,12 +480,11 @@ public class MediaController extends com.youandbbva.enteratv.Controller {
 								session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
-
+			//dao connection
 			MediaDAO dao = new MediaDAO(conn);
 
 			result = setResponse(result, "file",
 					dao.getFileOfJSON(Utils.getLong(file_id)));
-
 			result = setResponse(result, Constants.ERROR_CODE,
 					Constants.ACTION_SUCCESS);
 			result = setResponse(

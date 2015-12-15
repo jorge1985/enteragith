@@ -59,11 +59,7 @@ public class Upload extends HttpServlet {
 		try {
 
 			UserInfo user = session.getUserInfo(req.getSession());
-			/*if (user==null){
-				user = session.getOpportUserInfo(req.getSession());
-				if (user==null)
-					throw new Exception(reg.getMessage("ACT0003"));
-			}*/
+			
 
 			Map<String, List<BlobKey>> blobs = blobstoreService.getUploads(req);
 			List<BlobKey> blobKeys = blobs.get("myFile");
@@ -88,7 +84,6 @@ public class Upload extends HttpServlet {
 			}
 			
 		} catch (Exception e) {
-//			e.printStackTrace();
 			
 		}finally{
 			try{

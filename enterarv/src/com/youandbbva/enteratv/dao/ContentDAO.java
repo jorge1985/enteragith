@@ -2,13 +2,16 @@ package com.youandbbva.enteratv.dao;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Repository;
 
 import com.google.appengine.tools.admin.Utility;
+import com.youandbbva.enteratv.Constants;
 import com.youandbbva.enteratv.DAO;
+import com.youandbbva.enteratv.DSManager;
 import com.youandbbva.enteratv.HTML;
 import com.youandbbva.enteratv.Utils;
 import com.youandbbva.enteratv.domain.ChannelInfo;
@@ -26,10 +29,11 @@ import com.youandbbva.enteratv.domain.ContentQuestionInfo;
 import com.youandbbva.enteratv.domain.ContentVideoInfo;
 import com.youandbbva.enteratv.domain.ContentCountInfo;
 
+
 /**
  * 
  * Handle all query for Content.
- * 		bbva_content
+ * 		content
  * 
  * @author CJH
  *
@@ -38,9 +42,10 @@ import com.youandbbva.enteratv.domain.ContentCountInfo;
 @Repository("ContentDAO")
 public class ContentDAO extends DAO{
 
-	//Declaración de constantes
-	
-	//Declaración de Tablas
+
+	/**
+	 * SQL queries
+	 */
 	private final String TABLE_NAME_CONTENT = "content";
 	private final String TABLE_NAME_LABEL = "label";
 	private final String TABLE_NAME_CONTENTLABEL = "contentlabel";
@@ -48,19 +53,10 @@ public class ContentDAO extends DAO{
 	private final String TABLE_NAME_CHANNEL = "channel";
 	private final String TABLE_NAME_CONTENTTYPE = "contenttype";
 	private final String TABLE_NAME_MEDIA = "media";
-	
-	
-	//Declaración de columnas
-	//Content
-//	private final String COLUMN_CONTENT_SELECT = "c.ContentId,c.Channel_ChannelId,t.ContenttypeName,c.ContentName,c.ContentHtml,c.ContentIsVisible," 
-//	                                         + "c.ContentPublishDate,c.ContentEndDate,c.ContentStatus,c.ContentShowView";
 	private final String COLUMN_CONTENT_SELECT = "c.ContentId,c.Channel_ChannelId,c.Contenttype_ContenttypeId,c.ContentName,c.ContentHtml,c.ContentIsVisible," 
             + "c.ContentPublishDate,c.ContentEndDate,c.ContentStatus,c.ContentShowView";
 	private final String COLUMN_CONTENT_SELECT2 = "c.ContentId,c.Channel_ChannelId,c.Contenttype_ContenttypeId,t.ContenttypeName,c.ContentName,c.ContentHtml,c.ContentIsVisible," 
             + "c.ContentPublishDate,c.ContentEndDate,c.ContentStatus,c.ContentShowView";
-	
-	//private final String COLUMN_CONTENT_INSERT = "Channel_ChannelId,Contenttype_ContenttypeId,ContentName," 
-    //                                           + "ContentPublishDate,ContentEndDate,ContentStatus,ContentShowView";
 	private final String COLUMN_CONTENT_INSERT = "Channel_ChannelId,Contenttype_ContenttypeId,ContentName,ContentHtml,ContentIsVisible,"
                                                  + "ContentPublishDate,ContentEndDate,ContentStatus,ContentShowView";
 	private final String COLUMN_CONTENT_UPDATE = "Channel_ChannelId = ?,Contenttype_ContenttypeId=?,ContentName=?,ContentHtml=?,ContentIsVisible=?," 
@@ -69,133 +65,78 @@ public class ContentDAO extends DAO{
 	private final String COLUMN_CONTENT_COUNT = "count(ContentId)";
 	private final String COLUMN_LABEL_COUNT_BY_ID = "count(LabelId)";
 	private final String COLUMN_CONTENT_UPDATE_DESCRIPTION = " ContentDescription = ?";
-	
-	//Contentlabel
 	private final String COLUMN_CONTENTLABEL_SELECT = "ContentlabelId,Content_ContentId,Label_labelId";
 	private final String COLUMN_CONTENTLABEL_INSERT = "Content_ContentId,Label_labelId";
-
-	
-	
-	//Contentmedia
 	private final String COLUMN_CONTENTMEDIA_SELECT = "ContentmediaId,Content_ContentId,Media_MediaId";
 	private final String COLUMN_CONTENTMEDIA_INSERT = "Content_ContentId,Media_MediaId";
-		
-	//Channel
 	private final String COLUMN_CHANNEL_SELECT = "h.ChannelId,h.Family_FamilyId,h.ChannelName,h.ChannelPosition,h.ChannelFather,h.ChannelEmail,h.ChannelPassword,h.ChannelSecurityLevel,h.ChannelIsVisible";
-	
-	//Media
 	private final String COLUMN_MEDIA_SELECT = "m.MediaName, m.MediaContent, m.Filetype_FiletypeId, m.MediaId";
-	
-	//Label
 	private final String COLUMN_LABEL_SELECT = "LabelId,LabelText";
 	private final String COLUMN_LABEL_SELECT_COUNT_BY_ID = "count(LabelId)";
 	private final String COLUMN_LABEL_INSERT = "LabelText";
-	
-	//Querys
-	//Label
-	//Busqueda de la etiqueta por texto
 	private final String SELECT_LABEL_BY_TEXT = "select " + COLUMN_LABEL_SELECT + " from " + TABLE_NAME_LABEL + " where LabelText = ?";
-	//Busqueda de la etiqueta por id
 	private final String SELECT_LABEL_BY_ID   = "select " + COLUMN_LABEL_SELECT + " from " + TABLE_NAME_LABEL + " where LabelId =?";
-	//Cuenta si existen ocurrencias con otr diferente al id
 	private final String SELECT_LABEL_BY_ID_DF   = "select " + COLUMN_LABEL_SELECT_COUNT_BY_ID + " from " + TABLE_NAME_LABEL + " where LabelId <> ?";
-	//Cuenta si existen ocurrencias pasando como parametro el text de la etiqueta
 	private final String COUNT_LABEL_BY_TEXT   = "select " + COLUMN_LABEL_COUNT_BY_ID + " from " + TABLE_NAME_LABEL + " where LabelText = ?";
-	//Inserta etiqueta
 	private final String INSERT_LABEL         = "insert into " + TABLE_NAME_LABEL + "(" + COLUMN_LABEL_INSERT + ") values (?)";
-	//Borra etiqueta
 	private final String DELETE_LABEL         = "delete " + TABLE_NAME_LABEL + " where LabelId = ?";
-	//Consulta las etiquetas asociadas a un ContentId
 	private final String SELECT_LABELTEXT_BY_CONTENTID = "select " + COLUMN_LABEL_INSERT + " from " + TABLE_NAME_LABEL + " a, " + TABLE_NAME_CONTENTLABEL + " b where a.LabelId = b.Label_LabelId and b.Content_ContentId = ?";
-	//Consulta Todas las etiquetas disponibles
 	private final String SELECT_LABEL_ALL = "select " + COLUMN_LABEL_SELECT + " from " + TABLE_NAME_LABEL;  		
-			
-			
-	
-	//Content
-	//Busqueda por id
 	private final String TYPE_EXPIRED_COUNT = " and ContentEndDate < ? ) or ( ContentStatus = 'I')) ";
 	private final String SELECT_CONTENT_BY_ID = "select " + COLUMN_CONTENT_SELECT + " from " + TABLE_NAME_CONTENT +  " c, " + TABLE_NAME_CONTENTTYPE + " t  where c.Contenttype_ContenttypeId = t.ContenttypeId and c.ContentId =?";
-	//Busqueda por id y visible = 'T'
+	private final String SELECT_CONTENT_BY_ID_T ="select  ContentId from content where Contenttype_ContenttypeId = 5 and ContentStatus = 'A' and Channel_ChannelId=?";
 	private final String SELECT_CONTENT_BY_ID_V = "select " + COLUMN_CONTENT_SELECT + " from " + TABLE_NAME_CONTENT + " where ContentId =? and ContentVisible = 1";
-	//Busqueda por id y que sea visible
 	private final String SELECT_CONTENT_BY_ID_VISIBLE = "select " + COLUMN_CONTENT_SELECT + " from " + TABLE_NAME_CONTENT + " where ContentId =? and ContentIsVisible = '1'";
-	//Inserta contenido
 	private final String INSERT_CONTENT         = "insert into " + TABLE_NAME_CONTENT + " (" + COLUMN_CONTENT_INSERT + ") values (?,?,?,?,?,?,?,?,?)";
-	//Actualiza Contenido por Id
 	private final String UPDATE_CONTENT         = "update " + TABLE_NAME_CONTENT + " set " + COLUMN_CONTENT_UPDATE + " where ContentId=?";
-	//Actualiza Contenido Html por Id
 	private final String UPDATE_CONTENTHTML         = "update " + TABLE_NAME_CONTENT + " set  ContentHtml = ? where ContentId=?";
-	//Borra etiqueta
-	private final String DELETE_CONTENT         = "delete " + TABLE_NAME_CONTENT + " where ContentId = ?";
-	//Regresa el nombre del canal asociado a un contenido
+	private final String DELETE_CONTENT         = "delete from " + TABLE_NAME_CONTENT + " where ContentId = ?";
 	private final String SELECT_CONTENT_CHANNEL_BY_CONTENTID = "select "+ COLUMN_CHANNEL_SELECT +" from " + TABLE_NAME_CHANNEL + " h, " + TABLE_NAME_CONTENT + " b where h.ChannelId = b.Channel_ChannelId and b.ContentId = ? ";
-	//Regresa el numero de contenidos activos
 	private final String COUNT_CONTENT_BY_TYPE  = "select " + COLUMN_CONTENT_COUNT + " from " + TABLE_NAME_CONTENT + "  where (( ContentStatus = ?";
-	//Regresa el numero de contenidos activos
 	private final String COUNT_CONTENT_EXPIRED  = "select " + COLUMN_CONTENT_COUNT + " from " + TABLE_NAME_CONTENT + "  where ContentStatus <> 'A' and ContentEndDate < ?";
-	//Regresa consulta de todos los resgistros de un tipo
 	private final String SELECT_CONTENT_BY_TYPE  = "select " + COLUMN_CONTENT_SELECT2 + " from " + TABLE_NAME_CONTENT + " c, " + TABLE_NAME_CONTENTTYPE + " t where ((c.Contenttype_ContenttypeId = t.ContenttypeId and c.ContentStatus =  ?";
 	private final String TYPE_ACTIVE  = " and ContentEndDate >= ? ))";
 	private final String TYPE_EXPIRED = " and ContentEndDate < ? ) or (c.Contenttype_ContenttypeId = t.ContenttypeId and ContentStatus = 'I')) ";
-	//Regresa consulta de todos los resgistros de un tipo
 	private final String SELECT_CONTENT_BY_SEARCHTERM  = " and (CONTENTNAME like ? )";
 	private final String SELECT_LIMIT = " limit ?,?";
 	private final String SELECT_ORDER = " order by ? ?";
-	//Actualiza el HTML del contenido
 	private final String UPDATE_CONTENT_HTML_BY_CONTENTID = "update " + TABLE_NAME_CONTENT + " set " + COLUMN_CONTENT_HTML_UPDATE + " where ContentId = ?";
-	//Actualiza el estatus de un contenido a remove
 	private final String UPDATE_CONTENT_TO_REMOVE = " update " + TABLE_NAME_CONTENT + " set ContentStatus= 'D' where ContentId=? ";
-	//Actualiza el estatus de un contenido a papelera
 	private final String UPDATE_CONTENT_TO_DELETE = " update " + TABLE_NAME_CONTENT + " set ContentStatus='B' where ContentId=? ";
-	//Actualiza el estatus de un contenido a papelera
 	private final String UPDATE_CONTENT_TO_ACTIVE = " update " + TABLE_NAME_CONTENT + " set ContentStatus='A' where ContentId=? ";
-	//Obtiene la descripción de un contenido
 	private final String SELECT_CONTENT_DESCRIPTION = " select ContentId,ContentDescription from " + TABLE_NAME_CONTENT + " where ContentId=? " ;
-	//Actualiza la descripcion del contenido con base al ContentId
 	private final String UPDATE_CONTENT_DESCRIPTION = "update " + TABLE_NAME_CONTENT + " set " + COLUMN_CONTENT_UPDATE_DESCRIPTION + " where ContentId = ?";
-	
-	//Contentlabel
-	//Busqueda por LabelId
 	private final String SELECT_CONTENTLABEL_BY_LABELID   = "select " + COLUMN_CONTENTLABEL_SELECT + " from " + TABLE_NAME_CONTENTLABEL + " where Label_labelId =?";
-	//Busqueda por ContentId
 	private final String SELECT_CONTENTLABEL_BY_CONTENTID   = "select " + COLUMN_CONTENTLABEL_SELECT + " from " + TABLE_NAME_CONTENTLABEL + " where Content_ContentId =?";
-	//Inserta Contenlabel
 	private final String INSERT_CONTENTLABEL         = "insert into " + TABLE_NAME_CONTENTLABEL + "(" + COLUMN_CONTENTLABEL_INSERT + ") values (?,?)";
-	//Borra Contentlabel por ContentId 
 	private final String DELETE_CONTENTLABEL_BY_CONTENTID         = "delete from " + TABLE_NAME_CONTENTLABEL + " where Content_ContentId= ?";
-	//Borra Contentlabel por ContentId 
 	private final String DELETE_CONTENTLABEL_BY_CONTENTID_AND_LABELID  = "delete from " + TABLE_NAME_CONTENTLABEL + " where Content_ContentId= ? and Label_LabelId";
-	
-	//Contentmedia
-	//Busqueda por Id
-	//private final String SELECT_CONTENTMEDIA_BY_ID   = "Select " + COLUMN_CONTENTMEDIA_SELECT + " from " + TABLE_NAME_CONTENTMEDIA + " where ContentmediaId =?";
-	//Busqueda por ContentId
 	private final String SELECT_CONTENTMEDIA_BY_CONTENTID   = "select " + COLUMN_CONTENTMEDIA_SELECT + " from " + TABLE_NAME_CONTENTMEDIA + " where Content_ContentId =?";
-	//Busqueda por MediaId
 	private final String SELECT_CONTENTMEDIA_BY_MEDIAID   = "select " + COLUMN_CONTENTMEDIA_SELECT + " from " + TABLE_NAME_CONTENTMEDIA + " where Media_MediaId =?";
-	//Inserta Contentemedia
 	private final String INSERT_CONTENTMEDIA = "insert into " + TABLE_NAME_CONTENTMEDIA + "(" + COLUMN_CONTENTMEDIA_INSERT + ") values (?,?)";
-	//Borra Contentmedia cuando se borra un contenido
 	private final String DELETE_CONTENTMEDIA_BY_CONTENTID         = "delete from " + TABLE_NAME_CONTENTMEDIA + " where Content_ContentId = ?";
-	//Borra Contentmedia cuando se borra un media
 	private final String DELETE_CONTENTMEDIA_BY_MEDIAID         = "delete from " + TABLE_NAME_CONTENTMEDIA + " where Media_MediaId = ?";
-	//Borra Contentmedia especificamente una relacion de un contenido con un media
-	//private final String DELETE_CONTENTMEDIA_BY_CONTENTID_AND_MEDIAID         = "delete from" + TABLE_NAME_CONTENTMEDIA + " where Content_ContentId = ? and Media_MediaId = ?";
-
 	private final String DELETE_CONTENTMEDIA_BY_CONTENTID_AND_MEDIAID         = "delete from " + TABLE_NAME_CONTENTMEDIA + " where Content_ContentId = ? and Media_MediaId = ?";
-	
-	//Channel
 	private final String SELECT_CHANNEL_BY_CONTENT_ID = "select " + COLUMN_CHANNEL_SELECT + " from " + TABLE_NAME_CHANNEL + " h, " + TABLE_NAME_CONTENT + " c where h.ChannelId = c.Channel_ChannelId and c.ContentId = ?";
 	private final String SELECT_CHANNELID_BY_CHANNELNAME = "select ChannelId from " + TABLE_NAME_CHANNEL + " where ChannelName = ?"; 
-	
-	
-	//Media
 	private final String SELECT_MEDIA_BY_CONTENT_ID  = " select " + COLUMN_MEDIA_SELECT + " from " + TABLE_NAME_MEDIA + " m, " + TABLE_NAME_CONTENTMEDIA + " c where c.Media_MediaId = m.MediaId and c.Content_ContentId = ?";
 	private final String SELECT_BY_KEY_FILE = " select  MediaId" + " from "	+ TABLE_NAME_MEDIA + " where MediaContent = ?";
 	private final String SELECT_IMAGE_MEDIAID = "select m.MediaId from " + TABLE_NAME_MEDIA + " m, " + TABLE_NAME_CONTENTMEDIA + " c where c.Media_MediaId = m.MediaId and m.Filetype_FiletypeId = 1 and c.Content_ContentId = ?";
+	private final String SELECT_ContentStatus=  "SELECT ContentStatus FROM content WHERE ContentId = ?";
+	private final String SELECT_Familyname ="select Familyname from family where Familyid=? ";
+	private final String SELEC_channelname = "select ChannelFather,ChannelName from channel where Channelid=?"; 
+	private final String SELECT_ContentId = "Select ContentId from content where Channel_ChannelId = ? and Contenttype_ContenttypeId = '3'";
+	private final String Select_ContentId =" select ContentId from content where Channel_ChannelId=? ";
+	private final String Select_Channel_ChannelId ="Select Channel_ChannelId from content where ContentId=?";
+	private final String SELECTVIDEO="select m.MediaId, m.MediaContent from media m INNER JOIN ContentMedia cm ON m.MediaId=cm.Media_MediaId INNER JOIN content c ON c.ContentId= cm.Content_ContentId where c.Channel_ChannelId=? and m.Filetype_FiletypeId=3";
+	private final String SELECTIMAGEN="select m.MediaId, m.MediaContent from media m INNER JOIN ContentMedia cm ON m.MediaId=cm.Media_MediaId INNER JOIN content c ON c.ContentId= cm.Content_ContentId where c.Channel_ChannelId=? and m.Filetype_FiletypeId=1;";
 	
+	private final String DELETE_VISIT_BY_CONTENTID = "delete from visit where Content_ContentId = ?";
 	
+	//COLUMN_CONTENT_SELECT
+	//private final String SELECT_CONTENT_BY_IDVideo = "select "+COLUMN_CONTENT_SELECT+" from content c where Contenttype_ContenttypeId=2 and Channel_ChannelId=?;";
+	private final String SELECT_CONTENT_BY_IDVideo = "select ContentId, ContentName from content where Contenttype_ContenttypeId=2 and ContentStatus='A' and  Channel_ChannelId=? and ContentId =?";
+	private final String Selectcontentidvideo ="select ContentId from content where Contenttype_ContenttypeId=2 and ContentStatus='A' and  Channel_ChannelId=?";
 	public ContentDAO() {
 		// TODO Auto-generated constructor stub
 	}
@@ -212,17 +153,14 @@ public class ContentDAO extends DAO{
 	 * @param folderID
 	 * @return boolean
 	 */
-	//Cuenta si existen ocurrencias pasando como parametro el text de la etiqueta
-	//private final String COUNT_LABEL_BY_TEXT   = "Select " + COLUMN_LABEL_COUNT_BY_ID + " from " + TABLE_NAME_LABEL + " where LabelText = ?";
-	//private final String COLUMN_LABEL_COUNT_BY_ID = "count(LabelId)";
+
 	
-	
-	//Métodos
-	//Label
 	public boolean labelTextExist(String text) {
+		Connection conn = DSManager.getConnection();
 		try {
 			long result = 0;
 			PreparedStatement stmt = conn
+					// 												RUNNING QUERY
 					.prepareStatement(COUNT_LABEL_BY_TEXT);
 			stmt.setString(1, text);
 			ResultSet rs = stmt.executeQuery();
@@ -234,23 +172,35 @@ public class ContentDAO extends DAO{
 		} catch (Exception e) {
 			log.error("ContentDAO", "labelTextExist", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return false;
 	}
 
 	
-	
-	//Busqueda de la etiqueta por texto
-	//private final String SELECT_LABEL_BY_TEXT = "Select " + COLUMN_LABEL_SELECT + " from " + TABLE_NAME_LABEL + " where LabelText =?";
-	
+	/**
+	 *   get Label Id By Text
+	 *   
+	 *   
+	 * @param text
+	 * @return
+	 */
 	
 	public int getLabelIdByText(String text) {
 		int result = 0;
-		String query = "select LabelId,LabelText from label where LabelText = ?";
+		Connection conn = DSManager.getConnection();
+	
 		try {
-			
+																	// 	RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_LABEL_BY_TEXT);
-//				.prepareStatement(SELECT_LABEL_BY_TEXT);
 			stmt.setString(1, text);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -261,14 +211,25 @@ public class ContentDAO extends DAO{
 		} catch (Exception e) {
 			log.error("ContentDAO", "getLabelIdByText", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return 0;
 	}
 	
-	//Inserta etiqueta
-	//private final String INSERT_LABEL         = "Insert into " + TABLE_NAME_LABEL + "(" + COLUMN_LABEL_INSERT + ") values (?)";
-	
+	/**
+	 * INSERT LABEL
+	 * @param text
+	 */
 	public void insertLabel(String text) {
+		Connection conn = DSManager.getConnection();
 		
 		try {
 			
@@ -280,13 +241,26 @@ public class ContentDAO extends DAO{
 		}catch (Exception e) {
 			log.error("ContentDAO", "insertlabel", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 
-	//Borra etiqueta
-	//private final String DELETE_LABEL         = "Delete " + TABLE_NAME_LABEL + " where LabelId = ?";	
-
+/**
+ * DELETE LABEL
+ * 
+ * @param id
+ */
+	
 	public void deleteLabel(int id) {
 			
+		Connection conn = DSManager.getConnection();
 			try {
 				
 				PreparedStatement stmt = conn
@@ -297,15 +271,28 @@ public class ContentDAO extends DAO{
 			} catch (Exception e) {
 				log.error("ContentDAO", "getLabelIdByText", e.toString());
 			}
+			finally
+			{
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 	}
-	//Content
-	//Busqueda por id
-	//private final String SELECT_CONTENT_BY_ID = "Select " + COLUMN_CONTENT_SELECT + " from " + TABLE_NAME_CONTENT + " where ContentId =?";	
+
 	
+	/**
+	 * GET ALL CONTENT BY CONTENTID
+	 * @param contentid
+	 * @return
+	 */
 	public ContentInfo getContentByContentIdAll(Long contentid) {
 		try {
 					
 			PreparedStatement stmt = conn
+																	// RUNNING QUERY
 					.prepareStatement(SELECT_CONTENT_BY_ID);
 			stmt.setLong(1, contentid);
 			ResultSet rs = stmt.executeQuery();
@@ -314,7 +301,6 @@ public class ContentDAO extends DAO{
 				result.setId(rs.getLong(1));
 				result.setName(rs.getString(4));
 				result.setHtml(Utils.checkNull(rs.getString(5)));
-				//result.setIsVisble(rs.getBoolean(rs.getBoolean("ContentIsVisible"));
 				result.setValidityStart(rs.getString(7));
 				result.setValidityEnd(rs.getString(8));
 				result.setStatus(rs.getString(9));
@@ -330,13 +316,18 @@ public class ContentDAO extends DAO{
 		return null;
 	}
 	
+	/**
+	 * GET CONTET BY CONTENTID
+	 * @param contentid
+	 * @return
+	 */
 	
-	//Busqueda por id y visible = 'T'
-	//private final String SELECT_CONTENT_BY_ID_V = "Select " + COLUMN_CONTENT_SELECT + " from " + TABLE_NAME_CONTENT + " where ContentId =? and ContentVisible = 1";	
 	public ContentInfo getContentByContentIdVis(int contentid) {
+		Connection conn = DSManager.getConnection();
 		try {
 					
 			PreparedStatement stmt = conn
+																	// RUNNING QUERY
 					.prepareStatement(SELECT_CONTENT_BY_ID_V);
 			stmt.setInt(1, contentid);
 			ResultSet rs = stmt.executeQuery();
@@ -358,19 +349,39 @@ public class ContentDAO extends DAO{
 		} catch (Exception e) {
 			log.error("ContentDAO", "getContentByContentIdAll", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return null;
 	}
 	
-	
-	//Inserta contenido
-	//private final String INSERT_CONTENT         = "Insert into " + TABLE_NAME_CONTENT + "(" + COLUMN_CONTENT_INSERT + ") values (?,?,?,?,?,?,?,?,?)";
-	//private final String COLUMN_CONTENT_INSERT = "Channel_ChannelId,Contenttype_ContenttypeId,ContentName,ContentHtml,ContentIsVisible," 
-    //        + "ContentPublishDate,ContentEndDate,ContentStatus,ContentShowView";
-	
+	/**
+	 * INSERT CONTENT
+	 * 
+	 * @param channelid
+	 * @param contenttypeid
+	 * @param name
+	 * @param html
+	 * @param isvisible
+	 * @param publishdate
+	 * @param enddate
+	 * @param status
+	 * @param showview
+	 * @return
+	 */
+
 	public Long  insertContent(int channelid, int contenttypeid, String name, String html,int isvisible, String publishdate,String enddate,String status,String showview  ) {	
+		Connection conn = DSManager.getConnection();
 		try {
 			PreparedStatement stmt = conn
+																	// RUNNING QUERY
 					.prepareStatement(INSERT_CONTENT,Statement.RETURN_GENERATED_KEYS);
 			stmt.setInt(1, channelid);
 			stmt.setInt(2, contenttypeid);
@@ -396,20 +407,32 @@ public class ContentDAO extends DAO{
 		} catch (Exception e) {
 			log.error("ContentDAO", "getLabelIdByText", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		return (long)0;
 	}
 	
-	//Actualiza Contenido por Id
-	//private final String UPDATE_CONTENT         = "Update " + TABLE_NAME_CONTENT + " set " + COLUMN_CONTENT_UPDATE + " where ContentId=?";	
-	//private final String COLUMN_CONTENT_UPDATE = "Channel_ChannelId = ?,Contenttype_ContenttypeId=?,ContentName=?,ContentHtml=?,ContentIsVisible=?," 
-    //        + "ContentPublishDate=?,ContentEndDate=?,ContentStatus=?,ContentShowView=?";
-
+/**
+ * GET CONTENT
+ * 
+ * @param contentid
+ * @return
+ */
 	public String getContentSta(long contentid) {
 		String result="";
+		Connection conn = DSManager.getConnection();
 		try {
-			String sql = "SELECT ContentStatus FROM content WHERE ContentId = ?";	
+	
 			PreparedStatement stmt = conn
-					.prepareStatement(sql);
+																	// RUNNING QUERY
+					.prepareStatement(SELECT_ContentStatus);
 			stmt.setLong(1, contentid);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
@@ -422,15 +445,42 @@ public class ContentDAO extends DAO{
 		} catch (Exception e) {
 			log.error("ContentDAO", "getContentByContentIdAll", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return null;
 	}
 	
+	/**
+	 * 
+	 * UPDATE CONTENT
+	 * 
+	 * @param channelid
+	 * @param contenttypeid
+	 * @param name
+	 * @param html
+	 * @param isvisible
+	 * @param publishdate
+	 * @param enddate
+	 * @param status
+	 * @param showview
+	 * @param contentid
+	 */
+	
 	public void updateContent(int channelid, int contenttypeid, String name, String html,int isvisible, String publishdate,String enddate,String status,String showview,Long contentid  )
 	{
+		Connection conn = DSManager.getConnection();
 		try {
 			String result;
 			PreparedStatement stmt = conn
+																	// RUNNING QUERY
 					.prepareStatement(UPDATE_CONTENT);
 			stmt.setInt(1, channelid);
 			stmt.setInt(2, contenttypeid);
@@ -442,11 +492,11 @@ public class ContentDAO extends DAO{
 			
 			result = getContentSta(contentid);
 			
-			if(result.equals("D")){
-				stmt.setString(8,"D");
+			if(result.equals("B")){
+				stmt.setString(8,"B");
 			}else{
 				if (isvisible == 0) {
-					stmt.setString(8,"I");
+					stmt.setString(8,"A");
 				}else {
 					stmt.setString(8, "A");	
 				}
@@ -459,35 +509,64 @@ public class ContentDAO extends DAO{
 		}catch (Exception e) {
 			log.error("ContentDAO", "updateContent", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}	
 	
-	//Borra contenido
-	//private final String DELETE_CONTENT         = "Delete " + TABLE_NAME_CONTENT + " where ContentId = ?";	
 	
-	public void deleteContent(int contentid)
-	{
+	/**
+	 * DELET CONTENT BY CONTENTID
+	 * 
+	 * @param contentid
+	 */
+	
+	public void deleteContent(Long contentid) {
+		deleteContentlabelByContentId(contentid);
+		deleteContentMediaByContentId(contentid);
+		deleteVisitByContentId(contentid);
+		
+		Connection conn = DSManager.getConnection();
 		try {
-			PreparedStatement stmt = conn
-					.prepareStatement(DELETE_CONTENT);
-			stmt.setInt(1, contentid);
-			
-			stmt.executeQuery();
-		}catch (Exception e) {
+			PreparedStatement stmt = conn.prepareStatement(DELETE_CONTENT);
+			stmt.setLong(1, contentid);
+
+			stmt.executeUpdate();
+		} catch (Exception e) {
 			log.error("ContentDAO", "deleteContent", e.toString());
 		}
-			
+		finally 
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
 	}
 	
-	
-	//Busqueda por LabelId
-	//private final String COLUMN_CONTENTLABEL_SELECT = "ContentlabelId,Content_ContentId,Label_labelId";
-	//private final String SELECT_CONTENTLABEL_BY_LABELID   = "Select " + COLUMN_CONTENTLABEL_SELECT + " from " + TABLE_NAME_CONTENTLABEL + " where Label_labelId =?";
+	/**
+	 * GET CONTENT LABEL BY LABELID
+	 * 
+	 * @param labelid
+	 * @return
+	 */
 	
 	public ArrayList getContentlabelByLabelId(int labelid)
 	{
+		Connection conn = DSManager.getConnection();
 		ArrayList item = new ArrayList();
 		try {
 			PreparedStatement stmt = conn
+																	// RUNNING QUERY
 					.prepareStatement(SELECT_CONTENTLABEL_BY_LABELID);
 			stmt.setInt(1, labelid);
 			ResultSet rs = stmt.executeQuery();
@@ -499,18 +578,33 @@ public class ContentDAO extends DAO{
 		}catch (Exception e) {
 				log.error("ContentDAO", "getContentlabelByLabelId", e.toString());
 			
+		}finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		return item;
 	}
 	
-	//Busqueda por ContentId
-	//private final String SELECT_CONTENTLABEL_BY_CONTENTID   = "Select " + COLUMN_CONTENTLABEL_SELECT + " from " + TABLE_NAME_CONTENTLABEL + " where Content_ContentId =?";
+	/**
+	 * GET CONTENT LABEL BY CONTENTID
+	 * 
+	 * @param contentid
+	 * @return
+	 */
+
 	
 	public ArrayList getContentlabelByContentId(int contentid)
 	{
+		Connection conn = DSManager.getConnection();
 		ArrayList item = new ArrayList();
 		try {
 			PreparedStatement stmt = conn
+																	// RUNNING QUERY
 					.prepareStatement(SELECT_CONTENTLABEL_BY_CONTENTID);
 			stmt.setInt(1, contentid);
 			ResultSet rs = stmt.executeQuery();
@@ -523,17 +617,33 @@ public class ContentDAO extends DAO{
 				log.error("ContentDAO", "getContentlabelByLabelId", e.toString());
 			
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		return item;
 	}
 	
-	//Inserta Contenlabel
-	//private final String INSERT_CONTENTLABEL         = "Insert into " + TABLE_NAME_CONTENTLABEL + "(" + COLUMN_CONTENTLABEL_INSERT + ") values (?,?)";
-	
+	/**
+	 * INSER CONTENTE LABEL BY CONTENTID AND LABELID
+	 * 
+	 * @param contentid
+	 * @param labelid
+	 * @return
+	 */
+
 	public int insertContentlabel(Long contentid,int labelid)
 	{
+		Connection conn = DSManager.getConnection();
 		try {
 			
 			PreparedStatement stmt = conn
+																	// RUNNING QUERY
 					.prepareStatement(INSERT_CONTENTLABEL,Statement.RETURN_GENERATED_KEYS);
 			stmt.setLong(1, contentid);
 			stmt.setInt(2, labelid);
@@ -546,15 +656,28 @@ public class ContentDAO extends DAO{
 		}catch (Exception e) {
 		log.error("ContentDAO","insertContentlabel",e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		return 0;
 	}
 	
 	
-	//Borra Contentlabel por ContentId 
-	//private final String DELETE_CONTENTLABEL_BY_CONTENTID         = "Delete " + TABLE_NAME_CONTENTLABEL + " where Content_ContentId= ?";	
-	
+/**
+ * 
+ * DELETE CONTENT LABEL BY CONTENTID
+ * 
+ * @param contentid
+ */
 	public void deleteContentlabelByContentId(Long contentid)
 	{
+		Connection conn = DSManager.getConnection();
 		try
 		{
 			PreparedStatement stmt = conn
@@ -564,19 +687,32 @@ public class ContentDAO extends DAO{
 			
 		}catch (Exception e){
 			log.error("ContentDAO","deleteContentlabelByContnetId",e.toString());
+		}finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
+	/**
+	 * DELETE CONTENT LABEL BY CONTENTID AND LABELID
+	 * 
+	 * @param contentid
+	 * @param labelid
+	 */
 	
-	
-	//Borra Contentlabel por ContentId 
-	//private final String DELETE_CONTENTLABEL_BY_CONTENTID_AND_LABELID  = "Delete " + TABLE_NAME_CONTENTLABEL + " where Content_ContentId= ? and Label_LabelId";
-	
+
 	public void deleteContentlabelByContentIdAndLabelId (int contentid,int labelid)
 	{
+		Connection conn = DSManager.getConnection();
 		try 
 		{
 			PreparedStatement stmt = conn
+																	// RUNNING QUERY
 					.prepareStatement(DELETE_CONTENTLABEL_BY_CONTENTID_AND_LABELID);
 			stmt.setInt(1, contentid);
 			stmt.setInt(2, labelid);
@@ -584,18 +720,31 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO","deleteContentlabelByContentIdAndLabelId",e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
-	
-	//Busqueda por ContentId
-	//private final String SELECT_CONTENTMEDIA_BY_CONTENTID   = "Select " + COLUMN_CONTENTMEDIA_SELECT + " from " + TABLE_NAME_CONTENTMEDIA + " where Content_ContentId =?";
-	//private final String COLUMN_CONTENTMEDIA_SELECT = "ContentmediaId,Content_ContentId,Media_MediaId";
+	/**
+	 * GET CONTENT MEDIA BY  CONTENTID
+	 * 
+	 * @param contentid
+	 * @return
+	 */
 	
 	public ArrayList getContentmediaByContentId(int contentid)
 	{
+		Connection conn = DSManager.getConnection();
 		ArrayList item = new ArrayList();
 		try {
 			PreparedStatement stmt = conn
+																	// RUNNING QUERY
 					.prepareStatement(SELECT_CONTENTMEDIA_BY_CONTENTID);
 			stmt.setInt(1, contentid);
 			ResultSet rs = stmt.executeQuery();
@@ -609,18 +758,32 @@ public class ContentDAO extends DAO{
 					log.error("ContentDAO", "getContentlabelByLabelId", e.toString());
 				
 			}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 			return item;
 	}
 	
 	
-	//Busqueda por MediaId
-	//private final String SELECT_CONTENTMEDIA_BY_MEDIAID   = "Select " + COLUMN_CONTENTMEDIA_SELECT + " from " + TABLE_NAME_CONTENTMEDIA + " where Media_MediaId =?";
-	
+	/**
+	 * GET CONTENT MEDIA BY MEDIAID
+	 * 
+	 * @param mediaid
+	 * @return
+	 */
 	public ArrayList getContentmediaByMediaId(int mediaid)
 	{
+		Connection conn = DSManager.getConnection();
 		ArrayList item = new ArrayList();
 		try {
 			PreparedStatement stmt = conn
+																	// RUNNING QUERY
 					.prepareStatement(SELECT_CONTENTMEDIA_BY_MEDIAID);
 			stmt.setInt(1, mediaid);
 			ResultSet rs = stmt.executeQuery();
@@ -634,18 +797,32 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContenDAO","getContentmediaByMediaId",e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		return item;
 	}
 		
-	
-	//Inserta Contentemedia
-	//private final String INSERT_CONTENTMEDIA = "Insert into " + TABLE_NAME_CONTENTMEDIA + "(" + COLUMN_CONTENTMEDIA_INSERT + ") values (?,?)";	
-	
+		
+	/**
+	 * INSERT CONTENT MEDIA BY CONTENTID AND MEDIAID
+	 * @param contentid
+	 * @param mediaid
+	 * @return
+	 */
 	public int insertContentmedia (Long contentid,int mediaid)
 	{
+		Connection conn = DSManager.getConnection();
 		try {
 			
 			PreparedStatement stmt = conn
+																	// RUNNING QUERY
 					.prepareStatement(INSERT_CONTENTMEDIA,Statement.RETURN_GENERATED_KEYS);
 			stmt.setLong(1, contentid);
 			stmt.setInt(2, mediaid);
@@ -659,15 +836,27 @@ public class ContentDAO extends DAO{
 		}catch (Exception e) {
 		log.error("ContentDAO","insertContentmedia",e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		return 0;
 	}
 	
-	//Borra Contentmedia cuando se borra un contenido
-	//private final String DELETE_CONTENTMEDIA_BY_CONTENTID         = "Delete " + TABLE_NAME_CONTENTMEDIA + " where Content_ContentId = ?";
 	
+	/**
+	 * DELETE CONTENT MEDIA BY CONTENTID
+	 *  
+	 * @param contentid
+	 */
 	public void deleteContentMediaByContentId (Long contentid)
 	{
-		
+		Connection conn = DSManager.getConnection();
 		try
 		{
 			PreparedStatement stmt = conn
@@ -678,15 +867,28 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO","deleteContentlabelByContentId",e.toString());
 		}
+		finally{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
-	//Borra Contentmedia cuando se borra un media
-	//private final String DELETE_CONTENTMEDIA_BY_MEDIAID         = "Delete " + TABLE_NAME_CONTENTMEDIA + " where Media_MediaId = ?";	
+
 	
+	/**
+	 * DELETE CONTENT MEDIA BYE MEDIAID 
+	 * @param mediaid
+	 */
 	public void deleteContentMediaByMediaId (int mediaid)
 	{
+		Connection conn = DSManager.getConnection();
 		try
 		{
 			PreparedStatement stmt = conn
+																	// RUNNING QUERY
 					.prepareStatement(DELETE_CONTENTMEDIA_BY_MEDIAID);
 			stmt.setInt(1, mediaid);
 			stmt.executeQuery();
@@ -694,36 +896,31 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO","deleteContentlabelByMediaId",e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	
-	//Borra Contentlabel por ContentId and LabelId
-	//private final String DELETE_CONTENTLABEL_BY_CONTENTID_AND_LABELID  = "Delete " + TABLE_NAME_CONTENTLABEL + " where Content_ContentId= ? and Label_LabelId";
-	
-/*	public void deleteContentlabelByContentIdAndLabelId (int contentid,int labelid)
-	{
-		try
-		{
-			PreparedStatement stmt = conn
-					.prepareStatement(DELETE_CONTENTLABEL_BY_CONTENTID_AND_LABELID);
-			stmt.setInt(1, contentid);
-			stmt.setInt(2, labelid);
-			stmt.executeQuery();
-			
-		}catch (Exception e){
-			log.error("ContentDAO","deleteContentlabelByContentidAndLabelId",e.toString());
-		}
-	}     */
-	
-
-	//Borra Contentmedia especificamente una relacion de un contenido con un media
-	//private final String DELETE_CONTENTMEDIA_BY_CONTENTID_AND_MEDIAID         = "Delete " + TABLE_NAME_CONTENTMEDIA + " where Content_ContentId = ? and Media_MediaId = ?";
-	
+	/**
+	 * DELTE CONTENT MEDIA BY CONTENTID AND MEDIAID
+	 * 
+	 * @param contentid
+	 * @param mediaid
+	 */
 	public void deleteContentmediaByContentIdAndMediaId (Long contentid,int mediaid)
 	{
+		Connection conn = DSManager.getConnection();
 		try
 		{
 			PreparedStatement stmt = conn
+																	// RUNNING QUERY
 					.prepareStatement(DELETE_CONTENTMEDIA_BY_CONTENTID_AND_MEDIAID);
 			stmt.setLong(1, contentid);
 			stmt.setInt(2, mediaid);
@@ -731,20 +928,31 @@ public class ContentDAO extends DAO{
 			
 		}catch (Exception e){
 			log.error("ContentDAO","deleteContentmediaByContentIdAndMediaId",e.toString());
+		}finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	
-	
-	
-	//Consulta las etiquetas asociadas a un ContentId
-	//private final String SELECT_LABELTEXT_BY_CONTENTID = "Select " + COLUMN_LABEL_INSERT + " from " + TABLE_NAME_LABEL + " a, " + TABLE_NAME_CONTENTLABEL + " b where a.LabelId = b.Label_LabelId and b.ContentId = ?"	
-	
+	/**
+	 * GET LABEL TEXT BY CONTENTID
+	 * 
+	 * @param contentid
+	 * @return
+	 */
 	public ArrayList getLabelTextByContentId(Long contentid)
 	{
+		Connection conn = DSManager.getConnection();
 		ArrayList item = new ArrayList();
 		try
 		{
 			PreparedStatement stmt = conn
+																	// RUNNING QUERY
 					.prepareStatement(SELECT_LABELTEXT_BY_CONTENTID);
 			stmt.setLong(1, contentid);
 		
@@ -760,20 +968,30 @@ public class ContentDAO extends DAO{
 		}catch (Exception e) {
 			log.error("ContentDAO","getLabelTextByContentId",e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		return null;
 	}
 	
 	
-	
-	///////////////////////////////////
-	
-	
-	
-	
-	
+	/**
+	 * GET TAG LIST BY CONTENTID
+	 * 
+	 * @param content_id
+	 * @return
+	 */
 	public ArrayList getTagList(Long content_id){
 		ArrayList result = new ArrayList();
+		Connection conn = DSManager.getConnection();
 		try{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_LABELTEXT_BY_CONTENTID);
 			stmt.setLong(1, content_id);
 			ResultSet rs = stmt.executeQuery();
@@ -785,52 +1003,33 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO", "getTagList");
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return result;
 	}
 	
 	
 	
-	///////////////////////////////////
-	
-	
-	
-	
-	
-	//Regresa el nombre del canal asociado a un contenido
-	//private final String SELECT_CONTENT_CHANNEL_BY_CONTENTID = "Select a.ChannelName from " + TABLE_NAME_CHANNEL + " a, " + TABLE_NAME_CONTENT + " b where a.ChannelId = b.Channel_ChannelId and b.ContentId = ? "
-	
-//	public ArrayList getContentChannelList(Long contentid)
-//	{
-//		ArrayList item = new ArrayList();
-//		try 
-//		{
-//			PreparedStatement stmt = conn
-//					.prepareStatement(SELECT_CONTENT_CHANNEL_BY_CONTENTID);
-//			stmt.setLong(1, contentid);
-//		
-//			ResultSet rs =stmt.executeQuery();
-//			while (rs.next())
-//			{
-//				String result = rs.getString("ChannelName");
-//				item.add(result);
-//			}
-//		}catch (Exception e){
-//			log.error("ContentDAO","getContentChannelList",e.toString());
-//		}
-//		return item;
-//	}
-
-	
-	
-	
-	/////////////////
-	
-	
+	/**
+	 * GET CONTENT CHANNEL LIST
+	 * 
+	 * @param contentID
+	 * @return
+	 */
 	public ArrayList getContentChannelList(Long contentID){
 		ArrayList result=new ArrayList();
+		Connection conn = DSManager.getConnection();
 		
 		try{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_CHANNEL_BY_CONTENT_ID);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
@@ -857,6 +1056,15 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO", "getContentChannelList", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return result;
 	}	
@@ -864,25 +1072,16 @@ public class ContentDAO extends DAO{
 	
 	
 	
-	////////////////
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	//Consulta Todas las etiquetas disponibles
-	//private final String SELECT_LABEL_ALL = "Select " + COLUMN_LABEL_SELECT + " from " + TABLE_NAME_LABEL;	
-	
+	/**
+	 * GET ALL TAG
+	 * @return
+	 */
 	public String getAllTag(){
 		JSONArray result = new JSONArray();
+		Connection conn = DSManager.getConnection();
 		try{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_LABEL_ALL);
-//			stmt.setString(1, Utils.getToday("-"));
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
 				result.put(Utils.checkNull(rs.getString("LabelText")));
@@ -890,15 +1089,27 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO", "getAllTag",e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return result.toString();
 	}
 	
-	//Regresa el numero de contenidos activos
-	//private final String COUNT_CONTENT_BY_TYPE  = "Select " + COLUMN_CONTENT_COUNT + " from " + TABLE_NAME_CONTENT + "  where ContentStatus = '?'"	
-	
+	/**
+	 * GET CONTENT TYPE BY CONTENTTYPE
+	 * @param contenttype
+	 * @return
+	 */
 	public long getCountByType(String contenttype)
 	{
+		Connection conn = DSManager.getConnection();
 		long result = 0;
 		String sql = COUNT_CONTENT_BY_TYPE;
 		String fecha = "";
@@ -917,7 +1128,6 @@ public class ContentDAO extends DAO{
 				sql = sql + "))";
 			}
 			PreparedStatement stmt = conn.prepareStatement(sql);
-//			stmt.setString(1, Utils.getToday("-"));
 			stmt.setString(1, contenttype);
 			if ((contenttype =="A") || (contenttype == "E"))
 			{
@@ -931,17 +1141,31 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO","getCountByType",e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		return result;
 	}
 
 		
-		//El Siguiente es código de Smartmedia
-		//Ejecuta consultas SQL y las regresa en un arreglo Json
-	
+
+	/**
+	 * GET CONTENT
+	 * IS JSONARRAY
+	 * @param sql
+	 * @return
+	 */
 		public JSONArray getContentS(String sql){
 			JSONArray result = new JSONArray();
-			
+			Connection conn = DSManager.getConnection();
 			try{
+																	// RUNNING QUERY										
 				PreparedStatement stmt = conn.prepareStatement(sql);
 				ResultSet rs = stmt.executeQuery();
 				while (rs.next()){
@@ -952,16 +1176,11 @@ public class ContentDAO extends DAO{
 					item.put("name", rs.getString("Contentname"));
 					item.put("type", rs.getString("ContentType"));
 					item.put("type_name", "value_me");
-							
 					item.put("show_in", rs.getString("ContentShowView"));
 					item.put("validity", rs.getString("ContentPublishDate") + " ~ " + rs.getString("ContentEndDate"));
-					//Towa RJR El Status se asi a activo porque este es el campo que contiene informacion
 					item.put("active", rs.getString("ContentStatus"));
-					//Towa RJR El status en el código de samtmedia siempre es cero
 					item.put("status", "A");
-					//Towa RJR Este campos ya no se usa, por lo que se mando un valor fijo 
 					item.put("blog", "blog");
-					//Towa RJR se cambio la lógica de los siguientes dos metodos en el nuevo ContentDAO
 					item.put("tag", getTagName(contentID));
 					item.put("channel", getContentChannel(contentID));
 					
@@ -970,17 +1189,32 @@ public class ContentDAO extends DAO{
 			}catch (Exception e){
 				log.error("ContentDAO", "getContent", e.toString());
 			}
+			finally
+			{
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 			
 			return result;
 		}
 		
-	//El siguiente es código de SmartMedia
-		
+
+		/**
+		 * GET TAG NAME BY CONTENTID
+		 * 
+		 * @param contentID
+		 * @return
+		 */
 		public String getTagName(int contentID){
 			String result="";
 			int count = 0;
-			
+			Connection conn = DSManager.getConnection();
 			try{
+																	// RUNNING QUERY
 				PreparedStatement stmt = conn.prepareStatement(SELECT_LABELTEXT_BY_CONTENTID);
 				stmt.setLong(1, contentID);
 				ResultSet rs = stmt.executeQuery();
@@ -992,6 +1226,14 @@ public class ContentDAO extends DAO{
 				}
 			}catch (Exception e){
 				log.error("ContentDAO", "getTagName", e.toString());
+			}finally
+			{
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 
 			if (count>1)
@@ -1001,13 +1243,18 @@ public class ContentDAO extends DAO{
 		}
 	
 		
-    //El siguiente es código de Smartmedia
-		
+		/**
+		 * GET CONTENT CHANNEL BY CONTETNID
+		 * 
+		 * @param contentID
+		 * @return
+		 */
 		public String getContentChannel(int contentID){
 			String result="";
 			int count = 0;
-			
+			Connection conn = DSManager.getConnection();
 			try{
+																	// RUNNING QUERY				
 				PreparedStatement stmt = conn.prepareStatement(SELECT_CONTENT_CHANNEL_BY_CONTENTID);
 				stmt.setLong(1, contentID);
 				ResultSet rs = stmt.executeQuery();
@@ -1020,6 +1267,15 @@ public class ContentDAO extends DAO{
 			}catch (Exception e){
 				log.error("ContentDAO", "getContentChannel", e.toString());
 			}
+			finally
+			{
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 
 			if (count>1)
 				result += " and <b>" + (count-1) + " more</b>";
@@ -1027,13 +1283,15 @@ public class ContentDAO extends DAO{
 			return result;
 		}
 	
-		
-	//El siguiente código es de Samtmedia
-		
-		
+		/**
+		 * GET CONT
+		 * 
+		 * @param sql
+		 * @return
+		 */
 		public Long getCount(String sql){
 			Long result = (long)0;
-			
+			Connection conn = DSManager.getConnection();
 			try{
 				PreparedStatement stmt = conn.prepareStatement(sql);
 				ResultSet rs = stmt.executeQuery();
@@ -1043,6 +1301,14 @@ public class ContentDAO extends DAO{
 			}catch (Exception e){
 				log.error("ContentDAO", "getCount", e.toString());
 				result = (long)0;
+			}finally
+			{
+				try {
+					conn.close();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			
 			return result;
@@ -1050,17 +1316,25 @@ public class ContentDAO extends DAO{
 	
 		
 		
-	//Regresa consulta de todos los resgistros de un tipo
-	//private final String SELECT_CONTENT_BY_TYPE  = "Select " + COLUMN_CONTENT_SELECT + " from " + TABLE_NAME_CONTENT + "  where ContentType=  '?'";
-	//Regresa consulta de todos los resgistros de un tipo
-	//private final String SELECT_CONTENT_BY_SEARCHTERM  = " and CONTENTNAME like '%?% order by ContenName";	
-		
+	/**
+	 * GET CONTENT BY TYPE
+	 * 
+	 * @param type
+	 * @param searchterm
+	 * @param columna
+	 * @param orden
+	 * @param inicio
+	 * @param registros
+	 * @return
+	 */
 	public ContentCountInfo getContentByType(String type, String searchterm, String columna, String orden,int inicio,int registros)
 	{
 		JSONArray result = new JSONArray();
 		Long lngregs = (long)0;
 		int intparam = 2;
 		ContentCountInfo conteninfo = new ContentCountInfo();
+		Connection conn = DSManager.getConnection();
+																	// RUNNING QUERY
 		String sql = SELECT_CONTENT_BY_TYPE;
 		String status = "";
 		String showin = "";
@@ -1121,25 +1395,9 @@ public class ContentDAO extends DAO{
 				
 				item.put("show_in", showin);
 				item.put("validity", rs.getString("ContentPublishDate") + " ~ " + rs.getString("ContentEndDate"));
-				//Towa RJR El Status se asi a activo porque este es el campo que contiene informacion
-//				status = rs.getChar("ContentStatus");
-//				if (type == "A")
-//				{
-//					item.put("status","0");
-//				    item.put("active", "1");
-//				}else {
-//					item.put("status", "1");
-//					item.put("active", "0");
-//				}
-				  item.put("status", rs.getString("ContentStatus"));
-				   item.put("active", rs.getString("ContentIsVisible"));
-//				item.put("active", rs.getString("ContentStatus"));
-//				item.put("active", "0");
-				//Towa RJR El status en el código de samtmedia  es 1: Eliminados se comenta la sig linea
-//				item.put("active", "1");
-				//Towa RJR Este campos ya no se usa, por lo que se mando un valor fijo 
+				item.put("status", rs.getString("ContentStatus"));
+				item.put("active", rs.getString("ContentIsVisible"));
 				item.put("blog", "blog");
-				//Towa RJR se cambio la lógica de los siguientes dos metodos en el nuevo ContentDAO
 				item.put("tag", getTagName(contentID));
 				item.put("channel", getContentChannel(contentID));
 				
@@ -1151,6 +1409,14 @@ public class ContentDAO extends DAO{
 			
 		}catch (Exception e){
 			log.error("ContentDAO","getContentByType",e.toString());
+		}finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		return conteninfo;	
@@ -1159,11 +1425,17 @@ public class ContentDAO extends DAO{
 	
 	
 	
-	///////SE DUPLICA EL METODO SOLO PARA OBTNER EL CONTEO SIN LOS LIMITES
-	
+
+	/**
+	 * GET CONTENT BY TYPE
+	 * 
+	 * @param type
+	 * @param searchterm
+	 * @return
+	 */
 	public Long getContentCountByType(String type, String searchterm)
 	{
-//		JSONArray result = new JSONArray();
+		Connection conn = DSManager.getConnection();
 		Long lngregs = (long)0;
 		int intparam = 2;
 		ContentCountInfo conteninfo = new ContentCountInfo();
@@ -1187,7 +1459,7 @@ public class ContentDAO extends DAO{
 			{
 				sql = sql + SELECT_CONTENT_BY_SEARCHTERM ;
 			}
-//			sql = sql + " order by " + columna + " " + orden + " " + SELECT_LIMIT;
+
 								
 			
 			PreparedStatement stmt = conn.prepareStatement(sql);
@@ -1208,102 +1480,42 @@ public class ContentDAO extends DAO{
 			}
 			
 
-//			stmt.setInt(intparam, inicio);
-//			intparam = intparam + 1;
-//			stmt.setInt(intparam, registros);
+
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
-//				JSONObject item = new JSONObject();
 				
 				lngregs = rs.getLong(1);
-/*				item.put("id", contentID);
-				item.put("name", rs.getString("ContentName"));
-				item.put("type", rs.getString("Contenttype_ContenttypeId"));
-				item.put("type_name",rs.getString("ContenttypeName"));
-						
-				item.put("show_in", rs.getString("ContentShowView"));
-				item.put("validity", rs.getString("ContentPublishDate") + " ~ " + rs.getString("ContentEndDate"));
-				//Towa RJR El Status se asi a activo porque este es el campo que contiene informacion
-//				status = rs.getChar("ContentStatus");
-				if (type == "A")
-				{
-					item.put("status","0");
-				    item.put("active", "1");
-				}else {
-					item.put("status", "1");
-					item.put("active", "0");
-				}
-//				item.put("active", rs.getString("ContentStatus"));
-//				item.put("active", "0");
-				//Towa RJR El status en el código de samtmedia  es 1: Eliminados se comenta la sig linea
-//				item.put("active", "1");
-				//Towa RJR Este campos ya no se usa, por lo que se mando un valor fijo 
-				item.put("blog", "blog");
-				//Towa RJR se cambio la lógica de los siguientes dos metodos en el nuevo ContentDAO
-				item.put("tag", getTagName(contentID));
-				item.put("channel", getContentChannel(contentID));
-				
-				result.put(item);	
-				lngregs = lngregs + 1; */
-		}
-		//	conteninfo.setRecords(lngregs);
-		//	conteninfo.setJSONArray(result);
+}
+
 			
 		}catch (Exception e){
 			log.error("ContentDAO","getContentByType",e.toString());
+		}finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		return lngregs;	
 		
 	}
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	///////////
-	
-	
-	
-	
-	
-	//Código de Smarmedia
-	
-	//private final String COLUMN_CONTENT_SELECT = "ContentId,Channel_ChannelId,Contenttype_ContenttypeId,ContentName,ContentHtml,ContentIsVisible," 
-    //        + "ContentPublishDate,ContentEndDate,ContentStatus,ContentShowView";
-	
+	/**
+	 * GET CONTENT BY CONTENT ID
+	 * IS A JSON
+	 * @param contentId
+	 * @return
+	 */
 	public JSONObject getContentOfJSON(Long contentId){
+		Connection conn = DSManager.getConnection();
 		try{
 			String showin = "";
+			
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_CONTENT_BY_ID);
 			stmt.setLong(1, contentId);
 			ResultSet rs = stmt.executeQuery();
@@ -1317,17 +1529,6 @@ public class ContentDAO extends DAO{
 				result.setName(rs.getString("ContentNAme"));
 				result.setValidityStart(rs.getString("ContentPublishDate"));
 				result.setValidityEnd(rs.getString("ContentEndDate"));
-//				String status = rs.getString("ContentStatus");
-//				if( status.equals("A")){
-//					result.setActive(("1"));
-//					result.setStatus("0");
-//					
-//				}else {
-//					result.setActive("2");
-//					result.setStatus("1");
-//				}
-//				result.setActive("0");
-//				result.setStatus(rs.getString("ContentStatus"));
 				result.setStatus(rs.getString("ContentStatus"));
 				result.setActive(rs.getString("ContentIsVisible"));
 				
@@ -1336,15 +1537,29 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO", "getContentOfJSON", e.toString());
 		}
+		finally{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
 		return new JSONObject();
 	}
 
-	// El Siguiente código es de SmartMedia	
+	/**
+	 * GET CONTENT CHANNEL LIST BY CONTENTID
+	 * @param contentID
+	 * @return
+	 */
 	public JSONArray getContentChannelListOfJSON(Long contentID){
 		JSONArray result=new JSONArray();
+		Connection conn = DSManager.getConnection();
 		
 		try{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_CHANNEL_BY_CONTENT_ID);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
@@ -1358,13 +1573,7 @@ public class ContentDAO extends DAO{
 				item.setPassword(rs.getString("ChannelPassword"));
 				item.setAccessLevel(rs.getInt("ChannelIsVisible"));
 				item.setSecurityLevel(rs.getString("ChannelSecurityLevel"));
-			//	item.setPeopleManager("0");
-			//	item.setNewHire("N");
 				item.setPos(rs.getLong("ChannelPosition"));
-				
-				//if (language.length()>0)
-				//	item.setSecurityLevelName(rs.getString("value_"+language));
-				//else
 				item.setSecurityLevelName("me");
 				
 				item.setFullName(getFamilyName(item.getFamilyID()) + " > " + getChannelName((item.getId())));
@@ -1373,19 +1582,31 @@ public class ContentDAO extends DAO{
 			}
 		}catch (Exception e){
 			log.error("ContentDAO", "getContentChannelListOfJSON", e.toString());
+		}finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 		return result;
 	}	
 
 	
-	//Siguiente código es de Smartmedia
-	
+	/**
+	 * GET FAMILY NAME
+	 * @param familyID
+	 * @return
+	 */
 	private String getFamilyName(Long familyID){
 		String result = "";
-		
+		Connection conn = DSManager.getConnection();
 		try{
-			PreparedStatement stmt = conn.prepareStatement(" select Familyname from family where Familyid=? ");
+																	// RUNNING QUERY
+			PreparedStatement stmt = conn.prepareStatement(SELECT_Familyname);
 			stmt.setLong(1, familyID);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -1394,17 +1615,30 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO", "getFamilyName", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
 		return result;
 	}
 
-	//El siguiente código es de Smartmedia
-	
+	/**
+	 * GET CHABBEL NAME BY CHANNELID 
+	 * @param channelID
+	 * @return
+	 */
 	private String getChannelName(Long channelID){
 		String result = "";
-		
+		Connection conn = DSManager.getConnection();
 		try{
-			PreparedStatement stmt = conn.prepareStatement(" select ChannelFather,ChannelName from channel where Channelid=? ");
+																	// RUNNING QUERY
+			PreparedStatement stmt = conn.prepareStatement(SELEC_channelname);
 			stmt.setLong(1, channelID);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -1417,16 +1651,29 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO", "getChannelName", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
 		return result;
 	}
 
-	//El siguiente código es de Samrtmedia
-	//Consulta las etiquetas asociadas a un ContentId
-	//private final String SELECT_LABELTEXT_BY_CONTENTID = "Select " + COLUMN_LABEL_INSERT + " from " + TABLE_NAME_LABEL + " a, " + TABLE_NAME_CONTENTLABEL + " b where a.LabelId = b.Label_LabelId and b.ContentId = ?";
+	/**
+	 * GET TAG LIST  OF JSON BY ID
+	 * @param id
+	 * @return
+	 */
 	public JSONArray getTagListOfJSON(Long id){
 		JSONArray result = new JSONArray();
+		Connection conn = DSManager.getConnection();
 		try{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_LABELTEXT_BY_CONTENTID);
 			stmt.setLong(1, id);
 			ResultSet rs = stmt.executeQuery();
@@ -1438,20 +1685,34 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO", "getTagListofJSON",e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return result;
 	}	
 	
-	//El siguiente es codigo de Smartmedia customizado
+	/**
+	 * GET CONTET VIDEO BY CONTENTID
+	 * @param contentID
+	 * @return
+	 */
 	public ContentVideoInfo getContentVideo(Long contentID){
 		ContentVideoInfo item = new ContentVideoInfo();
+		Connection conn = DSManager.getConnection();
 		try{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
 		
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
-				//ContentVideoInfo item = new ContentVideoInfo();
 				if (rs.getLong("Filetype_FiletypeId")==1) 
 				{
 					item.setImage(rs.getString("MediaContent"));
@@ -1467,21 +1728,33 @@ public class ContentDAO extends DAO{
 
 		}catch (Exception e){
 			log.error("ContentDAO", "getContentVideo", e.toString());
+		}finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 		return null;
 	}	
 	
-	//Clonado del metódo anterior
-	
+	/**
+	 * GET CONTENT NEWS BY CONTENTID
+	 * @param contentID
+	 * @return
+	 */
 	public ContentNewsInfo getContentNews(Long contentID){
 		ContentNewsInfo item = new ContentNewsInfo();
+		Connection conn = DSManager.getConnection();
 		try{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
-			//	ContentVideoInfo item = new ContentVideoInfo();
 				if (rs.getInt("Filetype_FiletypeId")==1) 
 				{
 					item.setImage(rs.getString("MediaContent"));
@@ -1494,17 +1767,33 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO", "getContentNews", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return item;
 	}	
 
 	
-	//El siguiente es código de Samrtmedia customizado
-	
+
+	/**
+	 * GET CONTENT GALLERY MEDIA LIST
+	 * 
+	 * @param contentID
+	 * @return
+	 */
 	public ArrayList getContentGalleryMediaList(Long contentID){
 		ArrayList result=new ArrayList();
+		Connection conn = DSManager.getConnection();
 		
 		try{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
@@ -1520,26 +1809,52 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO", "getContentGalleryMediaList", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return result;
 	}	
-
-	//El siguientes es código de Smartmedia customizado
 	
+	/**
+	 * GENERATE HTML FROM CONTENT VIDEO
+	 * @param contentID
+	 * @throws Exception
+	 */
 	public void generateHTML(Long contentID) throws Exception	{
 		ContentInfo content = getContent(contentID);
 		String result = "";
 		String result_mobile = "";
+		int idmedia=0;
+		int idmedia_media=0;
+		String BlobImagen="";
 		
 		if (content!=null){
 			
 			if (content.getType().equals("2")){
 				ContentVideoInfo video = getContentVideo(contentID);
+
+				int i= 1;
 				
 				if (video!=null && video.getImage().length()>0 && video.getVideo().length()>0){
-					result += "<a " + HTML.attr("href", "javascript:play_video('"+ HTML.media("video", video.getVideo())  +"')") + ">";
-					result += "<img " + HTML.attr("class", "video-image") +  " " + HTML.attr("src", HTML.media("gallery", video.getImage())) + " " + HTML.attr("alt", "") + ">";
-					result += "</a>";
+					
+					result += "<div><h3>";
+					result += "<object type=\"application/x-shockwave-flash\" " +  
+							 "data=\"/resources/swf/playerLite.swf\" " + 
+							 "width=\"473\" height=\"245\" style=\"visibility: visible; width:473px; height:245px;\">" +
+							 "<param name=\"menu\" value=\"true\">"+
+							 "<param name=\"allowfullscreen\" value=\"true\">"+
+							 "<param name=\"allowscriptaccess\" value=\"always\">"+
+							 "<param name=\"flashvars\" value=\"vidWidth=473&vidHeight=245&vidPath="+HTML.media("video", video.getVideo())+"&thumbPath="+HTML.media("video", video.getImage())+"&plShowAtStart=true&plHideDelay=2000&autoPlay=false&autoLoop=false&watermark=hide&vidAspectRatio=fit&seekbar=show\"></object>" ;
+						result += "</h3></div>";
+					
+
 				}
 				
 				result_mobile = result;
@@ -1556,101 +1871,27 @@ public class ContentDAO extends DAO{
 					String html_mobile = HTML.replaceVideoForMobile(html);
 					
 					result += "<div " + HTML.attr("class", "large-16 medium-16 columns") + ">";
-//					result += "<h6>" + date + "</h6>";
-					
-//					result += "<div " + HTML.attr("class", "row news") + ">";
-//					result += HTML.generateFeatures_Image(image);
-//					result += "</div>";
 
 					result += "<div " + HTML.attr("class", "news") + ">" + html_normal + "</div>";
 					result += "</div>";
 					
 					result_mobile += "<div " + HTML.attr("class", "large-16 medium-16 columns") + ">";
-//					result_mobile += "<h6>" + date + "</h6>";
 					result_mobile += "<div " + HTML.attr("class", "news") + ">" + html_mobile + "</div>";
 					result_mobile += "</div>";
 				}
 			}
 			
-/*			if (content.getType().equals("3")){
-				boolean have = false;
-				ArrayList questions = getContentQuestionList(contentID);
-				
-				for (int i=0; i<questions.size(); i++){
-					ContentQuestionInfo question = (ContentQuestionInfo)questions.get(i);
-
-					result += "<div " + HTML.attr("class", "row poll") + ">"; 
-					result += "<h5>" + question.getQuestion() + "</h5>";
-
-					if (question.getStatus().equals("0")){
-						ArrayList answers = getContentAnswerList(question.getId());
-
-						result += "<p>";
-						String temp="checked";
-						for (int j=0; j<answers.size(); j++){
-							ContentQuestionAnswerInfo answer = (ContentQuestionAnswerInfo)answers.get(j);
-							result += "<input " + HTML.attr("type", "radio") + " " + HTML.attr("id", "answer_"+answer.getId()) + " " + HTML.attr("name", "question_"+question.getId()) + " " + HTML.attr("value", ""+answer.getId()) + " " + HTML.attr("question", ""+question.getId())  + " " + HTML.attr("answer", ""+answer.getId()) + " " + temp + " />";
-							result += "<label " + HTML.attr("for", "answer_"+answer.getId()) + ">" + answer.getAnswer() + "</label>";
-							temp = "";
-						}
-						result += "</p>";
-						have = true;
-						
-					}else{
-						ArrayList answers = getAnswerList(question.getId());
-						result += "<ul>";
-						for (int j=0; j<answers.size(); j++){
-							ContentAnswerInfo answer = (ContentAnswerInfo)answers.get(j);
-							result += "<li>" + answer.getAnswer() + "</li>"; 
-						}
-						result += "</ul>";
-						
-						have = true;
-						result += "<input " + HTML.attr("type", "text") + " " + HTML.attr("class", "poll_answer") + " " + HTML.attr("id", "answer"+question.getId()) + " " + HTML.attr("poll", String.valueOf(question.getId())) + " />";
-					}
-					
-					result += "</div>";
-				}
-				
-				if (have){
-					result += "<a " + HTML.attr("class", "button medium") + " " + HTML.attr("href", "javascript:poll_submit()") + " >"  + "</a>";
-				}
-				
-				result_mobile = result;
-			}   */
-			
-/*			if (content.getType().equals("4")){
-				ArrayList faqs = getContentFAQsList(contentID);
-				for (int i=0; i<faqs.size(); i++){
-					ContentFAQsInfo faq = (ContentFAQsInfo)faqs.get(i);
-					result += "<div " + HTML.attr("class", "row faqs") + ">";
-					result += "<h5>" + faq.getQuestion() + "</h5>";
-					result += "<h6>"; 
-					result += faq.getAnswer() ;
-					result += "</h6>";
-					result += "</div>";
-				}
-				
-				result_mobile = result;
-			}*/
 			
 			if (content.getType().equals("3")){
-			//	ContentGalleryInfo gallery = getContentGallery(contentID);
 				ArrayList gallerys = getContentGalleryMediaList(contentID);
-				
-//				if (gallery!=null){
-//					result += "<p>" + gallery.getDetail() + "</p>";
+
 					
 					if (gallerys.size()>0){
 						result += "<ul clearing-thumbs class='clearing-thumbs large-block-grid-4 medium-block-grid-3 small-block-grid-2' data-clearing>";
-//						result += "<div " + HTML.attr("class", "gallery-image image-set") + ">";
 					}
 					
 					for (int i=0; i<gallerys.size(); i++){
 						ContentGalleryMediaInfo item = (ContentGalleryMediaInfo)gallerys.get(i);
-//						result += "<a " + HTML.attr("class", "gallery-image-link") + " " + HTML.attr("href", HTML.media("gallery", item.getMedia())) + " " + HTML.attr("data-lightbox", "gallery-set") + " " + HTML.attr("data-title", item.getName()) + ">";
-//						result += "<img " + HTML.attr("class", "gallery-image") +  " " + HTML.attr("src", HTML.media("gallery", item.getMedia())) + " " + HTML.attr("alt", "") + " />";
-//						result += "</a>";
 						
 						result += "<li>";
 						result += "<a " + HTML.attr("href", HTML.media("gallery", item.getMedia())) + " " + ">";
@@ -1661,39 +1902,30 @@ public class ContentDAO extends DAO{
 					
 					if (gallerys.size()>0){
 						result += "</ul>";
-//						result += "</div>";
 					}
-//				}
+
 				
 				result_mobile = result;
 			}
 			
 			if (content.getType().equals("4")){
-//				ContentFileInfo file = getContentFile(contentID);
 				ArrayList files = getContentFileMediaList(contentID);
 				
-//				if (file!=null){
-//					result += "<p>" + file.getDescription() + "</p>";
+
 					if (files.size()>0){
-//						result += "<h4>" + reg.getStringOfLanguage("pubilc.attach_file", language) + "</h4>";
 						result += "<ul>";
 					}
 					
 					for (int i=0; i<files.size(); i++){
 						ContentFileMediaInfo item = (ContentFileMediaInfo)files.get(i);
 						result += "<li><a " + HTML.attr("href", "javascript:file_download('" + HTML.media("file", item.getMedia())+"&name="+item.getName() + "')") + ">" ;
-						//JR
-						//Consulta si la extención en la BD.
 						result += "<i " + HTML.attr("class", "fa " + MediaDAO.getFileExtencion(item.getName()) + " fa-lg") + ">" + "</i>";
-						//Original
-						//result += "<i " + HTML.attr("class", "fa " + Utils.getIconOfFileType(item.getName()) + " fa-lg") + ">" + "</i>";
 						result += " <span>" + item.getName() + "</span></a></li>";
 					}
 
 					if (files.size()>0){
 						result += "</ul>";
 					}
-//				}
 				
 				result_mobile = result;
 			}
@@ -1702,12 +1934,17 @@ public class ContentDAO extends DAO{
 		}
 	}
 
-	//El siguiente es código de Smartmedia customizado
-	
+	/**
+	 * GET CONTENT FILE MEDIA LIST BY CONTENT ID
+	 * @param contentID
+	 * @return
+	 */
 	public ArrayList getContentFileMediaList(Long contentID){
 		ArrayList result=new ArrayList();
+		Connection conn = DSManager.getConnection();
 		
 		try{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
@@ -1723,18 +1960,32 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO", "getContentGalleryMediaList", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return result;
 	}	
 
 	
-	//Actualiza el HTML del contenido
-	//private final String UPDATE_CONTENT_HTML_BY_CONTENTID = "Update " + TABLE_NAME_CONTENT + " set " + COLUMN_CONTENT_HTML_UPDATE + " where ContentId = ?";
-	
+
+	/**
+	 * UPDATE CONTENT HTML BY HTML AND CONTENTID 
+	 * @param Html
+	 * @param contentid
+	 */
 	public void updateContentHtml(String Html, Long contentid)
 	{
+		Connection conn = DSManager.getConnection();
 		try
 		{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(UPDATE_CONTENT_HTML_BY_CONTENTID);
 			stmt.setString(1, Html);
 			stmt.setLong(2, contentid);
@@ -1743,13 +1994,27 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO","updateContentHtml",e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 	
-	//El siguiente es código de Smartmedia customizado
-	//SELECT_CONTENT_BY_ID
-	
+
+	/**
+	 * GET CONTENT BY CONTENTID
+	 * @param contentID
+	 * @return
+	 */
 	public ContentInfo getContent(Long contentID){
+		Connection conn = DSManager.getConnection();
 		try{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_CONTENT_BY_ID);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
@@ -1761,18 +2026,6 @@ public class ContentDAO extends DAO{
 				result.setName(rs.getString("ContentName"));
 				result.setValidityStart(rs.getString("ContentPublishDate"));
 				result.setValidityEnd(rs.getString("ContentEndDate"));
-//				result.setActive(rs.getString("ContentStatus"));
-//				String status = rs.getString("ContentStatus");
-//				if (status.equals("A"))
-//				{
-//
-//					result.setActive("1");
-//					result.setStatus("0");
-//				}else {
-//
-//					result.setActive("2");
-//					result.setStatus("1");
-//				}
 				result.setStatus(rs.getString("ContentStatus"));				
 				result.setCreatedAt("00/00/00");
 				result.setUpdatedAt("00/00/00");
@@ -1786,72 +2039,118 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO", "getContent", e.toString());
 		}
+		finally{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
 		return null;
 	}
 
 	
-	//El Siguiente codigo es de Smartmedia
-	//UPDATE_CONTENT_TO_REMOVE
-	
+
+	/**
+	 * UPDATE CONTENT REMOVE 
+	 * @param id
+	 * @throws Exception
+	 */
 	public void removeContent(Long id) throws Exception{
+		Connection conn = DSManager.getConnection();
+																	// RUNNING QUERY
 		PreparedStatement stmt = conn.prepareStatement(UPDATE_CONTENT_TO_REMOVE);
-	//	stmt.setString(1, Utils.getTodayWithTime());
 		stmt.setLong(1, id);
 		stmt.executeUpdate();
+		
+	
+			conn.close();
+		
 	}
 	
-	
-	//UPDATE_CONTENT_TO_DELETE
+	/**
+	 * DELETE CONTENT BY ID
+	 * @param id
+	 * @throws Exception
+	 */
 	public void deleteContentLogical(Long id) throws Exception{
+		Connection conn = DSManager.getConnection();
+																	// RUNNING QUERY
 		PreparedStatement stmt = conn.prepareStatement(UPDATE_CONTENT_TO_DELETE);
-	//	stmt.setString(1, Utils.getTodayWithTime());
 		stmt.setLong(1, id);
 		stmt.executeUpdate();
+		conn.close();
 	}
 	
+	/**
+	 * DELETE CONTENT
+	 * @throws Exception
+	 */
 	public void deleteContentAll() throws Exception{
+		Connection conn = DSManager.getConnection();
+																	// RUNNING QUERY
 		PreparedStatement stmt = conn.prepareStatement("Delete Content");
-	//	stmt.setString(1, Utils.getTodayWithTime());
-	//	stmt.setLong(1, id);
 		stmt.executeUpdate();
+		conn.close();
 	}
 	
-	//UPDATE_CONTENT_TO_ACTIVE
-	
+	/**
+	 * ACTIVE CONTENT BY ID
+	 * @param id
+	 * @throws Exception
+	 */
 	public void activeContent(Long id) throws Exception{
+		Connection conn = DSManager.getConnection();
+																	// RUNNING QUERY
 		PreparedStatement stmt = conn.prepareStatement(UPDATE_CONTENT_TO_ACTIVE);
-	//	stmt.setString(1, Utils.getTodayWithTime());
 		stmt.setLong(1, id);
 		stmt.executeUpdate();
+		conn.close();
 	}
 	
-	public JSONArray getVideoContentListOfJSON(Long contentID){
+	/**
+	 * GET CONTENT VIDEO IN LIST
+	 * @param contentID
+	 * @return
+	 */
+	public JSONArray getVideoContentListOfJSON(ArrayList<Long> contentID, Long Channel){
 		JSONArray r = new JSONArray();
+		
 		try
 		{
-			
-			ContentInfo result = getContent(contentID);
-			ContentVideoInfo video = getContentVideo(contentID);
-//		JSONObject item = result.toJSONObject();
-			JSONObject item = result.toJSONObject();
-			item.put("video", video.getVideo());
-			item.put("image", video.getImage());		
-			r.put(item);
+			Iterator<Long> iter = contentID.iterator();
+			ContentInfo result = null;
+			ContentVideoInfo video=null;
+			JSONObject item = null;
+			while(iter.hasNext()){
+				long posicion = iter.next();
+				result = getContentvideo(Channel,posicion);
+				video= getContentVideo(posicion);
+				item = result.toJSONObject();
+				item.put("video", video.getVideo());
+				item.put("image", video.getImage());		
+				r.put(item);
+			}
 						
-//			return r;
 		}catch (Exception e){
 			log.error("ContentDAO","getVideoContentListOfJSON",e.toString());
 		}
 		return r;
 	}
 	
-	
-	//El siguiente código es de Smartmedia customizado
+	/**
+	 * GET CONTENT FILE MEDIA IN LIST OF JSON BY CONTENTID
+	 * @param contentID
+	 * @return
+	 */
 	public JSONArray getContentFileMediaListOfJSON(Long contentID){
 		JSONArray result=new JSONArray();
+		Connection conn = DSManager.getConnection();
 		
 		try{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
@@ -1868,17 +2167,30 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO", "getContentFileMediaListOfJSON", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return result;
 	}
 	
 	
-	//El siguiente código es de Smartmedia customizado
-	//Obtiene la descripción de un contenido
-	//private final String SELECT_CONTENT_DESCRIPTION = " select ContentId,ContentDescription from " + TABLE_NAME_CONTENT + " where ContentId=? " ;
-	
+/**
+ * 
+ * GET CONTENT FILE OF JESON BY CONTENTID
+ * @param contentID
+ * @return
+ */
 	public JSONObject getContentFileOfJSON(Long contentID){
+		Connection conn = DSManager.getConnection();
 		try{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_CONTENT_DESCRIPTION);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
@@ -1892,17 +2204,30 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO", "getContentFileOfJSON", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return new JSONObject();
 	}	
 
-	
-	//Actualiza la descripcion del contenido con base al ContentId
-	//private final String UPDATE_CONTENT_DESCRIPTION = "update " + TABLE_NAME CONTENT + " set " + COLUMN_CONTENT_UPDATE_DESCRIPTION + " where ContentId = ?";
+	/**
+	 * UPDATE CONTENT DESCRIPTION BY ID
+	 * @param contentid
+	 * @param description
+	 */
 	public void updateContentDescriptionById (Long contentid, String description)
 	{
+		Connection conn = DSManager.getConnection();
 		try
 		{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(UPDATE_CONTENT_DESCRIPTION);
 			stmt.setString(1, description);
 			stmt.setLong(2,contentid);
@@ -1910,17 +2235,27 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO", "updateContentDescriptionById",e.toString());
 		}
+		try {
+			conn.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	
-	//Media
-	//Private final String SELECT_MEDIA_BY_CONTENT_ID  = " Select " + COLUMN_MEDIA_SELECT + " from " + TABLE_NAME_MEDIA + " m, " + TABLE_NAME_CONTENTMEDIA + " c where c.Media_Mediaid = m.Media_id and c.Content_ContentId = ?";
-	
+	/**
+	 * GET MEDIA IMAGE BY CONTENTID
+	 * @param contentid
+	 * @return
+	 */
 	public String getMediaImage (Long contentid)
 	{
+		Connection conn = DSManager.getConnection();
 		String image= "";
 		try
 		{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
 			stmt.setLong(1,contentid);
 			ResultSet rs = stmt.executeQuery();
@@ -1934,15 +2269,30 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO","getMediaImage",e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		return image;
 	}
 	
-	
+	/**
+	 * GET MEDIA VIDEO CONTENTID
+	 * @param contentid
+	 * @return
+	 */
 	public String getMediaVideo (Long contentid)
 	{
+		Connection conn = DSManager.getConnection();
 		String video= "";
 		try
 		{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
 			stmt.setLong(1,contentid);
 			ResultSet rs = stmt.executeQuery();
@@ -1956,14 +2306,28 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO","getMediaVideo",e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		return video;
 	}
 	
 	
-	//El siguiente codigo es de Smatmedia customizado
-	
+	/**
+	 * GET CONTENT NEWS BY CONTENTID
+	 * @param contentID
+	 * @return
+	 */
 	public ContentNewsInfo getContentNews2(Long contentID){
+		Connection conn = DSManager.getConnection();
 		try{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_CONTENT_BY_ID);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
@@ -1978,11 +2342,23 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO", "getContentNews", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return new ContentNewsInfo();
 	}	
-
-	//El Siguiente es codigo de Smartmedia customizado
+	/**
+	 * GET CONTENT VIDEO BY CONTENTID
+	 * @param contentID
+	 * @return
+	 */
 	public ContentVideoInfo getContentVideo2(Long contentID){
 		ContentVideoInfo item = new ContentVideoInfo();
 		item.setContentID(contentID);
@@ -1991,9 +2367,15 @@ public class ContentDAO extends DAO{
 		return item;
 	}
 	
-	
+	/**
+	 * GET CONTENT MEDIA BY MEDIA CONTENT
+	 * @param MediaContent
+	 * @return
+	 */
 	public int getMediaContent(String MediaContent) {
+		Connection conn = DSManager.getConnection();
 		try {
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_KEY_FILE);
 			stmt.setString(1, MediaContent);
 			ResultSet rs = stmt.executeQuery();
@@ -2006,19 +2388,32 @@ public class ContentDAO extends DAO{
 			}
 		} catch (Exception e) {
 			log.error("MediaDAO", "getFileTypeId", e.toString());
+		}finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+		
 		return 0;
 
 	}
 	
-	
-	//Obtiene el MediaId de un archivo de imagen asociado a un ContentId
-	//SELECT_IMAGE_MEDIAID
+	/**
+	 * GET MEDIA IMAGEID BY CONTENTID
+	 * @param contentid
+	 * @return
+	 */
 	public int getMediaImageId (Long contentid)
 	{
+		Connection conn = DSManager.getConnection();
 		int key = 0;
 		try
 		{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_IMAGE_MEDIAID);
 			stmt.setLong(1, contentid);
 			ResultSet rs = stmt.executeQuery();
@@ -2033,9 +2428,25 @@ public class ContentDAO extends DAO{
 		}catch (Exception e) {
 			log.error("ContentDAO","getMediaImageId",e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		return key;
 	}
 	
+	/**
+	 * UPDATE CONTENT NEW BY CONTENTID, CONTENT, IMAGE 
+	 * 
+	 * @param contentid
+	 * @param content
+	 * @param image
+	 */
 	public void updateContentNews(Long contentid,String content,String image)
 	{
 		int actualimage = 0;
@@ -2052,6 +2463,12 @@ public class ContentDAO extends DAO{
 		}
 	}
 	
+	/**
+	 * UPDATE CONTENT VIDEO BY CONTENTID, VIDEO AND IMAGE
+	 * @param contentid
+	 * @param video
+	 * @param image
+	 */
 	public void updateContentVideo(Long contentid,String video,String image)
 	{
 		
@@ -2070,30 +2487,18 @@ public class ContentDAO extends DAO{
 		}
 	}
 
-		
-
-	
-	
-/*	public void updateContentHtml(String html, Long contentID)
-	{
-		try
-		{
-			PreparedStatement stmt = conn.prepareStatement(UPDATE_CONTENTHTML);
-			stmt.setString(1, html);
-			stmt.setLong(2, contentID);
-			stmt.executeQuery();
-		}catch (Exception e) {
-			log.error("ContentDAO","updateHtml",e.toString());
-		}
-	
-	} */
-	
-	//private final String SELECT_CHANNELID_BY_CHANNELNAME = "Select ChannelId from " + TABLE_NAME_CHANNEL + " where ChannelName = ?";
+	/**
+	 * GET CHANNELID BY CHANNELNAME	
+	 * @param channelname
+	 * @return
+	 */
 	public int getChannelIdByChannelName (String channelname)
 	{
+		Connection conn = DSManager.getConnection();
 		int key = 0;
 		try
 		{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_CHANNELID_BY_CHANNELNAME);
 			stmt.setString(1, channelname);
 			ResultSet rs = stmt.executeQuery();
@@ -2105,19 +2510,32 @@ public class ContentDAO extends DAO{
 			}				
 		}catch (Exception e){
 			log.error("ContentDao", "getChannelIdByChannelName",e.toString());
+		}finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		return key;
 	}
 	
-	//Towa Termina Raúl
-	
+
+	/**
+	 * GET GALLEYID FROM CHANNELID
+	 * @param channelid
+	 * @return
+	 */
 	public Long getGalleryIdForChannel(Long channelid)
 	{
+		Connection conn = DSManager.getConnection();
 		Long key = (long)0;
-		String sql = "Select ContentId from content where Channel_ChannelId = ? and Contenttype_ContenttypeId = '3'";
 		try
 		{
-			PreparedStatement stmt = conn.prepareStatement(sql);
+																	// RUNNING QUERY
+			PreparedStatement stmt = conn.prepareStatement(SELECT_ContentId);
 			stmt.setLong(1, channelid);
 			ResultSet rs = stmt.executeQuery();
 			
@@ -2128,13 +2546,29 @@ public class ContentDAO extends DAO{
 		}catch (Exception e){
 			log.error("ContentDAO","GetGalleryIdForChannel",e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		return key;
 	}
-public ArrayList getFileContent(Long contentID){
+	
+	/**
+	 * GET FILE CONTENT BY CONTENTID
+	 * @param contentID
+	 * @return
+	 */
+	public ArrayList getFileContent(Long contentID){
 		
+		Connection conn = DSManager.getConnection();
 		ArrayList item = new ArrayList();
 		try{
-			
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_CONTENT_BY_ID);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
@@ -2159,19 +2593,35 @@ public ArrayList getFileContent(Long contentID){
 		}catch (Exception e){
 			log.error("ContentDAO", "getContent", e.toString());
 		}
-		
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		return item;
 	}	
-
+	/**
+	 * INSERT CONTENT NEW BY CONTENTID, CONTENT AND IMAGE
+	 * @param contentid
+	 * @param content
+	 * @param image
+	 */
 	public void insertContentNews(Long contentid, String content, String image)
 	{
+		Connection conn = DSManager.getConnection();
 		int lngcontentkey = 0;
 		try
 		{
+			MediaDAO daomedia = new MediaDAO(conn);
+			
 			String sql2 = "insert into media(Filetype_FiletypeId,MediaName,MediaContent,MediaCreationDate,MediaUpdateDate,MediaSize,MediaIsNew,MediaUse,Folder_FolderId) " +
-		           " values (6,'news" + contentid.toString() +"','"+content+"','"+Utils.getToday("-")+"','"+ Utils.getToday("-")+"',"+"1000,0,'E',3)";
+		           " values (6,'news" + contentid.toString() +"','"+content.replace("'", "")+"','"+Utils.getToday("-")+"','"+ Utils.getToday("-")+"',"+"1000,0,'E',"+folderSystemNews(daomedia)+")";
+																	//RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(sql2,Statement.RETURN_GENERATED_KEYS);
-//			stmt.setLong(1, contentID);
 			stmt.executeUpdate();
 			ResultSet generatedKeys = stmt.getGeneratedKeys();
 			generatedKeys.next();
@@ -2180,14 +2630,43 @@ public ArrayList getFileContent(Long contentID){
 			insertContentmedia(contentid,lngcontentkey);
 		}catch (Exception e){
 			log.error("ContentDAO","insertContentNews",e.toString());
+		}finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	
+	public Long folderSystemNews(MediaDAO mediaDao) throws NumberFormatException, Exception{
+
+		Long idFolder = (long)0;
+		String systemNews = "SystemNews";
+		
+			if(mediaDao.isValidFolder(systemNews)){
+				mediaDao.insertFolder(Long.parseLong("0"), systemNews);
+			}
+			
+			idFolder = mediaDao.idFoderOportunidades(systemNews);
+			
+			return idFolder;
+		}
+	
+	/**
+	 * GET CHANNEL CONTENT  BYE CHANNELID 
+	 * @param channel_id
+	 * @return
+	 */
 	public String getChannel_IDcontent(String channel_id){
 		String result = "";
+		Connection conn = DSManager.getConnection();
 		
 		try{
-			PreparedStatement stmt = conn.prepareStatement(" select ContentId from content where Channel_ChannelId=? ");
+																	// RUNNING QUERY
+			PreparedStatement stmt = conn.prepareStatement(Select_ContentId);
 			stmt.setString(1, channel_id);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -2197,8 +2676,323 @@ public ArrayList getFileContent(Long contentID){
 			}
 		}catch (Exception e){
 			log.error("ContentDAO", "getChannelName", e.toString());
+		}finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		return result;
 	}
+	
+	
+	public long getChannel_ID (Long contentid){
+		long result = 0 ;
+		Connection conn = DSManager.getConnection();
+		
+		try{
+																	// RUNNING QUERY
+			PreparedStatement stmt = conn.prepareStatement(Select_Channel_ChannelId);
+			stmt.setLong(1, contentid);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()){
+				
+					result = rs.getInt(1);
+				
+			}
+		}catch (Exception e){
+			log.error("ContentDAO", "getChannelName", e.toString());
+		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return result;
+	}
+	
+	
+	/////////////////////////////////////////////////////
+	public ArrayList<Long> getContent_ID (Long channel){
+		ArrayList<Long> result = new ArrayList<Long>();
+		Connection conn = DSManager.getConnection();
+		try{
+																	// RUNNING QUERY
+			PreparedStatement stmt = conn.prepareStatement(Selectcontentidvideo);
+			stmt.setLong(1, channel);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()){
+				
+					result.add(rs.getLong("ContentId"));
+						
+			}
+		}catch (Exception e){
+			log.error("ContentDAO", "getChannelName", e.toString());
+		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		return result;
+	}
+	
+	//select m.MediaId, m.MediaContent from media m INNER JOIN ContentMedia cm ON m.MediaId=cm.Media_MediaId INNER JOIN content c ON c.ContentId= cm.Content_ContentId where c.Channel_ChannelId=64 and m.Filetype_FiletypeId=3;
+
+	public void getBlobVideo (Long channel)
+	{
+		ContentVideoInfo video = new ContentVideoInfo();
+		Connection conn = DSManager.getConnection();
+		String blob="";
+		try{
+																	// RUNNING QUERY
+			PreparedStatement stmt = conn.prepareStatement(SELECTVIDEO);
+			stmt.setLong(1, channel);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()){
+				
+				blob = rs.getString(2);
+				video.setVideo(blob);				
+			}
+		}catch (Exception e){
+			log.error("ContentDAO", "getChannelName", e.toString());
+		}		
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void getBlobImagen (Long channel)
+	{
+		Connection conn = DSManager.getConnection();
+		ContentVideoInfo video = new ContentVideoInfo();
+		String blob="";
+		try{
+																	// RUNNING QUERY
+			PreparedStatement stmt = conn.prepareStatement(SELECTIMAGEN);
+			stmt.setLong(1, channel);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()){
+				
+				blob = rs.getString(2);
+				video.setImage(blob);				
+			}
+		}catch (Exception e){
+			log.error("ContentDAO", "getChannelName", e.toString());
+		}		
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public ContentInfo getContentvideo(Long contentID, Long posicion){
+		ContentInfo result = new ContentInfo();
+		ArrayList<String> nom = new ArrayList<String>();
+		Connection conn = DSManager.getConnection();
+		try{
+															// RUNNING QUERY
+			PreparedStatement stmt = conn.prepareStatement(SELECT_CONTENT_BY_IDVideo);
+			stmt.setLong(1, contentID);
+			stmt.setLong(2, posicion);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()){
+//				result = new ContentInfo();
+				result.setId(contentID);
+				result.setName(rs.getString("ContentName"));
+				//nom.add(rs.getString("ContentName"));
+				//result.setNombre(nom);
+			}
+		}catch (Exception e){
+			log.error("ContentDAO", "getContent", e.toString());
+		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return result;
+	}
+	
+	//Metod creado por RJ
+	public void deleteVisitByContentId(Long contentid) {
+		Connection conn = DSManager.getConnection();
+
+		try {
+			PreparedStatement stmt = conn
+					.prepareStatement(DELETE_VISIT_BY_CONTENTID);
+			stmt.setLong(1, contentid);
+
+			stmt.executeUpdate();
+		} catch (Exception e) {
+			log.error("ContentDAO", "deleteVisitByContentId", e.toString());
+		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+	}
+	
+	public long getContent_T(Long contentID){
+		long id;
+		ContentInfo result = new ContentInfo();
+		Connection conn = DSManager.getConnection();
+		try{
+																	// RUNNING QUERY
+			PreparedStatement stmt = conn.prepareStatement(SELECT_CONTENT_BY_ID_T);
+			stmt.setLong(1, contentID);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()){
+				
+				result.setId(rs.getLong(1));
+				
+				id=result.getId();
+				return id;
+			}
+		}catch (Exception e){
+			log.error("ContentDAO", "getContent", e.toString());
+		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return (Long) null;
+	}
+	
+	
+	public int getMediaId(String blobvideo){
+		int id=0;
+		Connection conn = DSManager.getConnection();
+		String query= "select  MediaId from media where Filetype_FiletypeId = 3 and MediaContent=?";
+		try{
+																	// RUNNING QUERY
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setString(1, blobvideo);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()){
+				
+				id=rs.getInt(1);
+				
+				
+				return id;
+			}
+		}catch (Exception e){
+			log.error("ContentDAO", "getContent", e.toString());
+		}
+		finally{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return 0;
+		
+		
+	}
+	
+	
+	public int getMedia_mediaId(int idmedia, long contentId){
+		int id=0;
+		String query= "select  Media_MediaId from contentmedia where Content_ContentId = ? and Media_MediaId != ?";
+		Connection conn = DSManager.getConnection();
+		try{
+																	// RUNNING QUERY
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setLong(1, contentId);
+			stmt.setInt(2, idmedia);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()){
+				
+				id=rs.getInt(1);
+				
+				
+				return id;
+			}
+		}catch (Exception e){
+			log.error("ContentDAO", "getContent", e.toString());
+		}
+		try {
+			conn.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;		
+	}
+	
+	
+	public String Blobimagen(int idmedia){
+		String blob="";
+		Connection conn = DSManager.getConnection();
+		String query= "select MediaContent from media where MediaId=?";
+		try{
+																	// RUNNING QUERY
+			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt.setInt(1, idmedia);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()){
+				
+				blob=rs.getString("MediaContent");
+				
+				
+				return blob;
+			}
+		}catch (Exception e){
+			log.error("ContentDAO", "getContent", e.toString());
+		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return null;
+		
+		
+	}
+	
 }	

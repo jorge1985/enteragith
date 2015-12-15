@@ -29,9 +29,9 @@ var beforeChange = function(slider,t, s) {
 		swfobject.getObjectById('content_video_'+t).GotoFrame(1);
 	}
 	if ($(".slider video").length>0){
-		var video = document.getElementById('content_video_'+t);
-		video.pause();
-		video.currentTime=0;
+//		var video = document.getElementById('content_video_'+t);
+//		video.pause();
+//		video.currentTime=0;
 	}
 };
 
@@ -148,19 +148,17 @@ var params = {
   allowscriptaccess: "always"
 };
 
-function doFlashVars(w,h, v, i){
-	
+	function doFlashVars(w,h, v, i){
 	vars = {
-			
-			vidWidth: w,
-			vidHeight: 300,//300
-			vidPath: $("#basePath").val()+"serve?blob-key="+v,
-			 thumbPath: $("#basePath").val()+"serve?blob-key="+i,
-			autoPlay: "false",
-			autoLoop: "true",
-			watermark: "show",
-			vidAspectRatio: "fit",
-			seekbar: "show"
+	  vidWidth: 473,//w,
+	  vidHeight: 245,//h,
+	  vidPath: $("#basePath").val()+"serve?blob-key="+v,
+	  thumbPath: $("#basePath").val()+"serve?blob-key="+i,
+	  autoPlay: "false",
+	  autoLoop: "true",
+	  watermark: "hide",
+	  seekbar: "show",
+	  vidAspectRatio: "fit"
 	};
 
 	return vars;

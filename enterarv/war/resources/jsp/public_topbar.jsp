@@ -36,9 +36,9 @@
 				<span><font color="black">Hola,</font> <%=akaname%></span> <span><%=lastname%></span>
 			</div>
 		</div>
-		<div class="large-4 medium-6 small-5 columns" id="entera-logo">
+		<div id="entera-logo">
 			<a href="<%=basePath_topbar%>public/home.html"><img
-				src="<%=resPath_topbar%>images/logo-enteratv.svg" alt=""></a>
+				src="<%=resPath_topbar%>images/logo-enteratv.svg" style="width:232px; height:87px" alt=""></a>
 		</div>
 	</div>
 </header>
@@ -67,9 +67,9 @@
 								src="<%=resPath_topbar%>images/icons/camera.svg"></span></a></li>
 				</c:otherwise>
 			</c:choose>
-			<li><a href="<%=basePath_topbar%>user/logout.html"><span
-					class="tool-item-wrapper"><img
-						src="<%=resPath_topbar%>images/icons/exit.svg"></span></a></li>
+<%-- 			<li><a href="<%=basePath_topbar%>user/logout.html"><span --%>
+<!-- 					class="tool-item-wrapper"><img -->
+<%-- 						src="<%=resPath_topbar%>images/icons/exit.svg"></span></a></li> --%>
 		</ul>
 	</div>
 </div>

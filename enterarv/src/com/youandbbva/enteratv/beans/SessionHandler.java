@@ -128,7 +128,7 @@ public class SessionHandler {
 	 */
 	public String getFrontUserID(HttpSession session){
 		Object user = session.getAttribute(FRONT_USER);
-		//return (String) (user==null ? Constants.OUTSIDE_USER_ID : ((UserInfo)user).getUserId());
+	
 		int users = ((UserInfo)user).getUserId();
 		
 		return String.valueOf(users);

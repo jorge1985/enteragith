@@ -1,5 +1,8 @@
 package com.youandbbva.enteratv.domain;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -63,7 +66,16 @@ public class ContentInfo {
 
 	private String image;
 	private String content;
+	private ArrayList<String> nombre = new ArrayList<String>();
 	
+	public ArrayList<String> getNombre() {
+		return nombre;
+	}
+
+	public void setNombre(ArrayList<String> nombre) {
+		this.nombre = nombre;
+	}
+
 	public ContentInfo() {
 		// TODO Auto-generated constructor stub
 		id = (long)0;
@@ -176,17 +188,22 @@ public class ContentInfo {
 	public JSONObject toJSONObject(){
 		JSONObject result = new JSONObject();
 		try{
-			result.put("id", id);
-			result.put("name", name);
-			result.put("type", type);
-			result.put("show_in", showIn);
-			result.put("validity_start", validityStart);
-			result.put("validity_end", validityEnd);
-			result.put("active", active);
-			result.put("status", status);
-			result.put("blog", blog);
-			result.put("updated_at", updatedAt);
-			result.put("html", html);
+//			Iterator<String> iter = nombre.iterator();
+//			
+//			while(iter.hasNext()){
+				result.put("id", id);
+//				result.put("name", iter.next());
+				result.put("name", name);
+				result.put("type", type);
+				result.put("show_in", showIn);
+				result.put("validity_start", validityStart);
+				result.put("validity_end", validityEnd);
+				result.put("active", active);
+				result.put("status", status);
+				result.put("blog", blog);
+				result.put("updated_at", updatedAt);
+				result.put("html", html);	
+			//}
 		}catch (Exception e){}
 		return result;
 	}

@@ -63,7 +63,7 @@ public class DashboardController extends com.youandbbva.enteratv.Controller{
 		
 		UserInfo user = session.getUserInfo(req.getSession());
 		if (user==null){
-			return new ModelAndView("redirect:/user/login.html");
+			return new ModelAndView("redirect:/user/adios.html");
 		}
 		
 		return new ModelAndView("dashboard");
@@ -82,6 +82,7 @@ public class DashboardController extends com.youandbbva.enteratv.Controller{
 		Connection conn = DSManager.getConnection();
 
 		JSONObject result = new JSONObject();
+		// Initialize all value.
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 		
@@ -95,31 +96,27 @@ public class DashboardController extends com.youandbbva.enteratv.Controller{
 			// Initialize all value.
 			result.put("total_system_user", 0);
 			result.put("active_system_user", 0);
-			
 			result.put("total_visitor_today", 0);
 			result.put("unique_visitor_today", 0);
-			
 			result.put("total_visitor_month", 0);
 			result.put("unique_visitor_month", 0);
-			
 			result.put("total_visitor_historic", 0);
 			result.put("outside_visitor_historic", 0);
-			
 			result.put("channel", 0);
 			result.put("content", 0);
 			
-			
-			//String today1 = Utils.getToday();
 			String today = Utils.getYear()+"-"+Utils.getMonth()+"-"+Utils.getDay();
 			String month = Utils.getYear()+"-"+Utils.getMonth()+"-"+Utils.getDay();
-			
+			//dao connection
 			UserDAO userDao = new UserDAO(conn);
 			Long total_system_user = userDao.getCount('b');
 			Long active_system_user = userDao.getCount('a');
+			// Initialize value.
 			result.put("total_system_user", total_system_user.longValue());
 			result.put("active_system_user", active_system_user.longValue());
-			
+			//dao connection
 			VisitorDAO visitorDao = new VisitorDAO(conn);
+			
 			Long total_visitor_today = visitorDao.getTodayCount(today);
 			String total_visitor_month = visitorDao.getMonthCount(month);
 			Long unique_visitor_today = visitorDao.getUniqueCountSystemUser(today) + visitorDao.getUniqueCountOutsideUser(today);
@@ -128,16 +125,14 @@ public class DashboardController extends com.youandbbva.enteratv.Controller{
 			Long outside_visitor_historic = visitorDao.getHistoricUniqueCount();
 			Long channels = visitorDao.getChannelCount();			
 			Long contents = visitorDao.getContentCount(Constants.DEFAULT_ACTIVE);
-
+			
+			// Initialize value.
 			result.put("total_visitor_today",total_visitor_today.longValue());
 			result.put("unique_visitor_today", unique_visitor_today.longValue());
-			
 			result.put("total_visitor_month",total_visitor_month);
 			result.put("unique_visitor_month", unique_visitor_month.longValue());
-
 			result.put("total_visitor_historic",total_visitor_historic.longValue());
 			result.put("outside_visitor_historic",outside_visitor_historic.longValue());
-			
 			result.put("channel", channels.longValue());
 			result.put("content", contents.longValue());
 			

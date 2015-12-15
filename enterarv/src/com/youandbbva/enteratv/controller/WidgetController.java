@@ -1,10 +1,8 @@
 package com.youandbbva.enteratv.controller;
 
 import java.sql.Connection;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -14,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
-
 import com.youandbbva.enteratv.Constants;
 import com.youandbbva.enteratv.DSManager;
 import com.youandbbva.enteratv.Utils;
@@ -68,7 +65,7 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 
 		UserInfo user = session.getUserInfo(req.getSession());
 		if (user==null){
-			return new ModelAndView("redirect:/user/login.html");
+			return new ModelAndView("redirect:/user/adios.html");
 		}
 		
 		Connection conn = DSManager.getConnection();
@@ -76,11 +73,11 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 		ModelAndView mv = new ModelAndView("banner");
 		
 		try{
+			//dao connection
 			UtilityDAO codeDao = new UtilityDAO(conn);
+			//handle the form submission
 			mv.addObject("targetlist", codeDao.getCodeList("trgt", session.getLanguage(req.getSession())));
 			
-//			SystemDAO dao = new SystemDAO(conn);
-//			mv.addObject("banner", new Integer(dao.getOptions(Constants.OPTION_BANNER).toString()));
 			
 		}catch (Exception e){ 
 			log.error("WidgetController", "banner", e.toString());
@@ -118,6 +115,7 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			
+			//dao connection
 			WidgetDAO dao = new WidgetDAO(conn);
 			
 			result = setResponse(result, "banner", dao.getBanners());
@@ -166,11 +164,10 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
-			
+			//dao connection
 			WidgetDAO dao = new WidgetDAO(conn);
 			
-			result = setResponse(result, "banner", dao.getBanner(Utils.getLong(banner), Utils.getLong(sub_banner)));
-			
+			result = setResponse(result, "banner", dao.getBanner(Utils.getLong(banner), Utils.getLong(sub_banner)));			
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
 			
@@ -211,7 +208,8 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 			}
 			
 			conn.setAutoCommit(false);
-
+			
+			//dao connection
 			WidgetDAO widgetDao = new WidgetDAO(conn);
 			SystemDAO systemDao = new SystemDAO(conn);
 			PublicDAO publicDao = new PublicDAO(conn);
@@ -244,11 +242,7 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 				
 				
 			}
-			//conn.commit();
-			
-//			systemDao.update(Constants.OPTION_BANNER, banner);
-//			conn.commit();
-			
+
 			systemDao.update(Constants.OPTION_BANNER_HOME_SIDEBAR_HTML, publicDao.generateBannerHTML_ForHomepageSidebar());
 			systemDao.update(Constants.OPTION_BANNER_HOME_BOTTOM_HTML, publicDao.generateBannerHTML_ForHomepageBottom());
 			systemDao.update(Constants.OPTION_BANNER_INTERNAL_SIDEBAR_HTML, publicDao.generateBannerHTML_ForInternalSidebar());
@@ -287,7 +281,7 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 
 		UserInfo user = session.getUserInfo(req.getSession());
 		if (user==null){
-			return new ModelAndView("redirect:/user/login.html");
+			return new ModelAndView("redirect:/user/adios.html");
 		}
 		
 		ModelAndView mv = new ModelAndView("features");
@@ -295,7 +289,9 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 		Connection conn = DSManager.getConnection();
 		
 		try{
+			//dao connection
 			SystemDAO dao = new SystemDAO(conn);
+			//handle the form submission
 			mv.addObject("features", new Integer(dao.getOptions(Constants.OPTION_FEATURES).toString()));
 			
 		}catch (Exception e){ 
@@ -338,15 +334,7 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			
-			/*towainicio
-			
-			WidgetDAO dao = new WidgetDAO(conn);
-			
-			result = setResponse(result, "features", dao.getFeatures(Utils.getLong(features)));
-			
-			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
-			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
-			*///towafin
+
 		}catch (Exception e){ 
 			log.error("WidgetController", "loadAllFeatures", e.toString());
 			
@@ -390,15 +378,7 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			
-			/*towainicio
-			
-			WidgetDAO dao = new WidgetDAO(conn);
-			
-			result = setResponse(result, "features", dao.getFeatures(Utils.getLong(features), Utils.getLong(sub_features)));
-			
-			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
-			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
-			*///towafin
+
 		}catch (Exception e){ 
 			log.error("WidgetController", "getFeatures", e.toString());
 			
@@ -436,15 +416,12 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 			}
 			
 			conn.setAutoCommit(false);
+			
+			//dao connection
 			PublicDAO publicDao = new PublicDAO(conn);
-			SystemDAO systemDao = new SystemDAO(conn);
+			SystemDAO systemDao = new SystemDAO(conn);		
 			
-//			publicDao.affectFeaturedNews();
-//			systemDao.update(Constants.OPTION_FEATURES_HTML, publicDao.generateFeaturesHTML());
-//			conn.commit();
-			
-			result = setResponse(result, "list", publicDao.getLatestNews());
-			
+			result = setResponse(result, "list", publicDao.getLatestNews());			
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
 			
@@ -502,21 +479,11 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 		try{
 			conn.setAutoCommit(false);
 			
+			//dao connection
 			WidgetDAO widgetDao = new WidgetDAO(conn);
 			SystemDAO systemDao = new SystemDAO(conn);
-			PublicDAO publicDao = new PublicDAO(conn);
-			
-			/*towa inicio
-			widgetDao.updateFeatures(Utils.getLong(features), Utils.getLong(sub_features), image, title, date, content, Utils.getLong(content_id));
-			systemDao.update(Constants.OPTION_FEATURES, features);
-			conn.commit();
-			
-			systemDao.update(Constants.OPTION_FEATURES_HTML, publicDao.generateFeaturesHTML());
-			conn.commit();
-			
-			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
-			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
-			*///towafin
+			PublicDAO publicDao = new PublicDAO(conn);			
+
 		}catch (Exception e){ 
 			log.error("WidgetController", "saveFeatures", e.toString());
 
@@ -564,24 +531,14 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 			}
 			
 			conn.setAutoCommit(false);
-
+			//dao connection
 			SystemDAO systemDao = new SystemDAO(conn);
 			PublicDAO publicDao = new PublicDAO(conn);
 
 			if (kind.equals("banner")){
 				systemDao.update(Constants.OPTION_BANNER, template);
-//				String html = publicDao.generateBannerHTML(Utils.getLong(template)) ;
-//				systemDao.update(Constants.OPTION_BANNER_HTML, html);
+
 			}
-			
-			/*towa inicio
-			if (kind.equals("features")){
-				systemDao.update(Constants.OPTION_FEATURES, template);
-				conn.commit();
-				
-				systemDao.update(Constants.OPTION_FEATURES_HTML, publicDao.generateFeaturesHTML());
-			}
-			*///towafin
 			
 			conn.commit();
 

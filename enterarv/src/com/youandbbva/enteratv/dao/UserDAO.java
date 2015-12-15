@@ -1,14 +1,30 @@
 package com.youandbbva.enteratv.dao;
 
+import java.io.EOFException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Properties;
+
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.mail.*;
+import javax.mail.internet.*;
+
+import java.util.*;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Repository;
 
 import com.youandbbva.enteratv.DAO;
+import com.youandbbva.enteratv.DSManager;
 import com.youandbbva.enteratv.Utils;
 import com.youandbbva.enteratv.domain.UserInfo;
 
@@ -23,19 +39,33 @@ import com.youandbbva.enteratv.domain.UserInfo;
 @Repository("UserDAO")
 public class UserDAO extends DAO {
 
+	/**
+	 * SQL queries
+	 */
 	private static final String TABLE_USER = "user";
 	private static final String TABLE_VISIT = "visit";
 	private static final String COLUMNS_USER = "UserId,UserRol,UserName,UserFirstName, UserLastName, UserEmployeeNumber, UserAccessLevel, UserToken, UserKeyJob, UserKeyDeparment, UserDateOfBirth, UserGender, UserLocation, UserAppoiment, UserEmail, UserAdmisionDate, UserEntered, UserHorary, UserHiererchy, UserStatus, Maindirection_MaindirectionId, UserMuser, City_CityId, Company_CompanyId";
-
-	private static final String COUNT_BY_ID = " select count(*) from "+ TABLE_USER + " where UserId = ? ";
-	private static final String COUNT_BY_Musuario = " select count(*) from "+ TABLE_USER + " where UserMuser=? ";
-	private static final String SELECT_BY_ID = " select * from " + TABLE_USER+ " where UserId=? ";
-	private static final String SELECT_BY_EMAIL = " select "+ COLUMNS_USER +" from "+ TABLE_USER + " where UserEmail=? ";
-	private static final String INSERT = " insert into "+ TABLE_USER +" (UserRol,UserName,UserFirstName,UserLastName,UserEmployeeNumber,UserAccessLevel,UserEmail,UserStatus,Maindirection_MaindirectionId,City_CityId,Company_CompanyId) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
-	private static final String UPDATE = " update "+ TABLE_USER + " set UserName=?, UserFirstName=?, Userlastname=?, UserEmail=?, UserStatus=?, UserRol=?, MainDirection_MainDirectionId=?, Company_CompanyId=?, City_CityId=? where UserEmployeeNumber=? ";
-	private static final String UPDATE_ADDITIONAL = " update "+ TABLE_USER + " set  UserGender=? , UserKeyJob=? , UserToken=? , UserKeyDeparment=? , UserDateoFBirth=? , UserLocation=? , Userappoiment=? , UserAdmisionDate=? , UserMuser=?, userhorary=? , userentered=? , userhiererchy=? where useremployeenumber=? ";
+	private static final String COUNT_BY_ID = " select count(*) from "
+			+ TABLE_USER + " where UserId = ? ";
+	private static final String COUNT_BY_Musuario = " select count(*) from "
+			+ TABLE_USER + " where UserMuser=? ";
+	private static final String SELECT_BY_ID = " select * from " + TABLE_USER
+			+ " where UserId=? ";
+	private static final String SELECT_BY_EMAIL = " select * from user where UserEmail=? ";
+	private static final String INSERT = " insert into "
+			+ TABLE_USER
+			+ " (UserRol,UserName,UserFirstName,UserLastName,UserEmployeeNumber,UserAccessLevel,UserEmail,UserStatus,Maindirection_MaindirectionId,City_CityId,Company_CompanyId) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
+	private static final String UPDATE = " update "
+			+ TABLE_USER
+			+ " set UserName=?, UserFirstName=?, Userlastname=?, UserEmail=?, UserStatus=?, UserRol=?, MainDirection_MainDirectionId=?, Company_CompanyId=?, City_CityId=? where UserEmployeeNumber=? ";
+	private static final String UPDATE_ADDITIONAL = " update "
+			+ TABLE_USER
+			+ " set  UserGender=? , UserKeyJob=? , UserToken=? , UserKeyDeparment=? , UserDateoFBirth=? , UserLocation=? , Userappoiment=? , UserAdmisionDate=? , UserMuser=?, userhorary=? , userentered=? , userhiererchy=? where useremployeenumber=? ";
 	private static final String DELETE = " update user set UserStatus = ? where UserId = ?";
-	private static final String SEARCH_USEREMPLOYEENUMBER = "select UserId from "+ TABLE_USER+ " where UserEmployeeNumber=? ";;
+	
+	private static final String DELETET = " delete from user where UserEmail =?";
+	private static final String SEARCH_USEREMPLOYEENUMBER = "select UserId from "
+			+ TABLE_USER + " where UserEmployeeNumber=? ";
 
 	public UserDAO() {
 		// TODO Auto-generated constructor stub
@@ -54,8 +84,10 @@ public class UserDAO extends DAO {
 	 * @return boolean
 	 */
 	public boolean isValidUser(int i) {
+		Connection conn = DSManager.getConnection();
 		try {
 			long result = 0;
+			// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(COUNT_BY_ID);
 			stmt.setInt(1, i);
 			ResultSet rs = stmt.executeQuery();
@@ -67,17 +99,32 @@ public class UserDAO extends DAO {
 		} catch (Exception e) {
 			log.error("UserDAO", "isValidUser", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return false;
 	}
 
+	/**
+	 * IS VALID USER WITH MUSUARIO BY MUSUARIO AND USER_ID
+	 * 
+	 * @param musuario
+	 * @param user_id
+	 * @return
+	 */
 	public boolean isValidUserWithMusuario(String musuario, String user_id) {
+		Connection conn = DSManager.getConnection();
 		try {
 			long result = 0;
 			String sql = COUNT_BY_Musuario;
-			//if (user_id.length() > 0)
-				//sql += " and id<>'" + user_id + "' ";
-
+			// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(COUNT_BY_Musuario);
 			stmt.setInt(1, Integer.parseInt(user_id));
 			stmt.setString(1, musuario);
@@ -91,6 +138,15 @@ public class UserDAO extends DAO {
 			// e.printStackTrace();
 			log.error("UserDAO", "isValidUser", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return false;
 	}
@@ -103,7 +159,9 @@ public class UserDAO extends DAO {
 	 * @return User Information
 	 */
 	public UserInfo getUserInfo(int id) {
+		Connection conn = DSManager.getConnection();
 		try {
+			// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID);
 			stmt.setInt(1, id);
 			ResultSet rs = stmt.executeQuery();
@@ -141,19 +199,35 @@ public class UserDAO extends DAO {
 		} catch (Exception e) {
 			log.error("UserDAO", "getUserInfo", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return null;
 	}
 
-	// Towa Se modifico de iduser por Email Nota: towa
+	/**
+	 * GET USER INFORMATION FROM MUSUARIO BY EMAIL
+	 * 
+	 * @param Email
+	 * @return
+	 */
 	public UserInfo getUserInfoFromMusuario(String Email) {
+		Connection conn = DSManager.getConnection();
 		try {
+			// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_EMAIL);
 			stmt.setString(1, Email);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
 				UserInfo result = new UserInfo();
-								
+
 				result.setUserId(rs.getInt(1));
 				result.setUserRol(rs.getString(2));
 				result.setUserName(Utils.checkNull(rs.getString(3)));
@@ -178,7 +252,7 @@ public class UserDAO extends DAO {
 				result.setUserMuser(rs.getString(22));
 				result.setCity(rs.getInt(23));
 				result.setCompany(rs.getInt(24));
-				
+
 				return result;
 			}
 
@@ -186,13 +260,28 @@ public class UserDAO extends DAO {
 			log.error("UserDAO", "getUserInfoFromMusuario", e.toString());
 
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return null;
 	}
 
-	// Towa Inicio
+	/**
+	 * GET COUNT BY TYPE
+	 * 
+	 * @param type
+	 * @return
+	 */
 	public Long getCount(char type) {
 		long result = 0;
+		Connection conn = DSManager.getConnection();
 		String sql = "select count(UserId) from user ";
 
 		if (type == 'a') {
@@ -200,7 +289,7 @@ public class UserDAO extends DAO {
 
 		}
 		try {
-
+			// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -211,11 +300,18 @@ public class UserDAO extends DAO {
 		} catch (Exception e) {
 			log.error("UserDAO", "getCount", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return (long) 0;
 	}
-
-	// Towa fin
 
 	/**
 	 * Get Count Of SQL for DataTable.
@@ -225,8 +321,9 @@ public class UserDAO extends DAO {
 	 */
 	public Long getCount(String sql) {
 		Long result = (long) 0;
-
+		Connection conn = DSManager.getConnection();
 		try {
+			// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
@@ -236,37 +333,18 @@ public class UserDAO extends DAO {
 			log.error("UserDAO", "getCount", e.toString());
 			result = (long) 0;
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return result;
 	}
-
-	/**
-	 * Get name from code.
-	 * 
-	 * @param table
-	 * @param div
-	 * @param id
-	 * @param language
-	 * @return name
-	 */
-
-	// Towa Comentado Para probar funcionalidad
-	/*
-	 * private String getName(String table, String div, String id, String
-	 * language){ String result = ""; try{ String value=""; PreparedStatement
-	 * stmt = null; if (table.equals("code")){ stmt = conn.prepareStatement(
-	 * " select * from menu a where a.menudivl=? and a.menucode=? " );
-	 * stmt.setString(1, div); stmt.setString(2, id); value="value"; }else{ stmt
-	 * = conn.prepareStatement(" select * from bbva_" + table +
-	 * " a where a.id=? " ); stmt.setLong(1, Utils.getLong(id)); value="name"; }
-	 * 
-	 * ResultSet rs = stmt.executeQuery(); if (rs.next()){ if
-	 * (language.length()>0) result = rs.getString(value+"_"+language); else
-	 * result = rs.getString(value); } }catch (Exception e){
-	 * log.error("UserDAO", "getName", e.toString()); }
-	 * 
-	 * return result; }
-	 */
 
 	/**
 	 * Get Content List for DataTable.
@@ -277,8 +355,10 @@ public class UserDAO extends DAO {
 	 */
 	public JSONArray getContent(String sql, String language) {
 		JSONArray result = new JSONArray();
+		Connection conn = DSManager.getConnection();
 
 		try {
+			// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -302,6 +382,15 @@ public class UserDAO extends DAO {
 			}
 		} catch (Exception e) {
 			log.error("UserDAO", "getContent", e.toString());
+		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 		return result;
@@ -335,7 +424,7 @@ public class UserDAO extends DAO {
 			String firstname, String lastname, String email, String password,
 			String active, String level, String security_level, int Direction,
 			int Company, int City) throws Exception {
-
+		Connection conn = DSManager.getConnection();
 		if (Company == 0)
 			Company = 1;
 		if (City == 0)
@@ -344,7 +433,7 @@ public class UserDAO extends DAO {
 			Direction = 102;
 
 		int nivel_segu = NumNull(security_level);
-
+		// RUNNING QUERY
 		PreparedStatement stmt = conn.prepareStatement(INSERT);
 		stmt.setString(1, level);
 		stmt.setString(2, username);
@@ -358,20 +447,39 @@ public class UserDAO extends DAO {
 		stmt.setInt(10, City);
 		stmt.setInt(11, Company);
 		stmt.executeUpdate();
+		conn.close();
 	}
 
+	/**
+	 * UPDATE ADDITIONAL
+	 * 
+	 * @param NumberEmpleyoo
+	 * @param Gender
+	 * @param Keyjob
+	 * @param Token
+	 * @param KeyDepartament
+	 * @param Birthday
+	 * @param Location
+	 * @param Appoiment
+	 * @param Admission
+	 * @param Muser
+	 * @param Horary
+	 * @param entered
+	 * @param Hierarchy
+	 * @throws Exception
+	 */
 	public void updateAdditional(String NumberEmpleyoo, String Gender,
 			String Keyjob, String Token, String KeyDepartament,
 			String Birthday, String Location, String Appoiment,
 			String Admission, String Muser, String Horary, String entered,
 			String Hierarchy) throws Exception {
-
+		Connection conn = DSManager.getConnection();
 		int NToken = NumNull(Token);
 		int NKeyDepartament = NumNull(KeyDepartament);
 		int NHierarchy = NumNull(Hierarchy);
 		String Fecha = Birthday;
 		String FechAdmin = Admission;
-
+		// RUNNING QUERY
 		PreparedStatement stmt = conn.prepareStatement(UPDATE_ADDITIONAL);
 
 		stmt.setString(1, Gender);
@@ -388,6 +496,7 @@ public class UserDAO extends DAO {
 		stmt.setInt(12, NHierarchy);
 		stmt.setString(13, NumberEmpleyoo);
 		stmt.executeUpdate();
+		conn.close();
 	}
 
 	/**
@@ -418,7 +527,8 @@ public class UserDAO extends DAO {
 			String LastName, String Email, String active, String level,
 			String security_level, int Direction, int Company, int City)
 			throws Exception {
-
+		Connection conn = DSManager.getConnection();
+		// RUNNING QUERY
 		PreparedStatement stmt = conn.prepareStatement(UPDATE);
 		stmt.setString(1, UseName);
 		stmt.setString(2, FirstName);
@@ -426,12 +536,12 @@ public class UserDAO extends DAO {
 		stmt.setString(4, Email);
 		stmt.setString(5, active);
 		stmt.setString(6, level);
-		//stmt.setString(7, security_level);
 		stmt.setInt(7, Direction);
 		stmt.setInt(8, Company);
 		stmt.setInt(9, City);
 		stmt.setString(10, NumberEmpleyoo);
 		stmt.executeUpdate();
+		conn.close();
 	}
 
 	/**
@@ -441,13 +551,15 @@ public class UserDAO extends DAO {
 	 * @throws Exception
 	 */
 	public void delete(int userId) throws Exception {
-
+		// RUNNING QUERY
+		Connection conn = DSManager.getConnection();
 		PreparedStatement stmt = conn.prepareStatement(DELETE);
 		stmt.setInt(1, 9);
 		stmt.setInt(2, userId);
 		stmt.executeUpdate();
+		conn.close();
 	}
-	
+
 	/**
 	 * Delete user data.
 	 * 
@@ -455,119 +567,30 @@ public class UserDAO extends DAO {
 	 * @throws Exception
 	 */
 	public int searchEmployeeNumber(String NumEmployee) throws Exception {
-
+		Connection conn = DSManager.getConnection();
 		int result = 0;
-		PreparedStatement stmt = conn.prepareStatement(SEARCH_USEREMPLOYEENUMBER);
+		// RUNNING QUERY
+		PreparedStatement stmt = conn
+				.prepareStatement(SEARCH_USEREMPLOYEENUMBER);
 		stmt.setString(1, NumEmployee);
 		ResultSet rs = stmt.executeQuery();
-		
+
 		while (rs.next()) {
 			result = rs.getInt(1);
 		}
+			conn.close();
 		
+
 		return result;
 	}
 
+	
 	/**
-	 * Get code from value.
+	 * CONVERT DATE BY SAVE DATA
 	 * 
-	 * @param table
-	 * @param div
-	 * @param value
-	 * @return code
+	 * @param SaveData
+	 * @return
 	 */
-
-	// Towa Comentado para prueba de funcionalidad
-	/*
-	 * public String getCode(String table, String div, String value){ String
-	 * result = ""; try{ PreparedStatement stmt = null; if
-	 * (table.equals("code")){ stmt = conn.prepareStatement(
-	 * " select a.* from bbva_code a where a.div=? and ( a.value=? or a.value_en=? or a.value_me=? ) "
-	 * ); stmt.setString(1, div); stmt.setString(2, value); stmt.setString(3,
-	 * value); stmt.setString(4, value);
-	 * 
-	 * value="code"; }else{ stmt =
-	 * conn.prepareStatement(" select a.* from bbva_" + table +
-	 * " a where ( a.name=? or a.name_en=? or a.name_me=? ) " );
-	 * stmt.setString(1, value); stmt.setString(2, value); stmt.setString(3,
-	 * value);
-	 * 
-	 * value="id"; }
-	 * 
-	 * ResultSet rs = stmt.executeQuery(); if (rs.next()){ result =
-	 * rs.getString(value); } }catch (Exception e){ log.error("UserDAO",
-	 * "getCode", e.toString()); }
-	 * 
-	 * return result; }
-	 */
-
-	// Towa Comentado para prueba de funcionalidad
-	/*
-	 * public Long getCode(int type, String key, String value){ Long result =
-	 * (long)0; try{ PreparedStatement stmt = null; if (type==0){ stmt =
-	 * conn.prepareStatement
-	 * (" select id from bbva_city where parent_id=0 and original_key=? " );
-	 * stmt.setString(1, key); }else if (type==1){ stmt = conn.prepareStatement(
-	 * " select id from bbva_city where (name=? or name_en=? or name_me=? ) and original_key=? "
-	 * ); stmt.setString(1, value); stmt.setString(2, value); stmt.setString(3,
-	 * value); stmt.setString(4, key); }else if (type==2){ stmt =
-	 * conn.prepareStatement
-	 * (" select id from bbva_division where original_key=? " );
-	 * stmt.setString(1, key); }
-	 * 
-	 * ResultSet rs = stmt.executeQuery(); if (rs.next()){ result =
-	 * rs.getLong(1); } }catch (Exception e){ log.error("UserDAO",
-	 * "getDivisionCode", e.toString()); }
-	 * 
-	 * return result; }
-	 */
-
-	/**
-	 * Insert validation for reset password.
-	 * 
-	 * @param user_id
-	 * @param session_id
-	 * @param time
-	 * @throws Exception
-	 */
-
-	// Comentado para Pruebas de funcionalidad
-	/*
-	 * public void insertValidation(String user_id, String session_id, String
-	 * time) throws Exception { PreparedStatement stmt =
-	 * conn.prepareStatement(INSERT_VALIDATION); stmt.setString(1, user_id);
-	 * stmt.setString(2, session_id); stmt.setString(3, time);
-	 * stmt.executeUpdate(); }
-	 */
-
-	/**
-	 * Get Validation.
-	 * 
-	 * @param user_id
-	 * @param session_id
-	 * @return validation
-	 * @throws Exception
-	 */
-
-	// Towa Comentado para pruebas de funcionalidad
-	/*
-	 * public ValidationInfo getValidation(String user_id, String session_id)
-	 * throws Exception { ValidationInfo result = new ValidationInfo();
-	 * 
-	 * try{ PreparedStatement stmt = conn.prepareStatement(SELECT_VALIDATION);
-	 * stmt.setString(1, user_id); stmt.setString(2, session_id); ResultSet rs =
-	 * stmt.executeQuery();
-	 * 
-	 * if (rs.next()){ result.setId(rs.getLong("id"));
-	 * result.setCreatedAt(Utils.checkNull(rs.getString("created_at")));
-	 * 
-	 * return result; } }catch (Exception e){}
-	 * 
-	 * return null; }
-	 */
-
-	// Towa Convierte un String de forma DD/MM/AA en uno AAAA-MM-DD para
-	// almacenar en base
 	public String ConverFecha(String SaveData) {
 
 		String dia;
@@ -599,8 +622,12 @@ public class UserDAO extends DAO {
 		return newData;
 	}
 
-	// Towa Metodo que comvierte una fecha de AAAA-MM-DD en una de DD/MM/AA para
-	// visualisar en la ventana de user
+	/**
+	 * CONVERT DATE OF VISIT
+	 * 
+	 * @param DataSaved
+	 * @return
+	 */
 	public String ConverFechaVista(String DataSaved) {
 
 		int Day = 0;
@@ -616,12 +643,85 @@ public class UserDAO extends DAO {
 		return ViewData;
 	}
 
-	// Towa Convierte los String vacios en 0 para agregarlos en la tabla
+	/**
+	 * NUMBER NULL BY VALUE
+	 * 
+	 * @param value
+	 * @return
+	 */
 	public int NumNull(String value) {
 		int ValueNum = 0;
 		if (value != "")
 			ValueNum = Integer.parseInt(value);
 
 		return ValueNum;
+	}
+
+	public int registroMAX() {
+		int max = 0;
+
+		return max;
+	}
+
+	// Carga de correo de prueba TOWA
+	// public void cargaCorreoPrueba() throws SQLException{
+	// String INSERTUSurario = " insert into "+ TABLE_USER
+	// +" (UserRol, UserName, UserFirstName, UserLastName, UserEmployeeNumber, UserAccessLevel, UserToken, UserKeyJob, UserKeyDeparment, UserDateOfBirth, UserGender, UserLocation, UserAppoiment, UserEmail, UserAdmisionDate, UserEntered, UserHorary, UserHiererchy, UserStatus, Maindirection_MaindirectionId, UserMuser, City_CityId, Company_CompanyId) values (19, '2', 'ariana', 'santiago', 'zarate', '00020', 0, 8, '03', 0, '2015-09-01', 'F', 'df', '', 'cargaroll@gmail.com', '2015-09-10', '', '', 0, 1, 34, 'Ariana', 1, 1)";
+	//
+	// PreparedStatement stmt = conn.prepareStatement(INSERTUSurario);
+	// stmt.executeUpdate();
+	// }
+
+	public boolean validarCorreo(String Email) throws SQLException {
+		boolean validar = false;
+		Connection conn = DSManager.getConnection();
+
+		PreparedStatement stmt = conn.prepareStatement(SELECT_BY_EMAIL);
+		stmt.setString(1, Email);
+		
+		ResultSet rs = stmt.executeQuery();
+		if (rs.next()) {
+			return validar = true;
+		}
+		conn.close();
+		return validar;
+	}
+
+	public void agregarUsuario(String correo, String nombre, String apellpat, String apellmat) {
+		Connection conn = DSManager.getConnection();
+		try {
+			
+			PreparedStatement stmt = conn
+					.prepareStatement(" INSERT INTO user (UserRol, UserName,  UserFirstName, UserLastName, UserEmployeeNumber, UserDateOfBirth, UserEmail, UserAdmisionDate, UserStatus, Maindirection_MaindirectionId, UserMuser, City_CityId, Company_CompanyId ) VALUES ('2', '"
+							+ nombre
+							+ "','"+ apellpat +"','"+ apellmat +"', '111', '2015-10-18', '"
+							+ correo
+							+ "', '2015-10-18', 1, 51, 'aa', 4, 20 )");
+			stmt.executeUpdate();
+		} catch (SQLException e) {
+			System.out.println(e);
+		}finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+	}
+	
+	public void actualizadatos(String correo,String nombre, String apellpat, String apellmat) throws Exception {
+		Connection conn = DSManager.getConnection();
+		//update user set UserName = "bbb", UserFirstName = "bbb", UserLastName ="bbb"  where UserEmail = "raul.henry@bbva.com"
+		String sql =" update user set UserName = ?, UserFirstName = ?, UserLastName =?  where UserEmail = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setString(1, nombre);
+		stmt.setString(2, apellpat);
+		stmt.setString(3, apellmat);
+		stmt.setString(4, correo);
+		stmt.execute();
+		conn.close();
 	}
 }

@@ -11,6 +11,8 @@ import org.json.JSONObject;
 import org.springframework.stereotype.Repository;
 
 import com.youandbbva.enteratv.DAO;
+import com.youandbbva.enteratv.DSManager;
+import com.youandbbva.enteratv.Utils;
 import com.youandbbva.enteratv.domain.Extencion;
 import com.youandbbva.enteratv.domain.FileInfo;
 import com.youandbbva.enteratv.domain.FolderInfo;
@@ -28,7 +30,7 @@ public class MediaDAO extends DAO {
 
 	// Querys para la Tabla Folder de la BD enteratv_v2.0
 	private final String USE_ENTERATV = "E";
-	private final char USE_OPORTUNIDADES = 'O';
+	private final String USE_OPORTUNIDADES = "O";
 	private final String TABLE_NAME_FOLDER = "folder";
 	private final String COLUMN_NAME_FOLDER = "FolderId,FolderName,FolderFather";
 	private final String COLUMN_INSERT_NAME_FOLDER = "FolderName,FolderFather";
@@ -103,7 +105,9 @@ public class MediaDAO extends DAO {
 	 * @return boolean
 	 */
 	public boolean isValidFolder(String name) {
+		Connection conn = DSManager.getConnection();
 		try {
+			
 			long result = 0;
 			PreparedStatement stmt = conn
 					.prepareStatement(COUNT_BY_NAME_FOLDER);
@@ -117,6 +121,15 @@ public class MediaDAO extends DAO {
 		} catch (Exception e) {
 			log.error("MediaDAO", "isValidFolder", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return false;
 	}
@@ -129,6 +142,8 @@ public class MediaDAO extends DAO {
 	 * @return boolean
 	 */
 	public boolean isValidFile(String name, Long folderID) {
+		Connection conn = DSManager.getConnection();
+		
 		try {
 			long result = 0;
 			PreparedStatement stmt = conn.prepareStatement(COUNT_BY_NAME_FILE);
@@ -143,6 +158,15 @@ public class MediaDAO extends DAO {
 		} catch (Exception e) {
 			log.error("MediaDAO", "isValidFile", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return false;
 	}
@@ -155,6 +179,7 @@ public class MediaDAO extends DAO {
 	 */
 	public JSONArray getFoldersOfJSON(Long parentID) {
 		JSONArray result = new JSONArray();
+		Connection conn = DSManager.getConnection();
 
 		try {
 			PreparedStatement stmt = conn
@@ -172,6 +197,15 @@ public class MediaDAO extends DAO {
 		} catch (Exception e) {
 			log.error("MediaDAO", "getFoldersOfJSON", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return result;
 	}
@@ -184,6 +218,7 @@ public class MediaDAO extends DAO {
 	 */
 	public ArrayList<FolderInfo> getFolders(Long parentID) {
 		ArrayList<FolderInfo> result = new ArrayList<FolderInfo>();
+		Connection conn = DSManager.getConnection();
 
 		try {
 			PreparedStatement stmt = conn
@@ -201,11 +236,21 @@ public class MediaDAO extends DAO {
 		} catch (Exception e) {
 			log.error("MediaDAO", "getFolders", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return result;
 	}
 
 	public FolderInfo getFolder(Long folderID) {
+		Connection conn = DSManager.getConnection();
 		try {
 			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID_FOLDER);
 			stmt.setLong(1, folderID);
@@ -221,6 +266,15 @@ public class MediaDAO extends DAO {
 		} catch (Exception e) {
 			log.error("MediaDAO", "getFolder", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return null;
 	}
@@ -233,6 +287,7 @@ public class MediaDAO extends DAO {
 	 */
 	public JSONArray recallFolderList(Long parentID) {
 		JSONArray result = new JSONArray();
+		
 		try {
 			ArrayList<FolderInfo> list = getFolders(parentID);
 			for (int i = 0; i < list.size(); i++) {
@@ -258,10 +313,12 @@ public class MediaDAO extends DAO {
 	 * @throws Exception
 	 */
 	public void insertFolder(Long parentID, String name) throws Exception {
+		Connection conn = DSManager.getConnection();
 		PreparedStatement stmt = conn.prepareStatement(INESRT_FOLDER);
 		stmt.setString(1, name);
 		stmt.setLong(2, parentID);
 		stmt.execute();
+		conn.close();
 	}
 
 	/**
@@ -274,10 +331,12 @@ public class MediaDAO extends DAO {
 	 * @throws Exception
 	 */
 	public void updateFolderName(Long id, String name) throws Exception {
+		Connection conn = DSManager.getConnection();
 		PreparedStatement stmt = conn.prepareStatement(UPDATE_NAME_FOLDER);
 		stmt.setString(1, name);
 		stmt.setLong(2, id);
 		stmt.execute();
+		conn.close();
 	}
 
 	/**
@@ -288,9 +347,11 @@ public class MediaDAO extends DAO {
 	 * @throws Exception
 	 */
 	public void deleteFolder(Long id) throws Exception {
+		Connection conn = DSManager.getConnection();
 		PreparedStatement stmt = conn.prepareStatement(DELETE_FOLDER);
 		stmt.setLong(1, id);
 		stmt.execute();
+		conn.close();
 	}
 
 	/**
@@ -300,6 +361,7 @@ public class MediaDAO extends DAO {
 	 * @return object
 	 */
 	public JSONObject getFileOfJSON(Long id) {
+		Connection conn = DSManager.getConnection();
 		try {
 			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID_FILE);
 			stmt.setLong(1, id);
@@ -320,6 +382,14 @@ public class MediaDAO extends DAO {
 			}
 		} catch (Exception e) {
 			log.error("MediaDAO", "getFileOfJSON", e.toString());
+		}finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 		return new JSONObject();
@@ -333,7 +403,7 @@ public class MediaDAO extends DAO {
 	 */
 	public JSONArray getFilesOfJSON(Long folderID) {
 		JSONArray result = new JSONArray();
-
+		Connection conn = DSManager.getConnection();
 		try {
 			PreparedStatement stmt = conn
 					.prepareStatement(SELECT_BY_FOLDER_ID_FILE);
@@ -355,6 +425,15 @@ public class MediaDAO extends DAO {
 		} catch (Exception e) {
 			log.error("MediaDAO", "getFilesOfJSON", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return result;
 	}
@@ -375,7 +454,7 @@ public class MediaDAO extends DAO {
 	 */
 	public void insertFile(Long folderID, String name, String time, Long size,
 			String key, String type, String thumb) throws Exception {
-
+		
 		PreparedStatement stmt = conn.prepareStatement(INESRT_FILE);
 
 		stmt.setString(1, name);
@@ -386,7 +465,12 @@ public class MediaDAO extends DAO {
 		stmt.setInt(6, getFileExtencion(name));
 		stmt.setString(7, time);
 		stmt.setInt(8, 1);
-		stmt.setString(9, USE_ENTERATV);
+		if(thumb.equals("O")){
+			stmt.setString(9, USE_OPORTUNIDADES);
+		}else{
+			stmt.setString(9, USE_ENTERATV);
+		}
+
 		stmt.execute();
 	}
 
@@ -402,12 +486,14 @@ public class MediaDAO extends DAO {
 	 */
 	public void updateFileName(Long id, String name, String time)
 			throws Exception {
+		Connection conn = DSManager.getConnection();
 		PreparedStatement stmt = conn.prepareStatement(UPDATE_NAME_FILE);
 
 		stmt.setString(1, name);
 		stmt.setString(2, time);
 		stmt.setLong(3, id);
 		stmt.execute();
+		conn.close();
 	}
 
 	/**
@@ -420,24 +506,25 @@ public class MediaDAO extends DAO {
 	public void deleteFile(Long id) throws Exception {
 		
 		if(isExistContentMedia(id)){
+			
 			PreparedStatement stmt = conn.prepareStatement(DELETE_FILE2);
 			stmt.setLong(1, id);
-			stmt.execute();
+			stmt.executeUpdate();
 			
 			PreparedStatement stmt2 = conn.prepareStatement(DELETE_FILE);
 			stmt2.setLong(1, id);
-			stmt2.execute();
+			stmt2.executeUpdate();
 		}else{
 			PreparedStatement stmt = conn.prepareStatement(DELETE_FILE);
 			stmt.setLong(1, id);
-			stmt.execute();
+			stmt.executeUpdate();
 		}
 
 	}
 	
 	public boolean isExistContentMedia(Long idMedia) throws SQLException{
 		boolean result = false;
-		
+		Connection conn = DSManager.getConnection();
 		String sql = "SELECT Media_MediaId FROM contentmedia WHERE Media_MediaId = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setLong(1, idMedia);
@@ -446,6 +533,7 @@ public class MediaDAO extends DAO {
 		while (rs.next()) {
 			result = true;
 		}
+		conn.close();
 		
 		return result;
 	}
@@ -459,6 +547,7 @@ public class MediaDAO extends DAO {
 	public static int getFileExtencion(String filename) throws Exception {
 
 		Extencion fileExtencion = null;
+		Connection conn = DSManager.getConnection();
 
 		int index = filename.lastIndexOf('.');
 		if (index == -1) {
@@ -479,10 +568,12 @@ public class MediaDAO extends DAO {
 				fileExtencion.setFileExtencionActive(rs.getBoolean(3));
 			}
 		}
+		conn.close();
 		return fileExtencion.getFileTypeId();
 	}
 
 	public long getMediaContent(String MediaContent) {
+		Connection conn = DSManager.getConnection();
 		try {
 			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_KEY_FILE);
 			stmt.setString(1, MediaContent);
@@ -497,8 +588,89 @@ public class MediaDAO extends DAO {
 		} catch (Exception e) {
 			log.error("MediaDAO", "getFileTypeId", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		return 0;
 
+	}
+	
+	public Long idFoderOportunidades(String oportunidades){
+		Long idFoler = (long) 0;
+		Connection conn = DSManager.getConnection();
+		try {
+			String sql = "SELECT FolderId FROM folder WHERE FolderName = ?";
+			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt.setString(1, oportunidades);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+
+				idFoler = rs.getLong("FolderId");
+
+				return idFoler;
+			}
+		} catch (Exception e) {
+			log.error("MediaDAO", "getFolderId", e.toString());
+		}
+		finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		return (long)0;
+	}
+	
+	public String getBlob(String idMedia){
+		String blob="";
+		Connection conn = DSManager.getConnection();
+		try {
+			String sql = "SELECT MediaContent FROM media WHERE MediaId = ?";
+			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt.setString(1, idMedia);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+
+				blob = rs.getString("MediaContent");
+
+				return blob;
+			}
+		} catch (Exception e) {
+			log.error("MediaDAO", "getFolderId", e.toString());
+		}finally
+		{
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		return "";
+	}
+
+	public void updateMedia(int idMedia, String file) throws SQLException {
+		Connection conn = DSManager.getConnection();
+		String sql = "update media set MediaContent=?, MediaUpdateDate=? where MediaId=?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		String time = Utils.getTodayWithTime();
+
+		stmt.setString(1, file);
+		stmt.setString(2, time);
+		stmt.setInt(3, idMedia);
+		stmt.execute();
+		conn.close();
 	}
 
 }

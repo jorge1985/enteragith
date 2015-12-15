@@ -24,16 +24,16 @@ import com.youandbbva.enteratv.domain.ValidationInfo;
 @Repository("OppUserDAO")
 public class OppUserDAO extends DAO{
 	
+	/**
+	 * SQL queries
+	 */
+	
 	private static final String TABLE_USER = "user";
 	private static final String COLUMNS_USER = "UserId,UserRol,UserName,UserFirstName, UserLastName, UserEmployeeNumber, UserAccessLevel, UserToken, UserKeyJob, UserKeyDeparment, UserDateOfBirth, UserGender, UserLocation, UserAppoiment, UserEmail, UserAdmisionDate, UserEntered, UserHorary, UserHiererchy, UserStatus, Maindirection_MaindirectionId, UserMuser, City_CityId, Company_CompanyId";
 	private static final String COLUMNS_USER2 = "UserRol,UserName,UserFirstName, UserLastName, UserEmployeeNumber, UserAccessLevel, UserToken, UserKeyJob, UserKeyDeparment, UserDateOfBirth, UserGender, UserLocation, UserAppoiment, UserEmail, UserAdmisionDate, UserEntered, UserHorary, UserHiererchy, UserStatus, Maindirection_MaindirectionId, UserMuser, City_CityId, Company_CompanyId";
-	
-	//private final String COLUMN_NAME="id,username,firstname,lastname,email,password,division,city,people_manager,new_hire,jobgrade,payowner,promote,parent_division,parent_city,active,created_at,updated_at,level";
-	
 	private final String COUNT = " select count(*) from "+ TABLE_USER;
 	private final String COUNT_BY_ID = " select count(*) from "+ TABLE_USER +" where UserId=? ";
 	private final String SELECT_BY_ID = " select " + COLUMNS_USER + " from "+ TABLE_USER +" where UserId=? ";
-	
 	private final String INSERT = " insert into "+ TABLE_USER +" ( " + COLUMNS_USER2 + " ) values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ) ";
 	private final String UPDATE = " update "+ TABLE_USER +" set username=?, firstname=?, lastname=?, email=?, password=?, division=?, city=?, people_manager=?, new_hire=?, jobgrade=?, payowner=?, promote=?, parent_division=?, parent_city=?, active=?, updated_at=? , level=? where id=? ";
 	private final String DELETE = " delete from "+ TABLE_USER +" where id=? ";
@@ -56,6 +56,7 @@ public class OppUserDAO extends DAO{
 	public boolean isValidUser(String id){
 		try{
 			long result = 0;
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(COUNT_BY_ID);
 			stmt.setString(1, id);
 			ResultSet rs = stmt.executeQuery();
@@ -65,7 +66,7 @@ public class OppUserDAO extends DAO{
 			
 			return result==1 ? true : false;
 		}catch (Exception e){
-//			e.printStackTrace();
+
 			log.error("UserDAO", "isValidUser", e.toString());
 		}
 
@@ -80,6 +81,7 @@ public class OppUserDAO extends DAO{
 	 */
 	public UserInfo getUserInfo(String id){
 		try{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID);
 			stmt.setString(1, id);
 			ResultSet rs = stmt.executeQuery();
@@ -129,6 +131,7 @@ public class OppUserDAO extends DAO{
 	public Long getCount(String level, String active){
 		try{
 			long result = 0;
+																	// 	RUNNING QUERY
 			String sql = COUNT;
 			if (level.length()>0 || active.length()>0){
 				sql += " where ";
@@ -142,7 +145,7 @@ public class OppUserDAO extends DAO{
 					sql += " active='" + active + "' ";
 				}
 			}
-			
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -168,6 +171,7 @@ public class OppUserDAO extends DAO{
 		Long result = (long)0;
 		
 		try{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -196,11 +200,13 @@ public class OppUserDAO extends DAO{
 			String value="";
 			PreparedStatement stmt = null;
 			if (table.equals("code")){
+																	// RUNNING QUERY
 				stmt = conn.prepareStatement(" select * from bbva_code a where a.div=? and a.code=? " );
 				stmt.setString(1, div);
 				stmt.setString(2, id);
 				value="value";
 			}else{
+																	// RUNNING QUERY
 				stmt = conn.prepareStatement(" select * from bbva_" + table + " a where a.id=? " );
 				stmt.setLong(1, Utils.getLong(id));
 				value="name";
@@ -231,6 +237,7 @@ public class OppUserDAO extends DAO{
 		JSONArray result = new JSONArray();
 		
 		try{
+																	// RUNNING QUERY
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -316,7 +323,7 @@ public class OppUserDAO extends DAO{
 	 */
 	public void insert(String id, String username, String firstname, String lastname, String email, String password, Long division, Long city, String people_manager, String newhire, String jobgrade, String payowner, String promote, String active, Long parent_division, Long parent_city, String level) throws Exception {
 		String today = Utils.getTodayWithTime();
-		
+																	// RUNNING QUERY
 		PreparedStatement stmt = conn.prepareStatement(INSERT);
 		stmt.setString(1, id);
 		stmt.setString(2, username);
@@ -363,7 +370,7 @@ public class OppUserDAO extends DAO{
 	 */
 	public void update(String id, String username, String firstname, String lastname, String email, String password, Long division, Long city, String people_manager, String newhire, String jobgrade, String payowner, String promote, String active, Long parent_division, Long parent_city, String level) throws Exception {
 		String today = Utils.getTodayWithTime();
-		
+																	// RUNNING QUERY
 		PreparedStatement stmt = conn.prepareStatement(UPDATE);
 		stmt.setString(1, username);
 		stmt.setString(2, firstname);
@@ -393,6 +400,7 @@ public class OppUserDAO extends DAO{
 	 * @throws Exception
 	 */
 	public void delete(String id) throws Exception {
+																	// RUNNING QUERY
 		PreparedStatement stmt = conn.prepareStatement(DELETE);
 		stmt.setString(1, id);
 		stmt.executeUpdate();
@@ -405,6 +413,7 @@ public class OppUserDAO extends DAO{
 	 * @throws Exception
 	 */
 	public void rename(String table) throws Exception {
+																	// RUNNING QUERY
 		PreparedStatement stmt = conn.prepareStatement("rename table bbva_user_opport to bbva_user_opport_"+table);
 		stmt.executeUpdate();
 	}
@@ -422,6 +431,7 @@ public class OppUserDAO extends DAO{
 		try{
 			PreparedStatement stmt = null;
 			if (table.equals("code")){
+																	// RUNNING QUERY
 				stmt = conn.prepareStatement(" select * from bbva_code a where div=? and ( value=? or value_en=? or value_me=? ) " );
 				stmt.setString(1, div);
 				stmt.setString(2, value);
@@ -430,6 +440,7 @@ public class OppUserDAO extends DAO{
 				
 				value="code";
 			}else{
+																	// RUNNING QUERY
 				stmt = conn.prepareStatement(" select * from " + table + " a where ( name=? or name_en=? or name_me=? ) " );
 				stmt.setString(1, value);
 				stmt.setString(2, value);

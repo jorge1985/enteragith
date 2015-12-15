@@ -1,32 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.7.0_80"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v7.0"/>
 	<classpathentry kind="con" path="com.google.appengine.eclipse.core.GAE_CONTAINER"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/com.mysql.jdbc_5.1.5.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/commons-codec-1.7.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/commons-fileupload-1.3.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/java-json.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/java-mail-1.4.4.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/javax.mail-3.0-preview.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/javax.servlet.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/javax.servlet-3.0.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/joda-time-2.0.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/mail.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/mail-1.4.7.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/opencsv-2.2.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/opensaml-2.1.0.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/openws-1.1.0.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/openws-1.3.0.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/org.eclipse.jgit-3.7.1.201504261725-r.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/org.mortbay.jmx-4.2.14.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/org.springframework.beans_3.0.5.RELEASE.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/org.springframework.context-3.0.4.RELEASE.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/org.springframework.core.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/org.springframework.web.servlet-3.1.0.M2.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/org.springframework.web-3.0.0.RELEASE.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/xmltooling-1.0.1.jar"/>
-	<classpathentry kind="lib" path="G:/Users/PC-BootJava/Desktop/towa/libreria/xmltooling-1.2.1.jar"/>
+	<classpathentry kind="lib" path="libs/com.mysql.jdbc_5.1.5.jar"/>
+	<classpathentry kind="lib" path="libs/commons-codec-1.7.jar"/>
+	<classpathentry kind="lib" path="libs/commons-fileupload-1.3.jar"/>
+	<classpathentry kind="lib" path="libs/java-json.jar"/>
+	<classpathentry kind="lib" path="libs/java-mail-1.4.4.jar"/>
+	<classpathentry kind="lib" path="libs/javax.mail-3.0-preview.jar"/>
+	<classpathentry kind="lib" path="libs/javax.servlet-3.0.jar"/>
+	<classpathentry kind="lib" path="libs/javax.servlet.jar"/>
+	<classpathentry kind="lib" path="libs/joda-time-2.0.jar"/>
+	<classpathentry kind="lib" path="libs/mail-1.4.7.jar"/>
+	<classpathentry kind="lib" path="libs/mail.jar"/>
+	<classpathentry kind="lib" path="libs/opencsv-2.2.jar"/>
+	<classpathentry kind="lib" path="libs/opensaml-2.1.0.jar"/>
+	<classpathentry kind="lib" path="libs/openws-1.1.0.jar"/>
+	<classpathentry kind="lib" path="libs/openws-1.3.0.jar"/>
+	<classpathentry kind="lib" path="libs/org.eclipse.jgit-3.7.1.201504261725-r.jar"/>
+	<classpathentry kind="lib" path="libs/org.mortbay.jmx-4.2.14.jar"/>
+	<classpathentry kind="lib" path="libs/org.springframework.beans_3.0.5.RELEASE.jar"/>
+	<classpathentry kind="lib" path="libs/org.springframework.context-3.0.4.RELEASE.jar"/>
+	<classpathentry kind="lib" path="libs/org.springframework.core.jar"/>
+	<classpathentry kind="lib" path="libs/org.springframework.web-3.0.0.RELEASE.jar"/>
+	<classpathentry kind="lib" path="libs/org.springframework.web.servlet-3.1.0.M2.jar"/>
+	<classpathentry kind="lib" path="libs/xmltooling-1.0.1.jar"/>
+	<classpathentry kind="lib" path="libs/xmltooling-1.2.1.jar"/>
+	<classpathentry kind="lib" path="libs/commons-dbcp-1.4-javadoc.jar"/>
+	<classpathentry kind="lib" path="libs/commons-dbcp-1.4-sources.jar"/>
+	<classpathentry kind="lib" path="libs/commons-dbcp-1.4.jar"/>
+	<classpathentry kind="lib" path="libs/commons-pool-1.6-javadoc.jar"/>
+	<classpathentry kind="lib" path="libs/commons-pool-1.6-sources.jar"/>
+	<classpathentry kind="lib" path="libs/commons-pool-1.6.jar"/>
+	<classpathentry kind="lib" path="libs/org.apache.commons.dbcp.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

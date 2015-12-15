@@ -30,7 +30,7 @@ public class DSManager {
 	 */
 	private DSManager() {
 		// TODO Auto-generated constructor stub
-//		init();
+
 	}
 
 	/**

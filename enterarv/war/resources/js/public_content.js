@@ -7,6 +7,8 @@ var menuLevel=new Array();
 var lastLevel=0;
 var lastMenu=new Array();
 
+
+
 function findMenu(menu, channel, level){
 	for (var i=0; i<menu.length; i++){
 		if (bFound)
@@ -167,19 +169,19 @@ function file_download(url){
 	$.fileDownload(url);	
 }
 
-function play_video(path){
-	if (path=='')
-		return;
-	
-	$.fancybox.open(  {
-		type: 'iframe',
-		href:  path
-	} , {
-		autoSize	: true,
-		openEffect	: 'elastic',
-		closeEffect	: 'fade' 
-	}  );
-}
+//function play_video(path){
+//	if (path=='')
+//		return;
+//	
+//	$.fancybox.open(  {
+//		type: 'iframe',
+//		href:  path
+//	} , {
+//		autoSize	: true,
+//		openEffect	: 'elastic',
+//		closeEffect	: 'fade' 
+//	}  );
+//}
 
 function poll_submit(){
 	var ans = new Array();
@@ -237,4 +239,6 @@ $(document).ready(function() {
         }
     });
 });
+
+
 

@@ -81,9 +81,7 @@ public class Receive extends HttpServlet {
 					UserDAO dao = new UserDAO(conn);
 
 					String today = Utils.getTodayWithTime();
-					//dao.rename(today);
-					//dao.copy(today);
-					
+				
 					conn.commit();
 		        	
 		        	try{
@@ -117,7 +115,6 @@ public class Receive extends HttpServlet {
 			result.put(Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result.put(Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
 		} catch (Exception e) {
-//			e.printStackTrace();
 			try{
 				conn.rollback();
 			}catch (Exception ff){}

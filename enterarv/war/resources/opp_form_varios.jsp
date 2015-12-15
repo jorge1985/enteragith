@@ -101,7 +101,7 @@
 			<a href="javascript:selectImage()" class="button tiny" style="background-color: #999;"><%=registry_form_varios.getStringOfLanguage("opp.select_image", language_form_varios) %></a>
 		</div>
 		<div class="large-4 medium-4 columns">
-			<img src="" path="${file }" id="srv_file">
+			<img src="${file }"  id="srv_file">
 		</div>
 		<div class="large-4 medium-4 columns">
 		</div>

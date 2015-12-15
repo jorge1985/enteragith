@@ -29,12 +29,12 @@ import org.springframework.web.servlet.ModelAndView;
 import com.youandbbva.enteratv.Constants;
 import com.youandbbva.enteratv.DSManager;
 import com.youandbbva.enteratv.Utils;
+import com.youandbbva.enteratv.dao.MediaDAO;
 import com.youandbbva.enteratv.dao.OppUserDAO;
 import com.youandbbva.enteratv.dao.OpportDAO;
 import com.youandbbva.enteratv.dao.UtilityDAO;
 import com.youandbbva.enteratv.domain.OpportunitiesInfo;
 import com.youandbbva.enteratv.domain.UserInfo;
-import com.youandbbva.enteratv.domain.ValidationInfo;
 
 /**
  * Handle all action for opportunities page.
@@ -478,8 +478,8 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 	public void loadOpportunitiesResults(
 			HttpServletRequest request, HttpServletResponse response){
 
-	    String[] cols = { "c.price", "c.mileage", "c.transmission", "c.updated_at" };
-	    String table = "bbva_opportunities";
+		 String[] cols = { "c.AdPrice", "e.AdcarKm", "e.AdCarTransmision", "c.AdUpdateDate" };
+	    String table = "ad";
 	     
 	    JSONObject result = new JSONObject();
 	    int amount = 10;
@@ -495,32 +495,37 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 	    
 	    String dir = "desc";
 	    String aSQL = "";
+	    String from = " Ad a";
+	    String link = " and a.AdId = c.Ad_AdId ";
+	    int linksw = 0;
 	    if (serve_type.length()>0 && !serve_type.equals("all")){
-	    	aSQL = " c.serve_type='" + serve_type + "' ";
+	    	aSQL = " f.AdrsOfferType='" + serve_type + "' ";
 	    }
 	    
 	    if (state_id.length()>0 && !state_id.equals("0") && !state_id.equals("all")){
 	    	if (aSQL.length()>0)
 	    		aSQL += " and ";
-	    	aSQL += " c.state_id=" + state_id + " ";
+	    	aSQL += " a.State_StateId=" + state_id + " ";
 	    }
 	    
 	    if (city_id.length()>0 && !city_id.equals("0") && !city_id.equals("all")){
 	    	if (aSQL.length()>0)
 	    		aSQL += " and ";
-	    	aSQL += " c.city_id=" + city_id + " ";
+	    	aSQL += " a.Town_TownId=" + city_id + " ";
+	    	linksw = 1;
 	    }
 	 
 	    if (brand_id.length()>0 && !brand_id.equals("0") && !brand_id.equals("all")){
 	    	if (aSQL.length()>0)
 	    		aSQL += " and ";
-	    	aSQL += " c.brand_id=" + brand_id + " ";
+	    	aSQL += " c.Carbrand_CarbrandId = " + brand_id + " ";
+	    	from = from  + ", Adcar c";
 	    }
 	    
 	    if (varios.length()>0 && !varios.equals("all")){
 	    	if (aSQL.length()>0)
 	    		aSQL += " and ";
-	    	aSQL += " c.varios='" + varios + "' ";
+	    	aSQL += " a.AdArticle='" + varios + "' ";
 	    }
 
 	    String sStart = Utils.checkNull(request.getParameter("start"));
@@ -568,6 +573,10 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 	    if (aSQL.length()>0){
 	    	aSQL = " and ( " + aSQL + " ) ";
 	    }
+	    if (linksw == 1)
+	    {
+	    	aSQL = aSQL + link;
+	    }
 
 		try{
 			UserInfo user = session.getOpportUserInfo(request.getSession());
@@ -581,12 +590,13 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			dao.updateVisible();
 			conn.commit();
 			
-			String sql = " select count(*) from " + table + " c where c.type='"+kind+"' and c.visible='1' ";
+//			String sql = " select count(*) from " + table + " where Adtype_AdtypeId='"+kind+"' and User_UserId='" + user.getUserId() + "' and AdIsVisible='1' ";
+			String sql = " select count(*) from " + from + " where a.Adtype_AdtypeId='"+kind+  "' and a.AdIsVisible='1' ";
 			sql += aSQL;
 			total = dao.getCount(sql);
 			totalAfterFilter = total;
 			
-			sql = " select c.*, d.value, d.value_en, d.value_me, e.value as property_name, e.value_en as property_name_en, e.value_me as property_name_me, "
+			/*sql = " select c.*, d.value, d.value_en, d.value_me, e.value as property_name, e.value_en as property_name_en, e.value_me as property_name_me, "
 					+ " f.value as varios_name, f.value_en as varios_name_en, f.value_me as varios_name_me "
 //					+ " , br.name as brand_name, st.name as state_name, ct.name as city_name "
 					+ " from " + table + " c, bbva_code d, bbva_code e, bbva_code f"
@@ -622,7 +632,47 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
                     + " or e.value like '%"+searchTerm+"%'"
                     + " or e.value_en like '%"+searchTerm+"%'"
                     + " or e.value_me like '%"+searchTerm+"%'"
+            		+ " ) " ;*/
+			
+
+			
+			sql = " select c.*, d.MenuValue"
+//					+ " , br.name as brand_name, st.name as state_name, ct.name as city_name "
+					+ " from " + table + " c, menu d, adcar e, adrs f"
+//							+ " , bbva_brand br, bbva_state st, bbva_state_city ct "
+							+ " where "//ct.id=c.city_id and st.id=c.state_id and br.id=c.brand_id and "
+							+ " d.MenuDivl='opp3' and d.MenuCode=e.AdCarTransmision and c.Adtype_AdtypeId='"+kind+"'  and c.User_UserId='" + user.getUserId() + "' and d.MenuDivl='opp1' and d.MenuCode=f.AdrsPropertyType and d.MenuDivl='opp5' and d.MenuDivl=c.AdArticle and c.AdIsVisible=1 ";
+			
+			String searchSQL = "";
+			String globeSearch =  " ( c.AdPrice like '%"+searchTerm+"%' "
+                    + " or e.AdcarKm like '%"+searchTerm+"%'"
+                    + " or c.AdDescription like '%"+searchTerm+"%'"
+                   
+                    + " or e.AdcarModel like '%"+searchTerm+"%'"
+                    + " or c.AdPublishDate like '%"+searchTerm+"%'"
+                    + " or c.AdInformation like '%"+searchTerm+"%'"
+                    + " or e.AdcarColor like '%"+searchTerm+"%'"
+                    + " or e.AdcarDoorslike '%"+searchTerm+"%'"
+                    + " or c.AdPhone like '%"+searchTerm+"%'"
+                    + " or c.AdCel like '%"+searchTerm+"%'"
+                    + " or c.User_UserId like '%"+searchTerm+"%'"
+                    
+//                    + " or st.name like '%"+searchTerm+"%'"
+//                    + " or ct.name like '%"+searchTerm+"%'"
+                    
+                    + " or f.AdrsFloors like '%"+searchTerm+"%'"
+                    + " or f.AdrsRooms like '%"+searchTerm+"%'"
+                    + " or f.AdrsOfferType like '%"+searchTerm+"%'"
+                    + " or f.AdrsFurnished like '%"+searchTerm+"%'"
+                    
+                    + " or d.MenuValue like '%"+searchTerm+"%'"
+                   
+                    
+                    + " or d.MenuValue like '%"+searchTerm+"%'"
+                    
             		+ " ) " ;
+			
+			
 			
 	        if(searchTerm.length()>0 && individualSearch.length()>0){
 	            searchSQL = " ( " + globeSearch + " and " + individualSearch + " ) ";
@@ -639,8 +689,18 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 	        sql += searchSQL;
 	        sql += " order by " + colName + " " + dir;
 	        sql += " limit " + start + ", " + amount;	        
-			
-	        JSONArray array = dao.getContent(sql, session.getLanguage(request.getSession()));
+			JSONArray array = new JSONArray();
+	        if (kind.equals("001"))
+	        {
+	        	array = dao.getContentCar(kind, 0,searchSQL);
+	        }else if (kind.equals("002")) {
+	        	array = dao.getContentRs(kind, 0,searchSQL);
+	        }else {
+	        	array = dao.getContentSv(kind, 0,searchSQL);
+	        }
+	        
+	        
+//	        JSONArray array = dao.getContent(sql, session.getLanguage(request.getSession()));
 	        
 //			sql = " select count(*) from " + table + " c, bbva_code d, bbva_code e, bbva_code f, bbva_brand br, bbva_state st, bbva_state_city ct where ct.id=c.city_id and st.id=c.state_id and br.id=c.brand_id and d.div='opp3' and d.code=c.transmission and c.type='"+kind+"' and e.div='opp1' and e.code=c.property and f.div='opp5' and f.code=c.varios ";
 //			sql += aSQL;
@@ -697,9 +757,7 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			mv.addObject("publish_id", publish_id);
 			
 			OpportDAO dao = new OpportDAO(conn);
-			
 			OpportunitiesInfo opport = dao.getOpportunities(Utils.getLong(publish_id));
-			
 			if (opport!=null){
 				mv.addObject("type", opport.getType());
 				mv.addObject("brand_id", opport.getBrandID());
@@ -759,8 +817,8 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 
 		}finally{
 			try{
-				//if (conn!=null)
-				//	conn.close();
+				if (conn!=null)
+					conn.close();
 			}catch (Exception f){}
 		}
 
@@ -946,8 +1004,8 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			log.error("OpportunitiesController", "check", e.toString());
 		}finally{
 			try{
-				//if (conn!=null)
-				//	conn.close();
+				if (conn!=null)
+					conn.close();
 			}catch (Exception f){}
 		}
 
@@ -1015,8 +1073,8 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			
 		}finally{
 			try{
-			//	if (conn!=null)
-			//		conn.close();
+				if (conn!=null)
+					conn.close();
 			}catch (Exception f){}
 		}
 
@@ -1077,8 +1135,8 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			
 		}finally{
 			try{
-				//if (conn!=null)
-					//conn.close();
+				if (conn!=null)
+					conn.close();
 			}catch (Exception f){}
 		}
 		
@@ -1140,8 +1198,8 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			
 		}finally{
 			try{
-			//	if (conn!=null)
-				//	conn.close();
+				if (conn!=null)
+					conn.close();
 			}catch (Exception f){}
 		}
 
@@ -1204,10 +1262,10 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			mv.addObject("kind", kind);
 			mv.addObject("publish_id", publish_id);
 			
-			mv.addObject("property_list", codeDao.getCodeListO("opp1", session.getLanguage(req.getSession())));
-			mv.addObject("several_list", codeDao.getCodeListO("opp2", session.getLanguage(req.getSession())));
-			mv.addObject("transmission_list", codeDao.getCodeListO("opp3", session.getLanguage(req.getSession())));
-			mv.addObject("varios_list", codeDao.getCodeListO("opp5", session.getLanguage(req.getSession())));
+			mv.addObject("property_list", codeDao.getCodeList("opp1", session.getLanguage(req.getSession())));
+			mv.addObject("several_list", codeDao.getCodeList("opp2", session.getLanguage(req.getSession())));
+			mv.addObject("transmission_list", codeDao.getCodeList("opp3", session.getLanguage(req.getSession())));
+			mv.addObject("varios_list", codeDao.getCodeList("opp5", session.getLanguage(req.getSession())));
 			
 			OpportDAO dao = new OpportDAO(conn);
 			mv.addObject("brand_list", dao.getBrandList(session.getLanguage(req.getSession()), false));
@@ -1242,7 +1300,8 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			mv.addObject("varios", "");
 			
 			if (type.equals("edit")){
-				OpportunitiesInfo opport = dao.getOpportunities(Utils.getLong(publish_id));
+				//OpportunitiesInfo opport = dao.getOpportunities(Utils.getLong(publish_id),kind);
+				OpportunitiesInfo opport = dao.getOportunidades(Utils.getLong(publish_id),kind);
 				if (opport!=null){
 					mv.addObject("brand_id", opport.getBrandID());
 					mv.addObject("state_id", opport.getStateID());
@@ -1281,8 +1340,8 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 
 		}finally{
 			try{
-		//		if (conn!=null)
-		//			conn.close();
+				if (conn!=null)
+					conn.close();
 			}catch (Exception f){}
 		}
 
@@ -1332,8 +1391,8 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			
 		}finally{
 			try{
-		//		if (conn!=null)
-		//			conn.close();
+				if (conn!=null)
+					conn.close();
 			}catch (Exception f){}
 		}
 
@@ -1378,7 +1437,7 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			HttpServletRequest req, HttpServletResponse res){
 
 		JSONObject result = new JSONObject();
-		
+
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 		
@@ -1411,7 +1470,7 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 		amueblado = Utils.encode(Utils.checkNull(amueblado));
 		
 		varios = Utils.encode(Utils.checkNull(varios));
-		public_date = Utils.getToday("-");
+		public_date = Utils.getTodayWithTime();
 		
 		if (brand.length()==0)
 			brand = "0";
@@ -1451,37 +1510,87 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			conn.setAutoCommit(false);
 			
 			OpportDAO dao = new OpportDAO(conn);
+			MediaDAO mediaDao = new MediaDAO(conn);
+			
 
 			if (publish_type.equals("add")){
 				if (publish_kind.equals("001")){
-					dao.insertCar(Utils.getLong(brand), Utils.getLong(state), Utils.getLong(city), model, price, today, mileage, transmission, "", public_date, obs, color, door, telephone, mobilephone, file, user.getUserId());
+					//TOWA JR
+					//Inserta la imagen antes de pasar a la inserción de la tabla de Ad
+					mediaDao.insertFile(folderOportunidades(mediaDao), user.getUserId()+"Carros.png", public_date, (long)0, file, "1", "O");
+
+					dao.insertSrv(brand, model, price, state, city, obs, telephone, mobilephone, mediaDao.getMediaContent(file), public_date, user.getUserId(), publish_kind);
+					long i=0;
+					
+					i=dao.getId();
+
+					dao.insertCar2(Long.parseLong(brand), model, Long.parseLong(mileage), transmission, color, Long.parseLong(door), i);
 				}
 				
 				if (publish_kind.equals("002")){
-					dao.insertFur(Utils.getLong(state), Utils.getLong(city), model, price, mileage, "", public_date, property, serve_type, amueblado, plants, rooms, telephone, mobilephone, file, user.getUserId());
+					//TOWA JR
+					//Inserta la imagen antes de pasar a la inserción de la tabla de Ad
+					mediaDao.insertFile(folderOportunidades(mediaDao), user.getUserId()+"Casas.png", public_date, (long)0, file, "1", "O");
+				
+					dao.insertSrv(property, model, price, state, city, obs, telephone, mobilephone, mediaDao.getMediaContent(file), public_date, user.getUserId(), publish_kind);
+					long i=0;
+					
+					i=dao.getId();
+					
+					dao.insertAdRs(i, plants, rooms, serve_type, property, mileage, "0", amueblado, model);					
 				}
 				
 				if (publish_kind.equals("003")){
-					dao.insertSrv(Utils.getLong(state), Utils.getLong(city), model, price, "", public_date, varios, telephone, mobilephone, file, user.getUserId());
+					//TOWA JR
+					//Inserta la imagen antes de pasar a la inserción de la tabla de Ad
+					mediaDao.insertFile(folderOportunidades(mediaDao), user.getUserId()+"Varios.png", public_date, (long)0, file, "1", "O");
+					dao.insertSrv(varios, model, price, state, city, obs, telephone, mobilephone, mediaDao.getMediaContent(file), public_date, user.getUserId(), publish_kind);
 				}
 			}
 
 			if (publish_type.equals("edit")){
 				if (publish_kind.equals("001")){
-					dao.updateCar(Utils.getLong(brand), Utils.getLong(state), Utils.getLong(city), model, price, today, mileage, transmission, "", public_date, obs, color, door, telephone, mobilephone, file, Utils.getLong(publish_id));
+					//TOWA JR
+					mediaDao.updateMedia(dao.idMedia(publish_id),file);
+					dao.updateSrv(varios, model, price, state, city, obs, telephone, mobilephone, mediaDao.getMediaContent(file), public_date, user.getUserId(),publish_id);
+					dao.updateAdCar(Long.parseLong(brand), model, Long.parseLong(mileage), transmission, color, Long.parseLong(door), publish_id);
 				}
 				
 				if (publish_kind.equals("002")){
-					dao.updateFur(Utils.getLong(state), Utils.getLong(city), model, price, mileage, "", public_date, property, serve_type, amueblado, plants, rooms, telephone, mobilephone, file, Utils.getLong(publish_id));
+					//TOWA JR
+					mediaDao.updateMedia(dao.idMedia(publish_id),file);
+					dao.updateSrv(varios, model, price, state, city, obs, telephone, mobilephone, mediaDao.getMediaContent(file), public_date, user.getUserId(),publish_id);
+					dao.updateAdrRs(publish_id, plants, rooms, serve_type, property, mileage, "0", amueblado, model);
 				}
 				
 				if (publish_kind.equals("003")){
-					dao.updateSrv(Utils.getLong(state), Utils.getLong(city), model, price, "", public_date, varios, telephone, mobilephone, file, Utils.getLong(publish_id));
+					//TOWA JR
+					mediaDao.updateMedia(dao.idMedia(publish_id),file);
+					dao.updateSrv(varios, model, price, state, city, obs, telephone, mobilephone, mediaDao.getMediaContent(file), public_date, user.getUserId(),publish_id);
 				}
 			}
 			
 			if (publish_type.equals("delete")){
-				dao.delete(Utils.getLong(publish_id));
+				
+				
+				if (publish_kind.equals("001")){
+					long idMedia = dao.idMedia(publish_id);
+					dao.deleteAdCar(publish_id);
+					dao.deleteAd(publish_id);
+					mediaDao.deleteFile(idMedia);
+
+				}else if(publish_kind.equals("002")){
+					long idMedia = dao.idMedia(publish_id);
+					dao.deleteAdrs(publish_id);
+					dao.deleteAd(publish_id);
+					mediaDao.deleteFile(idMedia);
+
+				}else{
+					long idMedia = dao.idMedia(publish_id);
+					dao.deleteAd(publish_id);
+					mediaDao.deleteFile(idMedia);
+					
+				}
 			}
 			
 			conn.commit();
@@ -1497,8 +1606,8 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			}catch (Exception ex){}
 		}finally{
 			try{
-				//if (conn!=null)
-				//	conn.close();
+				if (conn!=null)
+					conn.close();
 			}catch (Exception f){}
 		}
 
@@ -1515,8 +1624,8 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 	public void loadOpportunities(
 			HttpServletRequest request, HttpServletResponse response){
 
-	    String[] cols = { "c.price", "c.mileage", "c.transmission", "c.updated_at" };
-	    String table = "bbva_opportunities";
+	    String[] cols = { "c.AdPrice", "eAdcarKm.", "e.AdCarTransmision", "c.AdUpdateDate" };
+	    String table = "ad";
 	     
 	    JSONObject result = new JSONObject();
 	    int amount = 10;
@@ -1578,57 +1687,54 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			}
 			
 			if (user.getUserId() == 0){
-			    result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(request.getSession())));
-			    throw new Exception(reg.getMessage("ACT0003"));
-			   }
-			
+				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(request.getSession())));
+				throw new Exception(reg.getMessage("ACT0003"));
+			}
+		    
 			OpportDAO dao = new OpportDAO(conn);
 			
 			conn.setAutoCommit(false);
 			dao.updateVisible();
 			conn.commit();
 			
-			String sql = " select count(*) from " + table + " where type='"+kind+"' and user_id='" + user.getUserId() + "' and visible='1' ";
+			String sql = " select count(*) from " + table + " where Adtype_AdtypeId='"+kind+"' and User_UserId='" + user.getUserId() + "' and AdIsVisible='1' ";
 			total = dao.getCount(sql);
 			totalAfterFilter = total;
 			
-			sql = " select c.*, d.value, d.value_en, d.value_me, e.value as property_name, e.value_en as property_name_en, e.value_me as property_name_me, "
-					+ " f.value as varios_name, f.value_en as varios_name_en, f.value_me as varios_name_me "
+			sql = " select c.*, d.MenuValue"
 //					+ " , br.name as brand_name, st.name as state_name, ct.name as city_name "
-					+ " from " + table + " c, bbva_code d, bbva_code e, bbva_code f "
+					+ " from " + table + " c, menu d, adcar e, adrs f"
 //							+ " , bbva_brand br, bbva_state st, bbva_state_city ct "
 							+ " where "//ct.id=c.city_id and st.id=c.state_id and br.id=c.brand_id and "
-							+ " d.div='opp3' and d.code=c.transmission and c.type='"+kind+"'  and c.user_id='" + user.getUserId() + "' and e.div='opp1' and e.code=c.property and f.div='opp5' and f.code=c.varios and c.visible='1' ";
+							+ " d.MenuDivl='opp3' and d.MenuCode=e.AdCarTransmision and c.Adtype_AdtypeId='"+kind+"'  and c.User_UserId='" + user.getUserId() + "' and d.MenuDivl='opp1' and d.MenuCode=f.AdrsPropertyType and d.MenuDivl='opp5' and d.MenuDivl=c.AdArticle and c.AdIsVisible=1 ";
 			
 			String searchSQL = "";
-			String globeSearch =  " ( c.price like '%"+searchTerm+"%' "
-                    + " or c.mileage like '%"+searchTerm+"%'"
-                    + " or c.model like '%"+searchTerm+"%'"
-                    + " or c.employee_num like '%"+searchTerm+"%'"
-                    + " or c.today like '%"+searchTerm+"%'"
-                    + " or c.public_date like '%"+searchTerm+"%'"
-                    + " or c.obs like '%"+searchTerm+"%'"
-                    + " or c.color like '%"+searchTerm+"%'"
-                    + " or c.doors like '%"+searchTerm+"%'"
-                    + " or c.telephone like '%"+searchTerm+"%'"
-                    + " or c.mobilephone like '%"+searchTerm+"%'"
-                    + " or c.user_id like '%"+searchTerm+"%'"
+			String globeSearch =  " ( c.AdPrice like '%"+searchTerm+"%' "
+                    + " or e.AdcarKm like '%"+searchTerm+"%'"
+                    + " or c.AdDescription like '%"+searchTerm+"%'"
+                   
+                    + " or e.AdcarModel like '%"+searchTerm+"%'"
+                    + " or c.AdPublishDate like '%"+searchTerm+"%'"
+                    + " or c.AdInformation like '%"+searchTerm+"%'"
+                    + " or e.AdcarColor like '%"+searchTerm+"%'"
+                    + " or e.AdcarDoors like '%"+searchTerm+"%'"
+                    + " or c.AdPhone like '%"+searchTerm+"%'"
+                    + " or c.AdCel like '%"+searchTerm+"%'"
+                    + " or c.User_UserId like '%"+searchTerm+"%'"
                     
 //                    + " or st.name like '%"+searchTerm+"%'"
 //                    + " or ct.name like '%"+searchTerm+"%'"
                     
-                    + " or c.plants like '%"+searchTerm+"%'"
-                    + " or c.rooms like '%"+searchTerm+"%'"
-                    + " or c.serve_type like '%"+searchTerm+"%'"
-                    + " or c.amueblado like '%"+searchTerm+"%'"
+                    + " or f.AdrsFloors like '%"+searchTerm+"%'"
+                    + " or f.AdrsRooms like '%"+searchTerm+"%'"
+                    + " or f.AdrsOfferType like '%"+searchTerm+"%'"
+                    + " or f.AdrsFurnished like '%"+searchTerm+"%'"
                     
-                    + " or d.value like '%"+searchTerm+"%'"
-                    + " or d.value_en like '%"+searchTerm+"%'"
-                    + " or d.value_me like '%"+searchTerm+"%'"
+                    + " or d.MenuValue like '%"+searchTerm+"%'"
+                   
                     
-                    + " or e.value like '%"+searchTerm+"%'"
-                    + " or e.value_en like '%"+searchTerm+"%'"
-                    + " or e.value_me like '%"+searchTerm+"%'"
+                    + " or d.MenuValue like '%"+searchTerm+"%'"
+                    
             		+ " ) " ;
 			
 	        if(searchTerm.length()>0 && individualSearch.length()>0){
@@ -1647,8 +1753,16 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 	        sql += " limit " + start + ", " + amount;
 	        
 //	        result.put("ssss", sql);
-			
-	        JSONArray array = dao.getContent(sql, session.getLanguage(request.getSession()));
+	        JSONArray array = new JSONArray();
+			if (kind.equals("001"))
+			{
+				 array = dao.getContentCar(kind,user.getUserId(),searchSQL );
+			}else if(kind.equals("002")){
+				 array = dao.getContentRs(kind,user.getUserId(),searchSQL);
+			}else {
+				 array = dao.getContentSv(kind,user.getUserId(),searchSQL);
+			}
+//				JSONArray array = dao.getContent(sql, session.getLanguage(request.getSession()));
 	        
 //			sql = " select count(*) from " + table + " c, bbva_code d, bbva_code e, bbva_code f "
 //					+ " , bbva_brand br, bbva_state st, bbva_state_city ct "
@@ -1668,8 +1782,8 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 
 		}finally{
 			try{
-				//if (conn!=null)
-				//	conn.close();
+				if (conn!=null)
+					conn.close();
 			}catch (Exception f){}
 		}
 		
@@ -1711,8 +1825,8 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 
 		}finally{
 			try{
-			//	if (conn!=null)
-			//		conn.close();
+				if (conn!=null)
+					conn.close();
 			}catch (Exception f){}
 		}
 
@@ -1741,10 +1855,10 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			
 			ModelAndView mv = new ModelAndView("opp_form_automovil");
 			UtilityDAO codeDao = new UtilityDAO(conn);
-			mv.addObject("property_list", codeDao.getCodeListO("opp1", session.getLanguage(req.getSession())));
-			mv.addObject("several_list", codeDao.getCodeListO("opp2", session.getLanguage(req.getSession())));
-			mv.addObject("transmission_list", codeDao.getCodeListO("opp3", session.getLanguage(req.getSession())));
-			mv.addObject("varios_list", codeDao.getCodeListO("opp5", session.getLanguage(req.getSession())));
+			mv.addObject("property_list", codeDao.getCodeList("opp1", session.getLanguage(req.getSession())));
+			mv.addObject("several_list", codeDao.getCodeList("opp2", session.getLanguage(req.getSession())));
+			mv.addObject("transmission_list", codeDao.getCodeList("opp3", session.getLanguage(req.getSession())));
+			mv.addObject("varios_list", codeDao.getCodeList("opp5", session.getLanguage(req.getSession())));
 			
 			OpportDAO dao = new OpportDAO(conn);
 			mv.addObject("brand_list", dao.getBrandList(session.getLanguage(req.getSession()), false));
@@ -1756,8 +1870,8 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 
 		}finally{
 			try{
-				//if (conn!=null)
-				//	conn.close();
+				if (conn!=null)
+					conn.close();
 			}catch (Exception f){}
 		}
 
@@ -1785,10 +1899,10 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			
 			ModelAndView mv = new ModelAndView("opp_form_inmueble");
 			UtilityDAO codeDao = new UtilityDAO(conn);
-			mv.addObject("property_list", codeDao.getCodeListO("opp1", session.getLanguage(req.getSession())));
-			mv.addObject("several_list", codeDao.getCodeListO("opp2", session.getLanguage(req.getSession())));
-			mv.addObject("transmission_list", codeDao.getCodeListO("opp3", session.getLanguage(req.getSession())));
-			mv.addObject("varios_list", codeDao.getCodeListO("opp5", session.getLanguage(req.getSession())));
+			mv.addObject("property_list", codeDao.getCodeList("opp1", session.getLanguage(req.getSession())));
+			mv.addObject("several_list", codeDao.getCodeList("opp2", session.getLanguage(req.getSession())));
+			mv.addObject("transmission_list", codeDao.getCodeList("opp3", session.getLanguage(req.getSession())));
+			mv.addObject("varios_list", codeDao.getCodeList("opp5", session.getLanguage(req.getSession())));
 			
 			OpportDAO dao = new OpportDAO(conn);
 			mv.addObject("brand_list", dao.getBrandList(session.getLanguage(req.getSession()), false));
@@ -1800,8 +1914,8 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 
 		}finally{
 			try{
-			//	if (conn!=null)
-			//		conn.close();
+				if (conn!=null)
+					conn.close();
 			}catch (Exception f){}
 		}
 
@@ -1829,10 +1943,10 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			
 			ModelAndView mv = new ModelAndView("opp_form_varios");
 			UtilityDAO codeDao = new UtilityDAO(conn);
-			mv.addObject("property_list", codeDao.getCodeListO("opp1", session.getLanguage(req.getSession())));
-			mv.addObject("several_list", codeDao.getCodeListO("opp2", session.getLanguage(req.getSession())));
-			mv.addObject("transmission_list", codeDao.getCodeListO("opp3", session.getLanguage(req.getSession())));
-			mv.addObject("varios_list", codeDao.getCodeListO("opp5", session.getLanguage(req.getSession())));
+			mv.addObject("property_list", codeDao.getCodeList("opp1", session.getLanguage(req.getSession())));
+			mv.addObject("several_list", codeDao.getCodeList("opp2", session.getLanguage(req.getSession())));
+			mv.addObject("transmission_list", codeDao.getCodeList("opp3", session.getLanguage(req.getSession())));
+			mv.addObject("varios_list", codeDao.getCodeList("opp5", session.getLanguage(req.getSession())));
 			
 			OpportDAO dao = new OpportDAO(conn);
 			mv.addObject("brand_list", dao.getBrandList(session.getLanguage(req.getSession()), false));
@@ -1844,8 +1958,8 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 
 		}finally{
 			try{
-			//	if (conn!=null)
-			//		conn.close();
+				if (conn!=null)
+					conn.close();
 			}catch (Exception f){}
 		}
 
@@ -1898,8 +2012,8 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 
 		}finally{
 			try{
-			//	if (conn!=null)
-			//		conn.close();
+				if (conn!=null)
+					conn.close();
 			}catch (Exception f){}
 		}
 
@@ -1967,5 +2081,19 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 		
 		return mv;
 	}
+	
+	public Long folderOportunidades(MediaDAO mediaDao) throws NumberFormatException, Exception{
+
+		Long idFolder = (long)0;
+		String oportunidades = "Oportunidades";
+		
+			if(mediaDao.isValidFolder(oportunidades)){
+				mediaDao.insertFolder(Long.parseLong("0"), oportunidades);
+			}
+			
+			idFolder = mediaDao.idFoderOportunidades(oportunidades);
+			
+			return idFolder;
+		}
 	
 }

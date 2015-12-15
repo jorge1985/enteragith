@@ -52,9 +52,9 @@
 				<li>
 					<a href="<%=basePath_Topbar%>system/options.html"><i class="fi-clock"></i><%=registry_Topbar.getStringOfLanguage("options", language_Topbar) %></a>
 				</li>
-				<li>
-					<a href="<%=basePath_Topbar%>user/logout.html"><i class="fi-clock"></i><%=registry_Topbar.getStringOfLanguage("logout", language_Topbar) %></a>
-				</li>
+<!-- 				<li> -->
+<%-- 					<a href="<%=basePath_Topbar%>user/logout.html"><i class="fi-clock"></i><%=registry_Topbar.getStringOfLanguage("logout", language_Topbar) %></a> --%>
+<!-- 				</li> -->
 			</ul>
 		</div>
 	</div>

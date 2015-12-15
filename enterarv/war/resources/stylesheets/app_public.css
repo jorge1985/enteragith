@@ -3727,7 +3727,7 @@ button::-moz-focus-inner {
 
 /* line 60, ../bower_components/foundation/scss/foundation/components/_clearing.scss */
 .clearing-blackout {
-  background: #2068ae;
+  background: rgba(0, 0, 0, 0.5);
   position: fixed;
   width: 100%;
   height: 100%;
@@ -3928,9 +3928,10 @@ button::-moz-focus-inner {
   }
   /* line 230, ../bower_components/foundation/scss/foundation/components/_clearing.scss */
   .clearing-assembled .clearing-container .visible-img {
-    background: #2068ae;
+/*     background: #c0c0c0; */
     overflow: hidden;
     height: 85%;
+/*     opacity: 0.8; */
   }
 
   /* line 237, ../bower_components/foundation/scss/foundation/components/_clearing.scss */

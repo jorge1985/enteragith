@@ -2,8 +2,19 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns="http://java.sun.com/xml/ns/javaee"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-	version="2.5">
+	id="WebApp_ID" version="2.5">
 	
+    	<security-constraint>
+       <web-resource-collection>
+               <web-resource-name>all</web-resource-name>
+           <url-pattern>/*</url-pattern>
+       </web-resource-collection>
+       <auth-constraint>
+           <role-name>*</role-name>
+       </auth-constraint>
+   </security-constraint>
+    
+    
 	<display-name>EnteraTV</display-name>
 
 	<!-- Configuration -->
@@ -18,16 +29,6 @@
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<load-on-startup>5</load-on-startup>
 	</servlet>
-	
-	<security-constraint>
-        <web-resource-collection>
-            <web-resource-name>profile</web-resource-name>
-            <url-pattern>/profile/*</url-pattern>
-        </web-resource-collection>
-        <user-data-constraint>
-            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-        </user-data-constraint>
-    </security-constraint>
 
 	<servlet-mapping>
 		<servlet-name>enteratv</servlet-name>
@@ -87,6 +88,24 @@
 		<servlet-name>Receive</servlet-name>
 		<url-pattern>/receive</url-pattern>
 	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>LoginT</servlet-name>
+		<servlet-class>com.youandbbva.enteratv.gae.LoginT</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>LoginT</servlet-name>
+		<url-pattern>/logint</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>Daotos</servlet-name>
+		<servlet-class>com.youandbbva.enteratv.gae.Daotos</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Daotos</servlet-name>
+		<url-pattern>/datos</url-pattern>
+	</servlet-mapping>
 
 	<!-- Listener -->
 	<listener>
@@ -109,7 +128,9 @@
 	</error-page>
 
 	<welcome-file-list>
-		<welcome-file>index.jsp</welcome-file>
+<!-- 	    		<welcome-file>resources/datos.jsp</welcome-file> -->
+	    		
+	    		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
 
 </web-app>

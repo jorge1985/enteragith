@@ -62,11 +62,11 @@ public class Export extends HttpServlet {
 		try {
 			UserInfo user = session.getUserInfo(req.getSession());
 			if (user==null){	
-				throw new Exception(reg.getMessage("ACT0003"));
+	
 			}
 			
 			if (type.length()==0){
-				throw new Exception(reg.getMessage("ACT0003"));
+	
 			}
 			
         	String language = session.getLanguage(req.getSession());
@@ -205,7 +205,6 @@ public class Export extends HttpServlet {
         				
         				String [] value = {username, date, ipAddr};
         				csv.writeNext(value);
-        				
                 	}else if(type.equals("channel")){
         				user_id = Utils.checkNull(rs.getString("UserId"));
         				username = dao.getUserName("user", user_id, language);
@@ -215,7 +214,6 @@ public class Export extends HttpServlet {
         				
         				String [] value = {username, date, ipAddr,detail};
         				csv.writeNext(value);
-        				
                 	}else if(type.equals("content")){
         				user_id = Utils.checkNull(rs.getString("UserId"));
         				username = dao.getUserName("user", user_id, language);
@@ -225,7 +223,6 @@ public class Export extends HttpServlet {
         				
         				String [] value = {username, date, ipAddr,detail};
         				csv.writeNext(value);
-        				
                 	}else if(type.equals("advanced")){
                     	if(option.equals("1")){
             				user_id = Utils.checkNull(rs.getString("UserId"));
@@ -235,7 +232,6 @@ public class Export extends HttpServlet {
             				
             				String [] value = {username, date, ipAddr};
             				csv.writeNext(value);
-            				
                     	}else if(option.equals("3")){
             				user_id = Utils.checkNull(rs.getString("UserId"));
             				username = dao.getUserName("user", user_id, language);
@@ -245,7 +241,6 @@ public class Export extends HttpServlet {
             				
             				String [] value = {username, date, ipAddr,detail};
             				csv.writeNext(value);
-            				
                     	}else if(option.equals("4")){
             				user_id = Utils.checkNull(rs.getString("UserId"));
             				username = dao.getUserName("user", user_id, language);
@@ -256,21 +251,41 @@ public class Export extends HttpServlet {
             				String [] value = {username, date, ipAddr,detail};
             				csv.writeNext(value);
                     	}
-                	}    				
+                	} 
+                	
     			}
+    			try {
+					stmt.close();
+			 		} catch (SQLException e) {
+                 // TODO Controlar exception
+			 		e.printStackTrace();
+         							} 
+    			
     			
                 csv.flush();
                 res.flushBuffer();
                  
-            } catch (Exception ex) { }
 
-		} catch (Exception e) {}
-		if (conn!=null)
-			   try {
-			    conn.close();
-			   } catch (SQLException e) {
-			    // TODO Auto-generated catch block
-			    e.printStackTrace();
-			   }
-	}	
+		}finally{
+			    
+             
+				if (conn != null){
+                     	try {
+                             conn.close();
+                     		} catch (SQLException e) {
+                             // TODO Controlar exception
+                             e.printStackTrace();
+                     							     }       
+             
+							     }
+		        }
+		
+		}catch (SQLException e) {
+            // TODO Controlar exception
+            e.printStackTrace();
+		
+	}
+	}
 }
+	
+	

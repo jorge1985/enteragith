@@ -67,7 +67,7 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 
 		UserInfo user = session.getUserInfo(req.getSession());
 		if (user == null) {
-			return new ModelAndView("redirect:/user/login.html");
+			return new ModelAndView("redirect:/user/adios.html");
 		}
 
 		return new ModelAndView("access_log");
@@ -85,7 +85,7 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 
 		UserInfo user = session.getUserInfo(req.getSession());
 		if (user == null) {
-			return new ModelAndView("redirect:/user/login.html");
+			return new ModelAndView("redirect:/user/adios.html");
 		}
 
 		return new ModelAndView("channel_log");
@@ -103,7 +103,7 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 
 		UserInfo user = session.getUserInfo(req.getSession());
 		if (user == null) {
-			return new ModelAndView("redirect:/user/login.html");
+			return new ModelAndView("redirect:/user/adios.html");
 		}
 
 		return new ModelAndView("content_log");
@@ -121,7 +121,7 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 
 		UserInfo user = session.getUserInfo(req.getSession());
 		if (user == null) {
-			return new ModelAndView("redirect:/user/login.html");
+			return new ModelAndView("redirect:/user/adios.html");
 		}
 
 		return new ModelAndView("advanced_log");
@@ -153,7 +153,6 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 		int col = 2;
 
 		String dir = "desc";
-
 		String sStart = Utils.checkNull(request.getParameter("start"));
 		String sAmount = Utils.checkNull(request.getParameter("length"));
 		String sCol = Utils.checkNull(request.getParameter("iSortCol_0"));
@@ -162,7 +161,6 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 		Map<String, String[]> parameters = request.getParameterMap();
 		sdir = parameters.get("order[0][dir]")[0];
 		sCol = parameters.get("order[0][column]")[0];
-
 		String searchTerm = Utils.checkNull(request
 				.getParameter("search[value]"));
 		String individualSearch = "";
@@ -211,7 +209,7 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 		Connection conn = DSManager.getConnection();
 
 		try {
-
+			//dao connection
 			VisitorDAO dao = new VisitorDAO(conn);
 			String sql_count = "select COUNT(*) from user a INNER JOIN visit v ON a.UserId = v.User_UserId INNER JOIN content c ON c.ContentId = v.Content_ContentId INNER JOIN channel ch ON c.Channel_ChannelId = ch.ChannelId where CAST(v.VisitDate AS DATE) BETWEEN '"
 					+ start_day + "' and '" + end_day + "'";
@@ -230,7 +228,7 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 
 			JSONArray array = dao.getContent(sql,
 					session.getLanguage(request.getSession()));
-
+			// Initialize value.
 			result.put("recordsTotal", total);
 			result.put("recordsFiltered", totalAfterFilter);
 			result.put("data", array);
@@ -274,7 +272,6 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 		start_day = Utils.checkNull(start_day);
 		end_day = Utils.checkNull(end_day);
 
-		// System.out.println(start_day+"===="+end_day);
 
 		JSONObject result = new JSONObject();
 		int amount = 10;
@@ -282,7 +279,6 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 		int col = 2;
 
 		String dir = "desc";
-
 		String sStart = Utils.checkNull(request.getParameter("start"));
 		String sAmount = Utils.checkNull(request.getParameter("length"));
 		String sCol = Utils.checkNull(request.getParameter("iSortCol_0"));
@@ -340,7 +336,7 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 		Connection conn = DSManager.getConnection();
 
 		try {
-
+			//dao connection
 			VisitorDAO dao = new VisitorDAO(conn);
 			String sql_count = "select COUNT(*) from user a INNER JOIN visit v ON a.UserId = v.User_UserId INNER JOIN content c ON c.ContentId = v.Content_ContentId INNER JOIN channel ch ON c.Channel_ChannelId = ch.ChannelId where CAST(v.VisitDate AS DATE) BETWEEN '"
 					+ start_day + "' and '" + end_day + "'";
@@ -359,7 +355,7 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 
 			JSONArray array = dao.getContent(sql,
 					session.getLanguage(request.getSession()));
-
+			// Initialize value.
 			result.put("recordsTotal", total);
 			result.put("recordsFiltered", totalAfterFilter);// totalAfterFilter);
 			result.put("data", array);
@@ -403,7 +399,6 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 		start_day = Utils.checkNull(start_day);
 		end_day = Utils.checkNull(end_day);
 
-		// System.out.println(start_day+"===="+end_day);
 
 		JSONObject result = new JSONObject();
 		int amount = 10;
@@ -411,7 +406,6 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 		int col = 2;
 
 		String dir = "desc";
-
 		String sStart = Utils.checkNull(request.getParameter("start"));
 		String sAmount = Utils.checkNull(request.getParameter("length"));
 		String sCol = Utils.checkNull(request.getParameter("iSortCol_0"));
@@ -469,7 +463,7 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 		Connection conn = DSManager.getConnection();
 
 		try {
-
+			//dao connection
 			VisitorDAO dao = new VisitorDAO(conn);
 			// JR
 			String sql_count = "select COUNT(*) from user a INNER JOIN visit v ON a.UserId = v.User_UserId INNER JOIN content c ON c.ContentId = v.Content_ContentId INNER JOIN channel ch ON c.Channel_ChannelId = ch.ChannelId where CAST(v.VisitDate AS DATE) BETWEEN '"
@@ -489,9 +483,9 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 
 			JSONArray array = dao.getContent(sql,
 					session.getLanguage(request.getSession()));
-
+			// Initialize value.
 			result.put("recordsTotal", total);
-			result.put("recordsFiltered", total);// totalAfterFilter);
+			result.put("recordsFiltered", total);
 			result.put("data", array);
 
 		} catch (Exception e) {
@@ -549,7 +543,6 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 		int col = 1;
 
 		String dir = "desc";
-
 		String sStart = Utils.checkNull(request.getParameter("start"));
 		String sAmount = Utils.checkNull(request.getParameter("length"));
 		String sCol = Utils.checkNull(request.getParameter("iSortCol_0"));
@@ -710,7 +703,7 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 		Connection conn = DSManager.getConnection();
 
 		try {
-
+			//dao connection
 			VisitorDAO dao = new VisitorDAO(conn);
 			// JR
 			total = dao.getCount(sql_count);
@@ -718,7 +711,7 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 
 			JSONArray array = dao.getContent(sql,
 					session.getLanguage(request.getSession()));
-
+			// Initialize value.
 			result.put("recordsTotal", total);
 			result.put("recordsFiltered", totalAfterFilter);// totalAfterFilter);
 			result.put("data", array);

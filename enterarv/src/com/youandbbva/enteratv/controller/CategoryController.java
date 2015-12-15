@@ -21,6 +21,7 @@ import com.youandbbva.enteratv.Constants;
 import com.youandbbva.enteratv.DSManager;
 import com.youandbbva.enteratv.Utils;
 import com.youandbbva.enteratv.dao.CategoryDAO;
+import com.youandbbva.enteratv.dao.ContentDAO;
 import com.youandbbva.enteratv.dao.UtilityDAO;
 import com.youandbbva.enteratv.domain.ChannelInfo;
 import com.youandbbva.enteratv.domain.DivisionInfo;
@@ -34,6 +35,7 @@ import com.youandbbva.enteratv.domain.UserInfo;
  * @author CJH
  *
  */
+//exceptions
 
 @Controller
 @RequestMapping("/category/")
@@ -63,13 +65,15 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 	 * @param res
 	 * @return view
 	 */
+	
+
 	@RequestMapping("families.html")
 	public ModelAndView families(
 		HttpServletRequest req, HttpServletResponse res){
 			
 		UserInfo user = session.getUserInfo(req.getSession());
 		if (user==null){
-			return new ModelAndView("redirect:/user/login.html");
+			return new ModelAndView("redirect:/user/adios.html");
 		}
 		
 		return new ModelAndView("families");
@@ -84,12 +88,16 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 	@RequestMapping("loadFamilies.html")
 	public void loadFamilies(
 			HttpServletRequest req, HttpServletResponse res){
-		
+		//dao connection
 		Connection conn = DSManager.getConnection();
 		
 		JSONObject result = new JSONObject();
+		
+		
+		
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
+		
 		
 		try{
 			UserInfo user = session.getUserInfo(req.getSession());
@@ -97,13 +105,13 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
-			
-			CategoryDAO categoryDao = new CategoryDAO(conn);
+			//dao connection	
+		CategoryDAO categoryDao = new CategoryDAO(conn);
 
-			// Initialize all value.
-			result = setResponse(result, "list", categoryDao.getFamilyListOfJSON());
-			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
-			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
+		
+		result = setResponse(result, "list", categoryDao.getFamilyListOfJSON());
+		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
+		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
 						
 		}catch (Exception e){
 			log.error("CategoryController", "loadFamilies", e.toString());
@@ -137,6 +145,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 		Connection conn = DSManager.getConnection();
 
 		JSONObject result = new JSONObject();
+	
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 		
@@ -152,6 +161,9 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 
+			
+			//evaluated value type
+			
 			if (type.length()==0){
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
@@ -161,7 +173,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
-
+			//dao connection
 			CategoryDAO categoryDao = new CategoryDAO(conn);
 			conn.setAutoCommit(false);
 			
@@ -170,12 +182,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 					result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("CMM0001", session.getLanguage(req.getSession())));
 					throw new Exception(reg.getMessage("CMM0001"));
 				}
-
-//				if (!categoryDao.isValidFamily(family_name)){
-//					result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("CMM0002", session.getLanguage(req.getSession())));
-//					throw new Exception(reg.getMessage("CMM0002"));
-//				}
-				
+				//dao connection
 				categoryDao.insertFamily(family_name, visible);
 				
 			}else if (type.equals("edit")){
@@ -191,11 +198,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 
 				long familyID = Utils.getLong(family_id);
 
-//				if (!categoryDao.isValidFamily(family_name, familyID)){
-//					result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("CMM0002", session.getLanguage(req.getSession())));
-//					throw new Exception(reg.getMessage("CMM0002"));
-//				}
-				
+				//dao connection
 				categoryDao.updateFamily(family_name, visible, familyID);
 				
 			}else if (type.equals("delete")){
@@ -205,6 +208,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				}
 
 				long familyID = Utils.getLong(family_id);
+				//dao connection
 				categoryDao.deleteFamily(familyID);
 				
 			}else if (type.equals("get")){
@@ -254,7 +258,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 			
 		UserInfo user = session.getUserInfo(req.getSession());
 		if (user==null){
-			return new ModelAndView("redirect:/user/login.html");
+			return new ModelAndView("redirect:/user/adios.html");
 		}
 		
 		ModelAndView mv = new ModelAndView("channels");
@@ -262,20 +266,21 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 		Connection conn = DSManager.getConnection();
 		
 		try{
+			//dao connection
 			CategoryDAO categoryDao = new CategoryDAO(conn);
 			UtilityDAO codeDao = new UtilityDAO(conn);
 			
+			//handle the form submission
 			mv.addObject("familylist", categoryDao.getFamilyList());
 			mv.addObject("securitylist", codeDao.getCodeList("chn1", session.getLanguage(req.getSession())));
-			
 			mv.addObject("direccionlist", codeDao.getList("maindirection"));
 			mv.addObject("empresalist", codeDao.getList("company"));
 			mv.addObject("ciudadlist", codeDao.getList("city"));
 		
 		}catch (Exception e){
+			//handle the form submission
 			mv.addObject("familylist", new ArrayList());
 			mv.addObject("securitylist", new ArrayList());
-			
 			mv.addObject("direccionlist", new ArrayList());
 			mv.addObject("empresalist", new ArrayList());
 			mv.addObject("ciudadlist", new ArrayList());
@@ -305,6 +310,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 		Connection conn = DSManager.getConnection();
 
 		JSONObject result = new JSONObject();
+
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 
@@ -316,11 +322,13 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 			}
 
 			JSONArray div_result = new JSONArray();
+			//dao connection
 			CategoryDAO categoryDao = new CategoryDAO(conn);
 			ArrayList list = categoryDao.getFamilyList();
 			for (int i=0; i<list.size(); i++){
 				FamilyInfo item = (FamilyInfo) list.get(i);
 				JSONObject obj = new JSONObject();
+				// Initialize value.
 				obj.put("parent", item.toJSONObject());
 				
 				JSONArray div_result2 = new JSONArray();
@@ -328,16 +336,16 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				for (int i2=0; i2<list2.size(); i2++){
 					ChannelInfo item2 = (ChannelInfo) list2.get(i2);
 					JSONObject obj2 = new JSONObject();
+					// Initialize value.
 					obj2.put("parent", item2.toJSONObject());
 					obj2.put("child", categoryDao.recallChannelList(item.getId(), item2.getId(), "", ""));
 					div_result2.put(obj2);
 				}
-				
+				// Initialize value.
 				obj.put("child", div_result2);
 				div_result.put(obj);
 			}
-			
-			// Initialize all value.
+
 			result = setResponse(result, "list", div_result);
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
@@ -373,6 +381,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 		Connection conn = DSManager.getConnection();
 
 		JSONObject result = new JSONObject();
+
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 
@@ -382,16 +391,16 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
-
+			//dao connection
 			CategoryDAO categoryDao = new CategoryDAO(conn);
 			
 			long channelID = Utils.getLong(channel);
 			ChannelInfo c = categoryDao.getChannelInfo(channelID);
+
 			result = setResponse(result, "channel", c.toJSON());
 			result = setResponse(result, "ciudad", categoryDao.getListOfJSON(channelID, "channelcity", "City_CityId"));
 			result = setResponse(result, "direccion", categoryDao.getListOfJSON(channelID, "channelmaindirection", "Maindirection_MaindirectionId"));
 			result = setResponse(result, "empresa", categoryDao.getListOfJSON(channelID, "channelcompany", "Company_CompanyId"));
-			
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
 			
@@ -424,21 +433,24 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 		Connection conn = DSManager.getConnection();
 		
 		JSONObject result = new JSONObject();
+
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 		
 		try{
 			UserInfo user = session.getUserInfo(req.getSession());
 			if (user==null){
+
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			
 			if (division.length()==0){
+	
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
-			
+			//dao connection
 			UtilityDAO utilityDAO = new UtilityDAO(conn);
 			
 			JSONArray div_result = new JSONArray();
@@ -447,6 +459,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				for (int i=0; i<list.size(); i++){
 					DivisionInfo item = (DivisionInfo) list.get(i);
 					JSONObject obj = new JSONObject();
+					// Initialize value.
 					obj.put("parent", utilityDAO.getDivisionOfJSON(item.getId(), session.getLanguage(req.getSession())));
 					obj.put("child", utilityDAO.getDivisionListOfJSON(item.getId(), session.getLanguage(req.getSession())));
 					div_result.put(obj);
@@ -456,6 +469,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 					String[] div = division.split(",");
 					for (int i=0; i<div.length; i++){
 						JSONObject obj = new JSONObject();
+						// Initialize value.
 						obj.put("parent", utilityDAO.getDivisionOfJSON(Utils.getLong(div[i]), session.getLanguage(req.getSession())));
 						obj.put("child", utilityDAO.getDivisionListOfJSON(Utils.getLong(div[i]), session.getLanguage(req.getSession())));
 						div_result.put(obj);
@@ -463,7 +477,6 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				}
 			}
 
-			// Initialize all value.
 			result = setResponse(result, "list", div_result);
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
@@ -498,21 +511,24 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 		Connection conn = DSManager.getConnection();
 		
 		JSONObject result = new JSONObject();
+
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 		
 		try{
 			UserInfo user = session.getUserInfo(req.getSession());
 			if (user==null){
+	
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			
 			if (geographical.length()==0){
+	
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
-			
+			//dao connection
 			UtilityDAO utilityDAO = new UtilityDAO(conn);
 			
 			JSONArray div_result = new JSONArray();
@@ -521,6 +537,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				for (int i=0; i<list.size(); i++){
 					DivisionInfo item = (DivisionInfo) list.get(i);
 					JSONObject obj = new JSONObject();
+					// Initialize value.
 					obj.put("parent", utilityDAO.getCityOfJSON(item.getId(), session.getLanguage(req.getSession())));
 					obj.put("child", utilityDAO.getCityListOfJSON(item.getId(), session.getLanguage(req.getSession())));
 					div_result.put(obj);
@@ -530,6 +547,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 					String[] div = geographical.split(",");
 					for (int i=0; i<div.length; i++){
 						JSONObject obj = new JSONObject();
+						// Initialize value.
 						obj.put("parent", utilityDAO.getCityOfJSON(Utils.getLong(div[i]), session.getLanguage(req.getSession())));
 						obj.put("child", utilityDAO.getCityListOfJSON(Utils.getLong(div[i]), session.getLanguage(req.getSession())));
 						div_result.put(obj);
@@ -537,7 +555,6 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				}
 			}
 
-			// Initialize all value.
 			result = setResponse(result, "list", div_result);
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
@@ -578,6 +595,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 		Connection conn = DSManager.getConnection();
 		
 		JSONObject result = new JSONObject();
+
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 		
@@ -592,9 +610,8 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
-			
-			CategoryDAO categoryDAO = new CategoryDAO(conn);
-			
+			//dao connection
+			CategoryDAO categoryDAO = new CategoryDAO(conn);		
 			JSONArray div_result = new JSONArray();
 			
 			ArrayList list = categoryDAO.getChannelList(Utils.getLong(family), (long)0);
@@ -604,13 +621,13 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 					
 				}else{
 					JSONObject obj = new JSONObject();
+					// Initialize value.
 					obj.put("parent", item.toJSONObject());
 					obj.put("child", categoryDAO.recallChannelList(Utils.getLong(family), item.getId(), type, channel_id));
 					div_result.put(obj);
 				}
 			}
 
-			// Initialize all value.
 			result = setResponse(result, "list", div_result);
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
@@ -657,25 +674,17 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 			@RequestParam(value = "parent", required = false) String parent,
 			@RequestParam(value = "access", required = false) String access,
 			@RequestParam(value = "security_level", required = false) String security_level,
-			
 			@RequestParam(value = "direccion", required = false) String direccion,
 			@RequestParam(value = "empresa", required = false) String empresa,
 			@RequestParam(value = "ciudad", required = false) String ciudad,
 			
-//			@RequestParam(value = "channel_division", required = false) String channel_division,
-//			@RequestParam(value = "channel_subdivision", required = false) String channel_subdivision,
-//			@RequestParam(value = "channel_geographical", required = false) String channel_geographical,
-//			@RequestParam(value = "channel_city", required = false) String channel_city,
-//			@RequestParam(value = "channel_promote", required = false) String channel_promote,
-//			@RequestParam(value = "channel_jobgrade", required = false) String channel_jobgrade,
-//			@RequestParam(value = "channel_payowner", required = false) String channel_payowner,
-//			@RequestParam(value = "people_manager", required = false) String people_manager,
-//			@RequestParam(value = "newhire", required = false) String newhire,
+
 			HttpServletRequest req, HttpServletResponse res){
 
 		Connection conn = DSManager.getConnection();
 
 		JSONObject result = new JSONObject();
+
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 
@@ -688,20 +697,9 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 		parent = Utils.checkNull(parent);
 		access =Utils.checkNull(access);
 		security_level = Utils.checkNull(security_level);
-		
 		direccion = Utils.checkNull(direccion);
 		empresa = Utils.checkNull(empresa);
 		ciudad = Utils.checkNull(ciudad);
-		
-//		channel_division = Utils.checkNull(channel_division);
-//		channel_subdivision = Utils.checkNull(channel_subdivision);
-//		channel_geographical = Utils.checkNull(channel_geographical);
-//		channel_city = Utils.checkNull(channel_city);
-//		channel_promote = Utils.checkNull(channel_promote);
-//		channel_jobgrade = Utils.checkNull(channel_jobgrade);
-//		channel_payowner = Utils.checkNull(channel_payowner);
-//		people_manager = Utils.checkNull(people_manager);
-//		newhire = Utils.checkNull(newhire);
 
 		if (parent.length()==0)
 			parent="0";
@@ -709,68 +707,30 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 		try{
 			UserInfo user = session.getUserInfo(req.getSession());
 			if (user==null){
+
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 
 			if (type.length()==0){
+
 				result.put(Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 
 			if (!type.equals("add") && !type.equals("edit") && !type.equals("delete")){
+
 				result.put(Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
-
+			//dao connection
 			CategoryDAO categoryDAO = new CategoryDAO(conn);
 			conn.setAutoCommit(false);
+			ContentDAO  contentDAO = new ContentDAO(conn);			
+			//evaluated value type
 
 			if (type.equals("add")){
 				Long channelID = categoryDAO.insertChannel(Utils.getLong(family_id), Utils.getLong(parent), channel_name, email, password, access, security_level, "","");
-//				Long channelID = categoryDAO.insertChannel(Utils.getLong(family_id), Utils.getLong(parent), channel_name, email, password, access, security_level, people_manager, newhire);
-
-//				if (channel_geographical.length()>0){
-//					String[] geographicals = channel_geographical.split(",");
-//					for (int i=0; i<geographicals.length; i++)
-//						categoryDAO.insertChannelCity("0", channelID, Utils.getLong(geographicals[i]));
-//				}
-//
-//				if (channel_city.length()>0){
-//				String[] citys = channel_city.split(",");
-//				for (int i=0; i<citys.length; i++)
-//					categoryDAO.insertChannelCity("1", channelID, Utils.getLong(citys[i]));
-//				}
-//				
-//				if (channel_division.length()>0){
-//				String[] divisions = channel_division.split(",");
-//				for (int i=0; i<divisions.length; i++)
-//					categoryDAO.insertChannelDivision("0", channelID, Utils.getLong(divisions[i]));
-//				}
-//
-//				if (channel_subdivision.length()>0){
-//				String[] sub_divisions = channel_subdivision.split(",");
-//				for (int i=0; i<sub_divisions.length; i++)
-//					categoryDAO.insertChannelDivision("1", channelID, Utils.getLong(sub_divisions[i]));
-//				}
-//				
-//				if (channel_promote.length()>0){
-//				String[] promotes = channel_promote.split(",");
-//				for (int i=0; i<promotes.length; i++)
-//					categoryDAO.insertChannelPromote(channelID, promotes[i]);
-//				}
-//				
-//				if (channel_jobgrade.length()>0){
-//				String[] jobgrade = channel_jobgrade.split(",");
-//				for (int i=0; i<jobgrade.length; i++)
-//					categoryDAO.insertChannelJobgrade(channelID, jobgrade[i]);
-//				}
-//
-//				if (channel_payowner.length()>0){
-//				String[] payowner = channel_payowner.split(",");
-//				for (int i=0; i<payowner.length; i++)
-//					categoryDAO.insertChannelPayowner(channelID, payowner[i]);
-//				}
 
 				if (empresa.length()>0){
 					String[] lst = empresa.split(",");
@@ -792,36 +752,24 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 			}else if (type.equals("edit")){
 				long channelID = Utils.getLong(channel_id);
 				long lonFamily=0;
-				
-//				categoryDAO.deleteChannelCity(channelID);
-//				categoryDAO.deleteChannelPromote(channelID);
-//				categoryDAO.deleteChannelDivision(channelID);
-//				categoryDAO.deleteChannelJobgrade(channelID);
-//				categoryDAO.deleteChannelPayowner(channelID);
-				
+			
 				categoryDAO.deleteChannelList(channelID, "channelcity");
 				categoryDAO.deleteChannelList(channelID, "channelcompany");
 				categoryDAO.deleteChannelList(channelID, "channelmaindirection");
-				
-				//categoryDAO.deleteChannel(channelID);
-				//channelID
 				categoryDAO.updateChannel(Utils.getLong(family_id), Utils.getLong(parent), channel_name, email, password, access, security_level,channelID);
-				
 				conn.commit();
 				
 				lonFamily=categoryDAO.getChanneFamilyId(channelID);
 				
 				categoryDAO.getChanneFamily_FamilyId(channelID,lonFamily);
-				
-				
-				//categoryDAO.insertChannel(Utils.getLong(family_id), Utils.getLong(parent), channel_name, email, password, access, security_level);
 				conn.commit();
+				
 				int ChanelId=0;
 				ChanelId = categoryDAO.getChannelInfoName(channel_name);
 				conn.commit();
+				
 				channelID=ChanelId;
 
-				
 				if (empresa.length()>0){
 					String[] lst = empresa.split(",");
 					for (int i=0; i<lst.length; i++)
@@ -846,16 +794,22 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				categoryDAO.deleteChannelList(channelID, "channelcity");
 				categoryDAO.deleteChannelList(channelID, "channelcompany");
 				categoryDAO.deleteChannelList(channelID, "channelmaindirection");
-				
 				categoryDAO.deleteChannelList(channelID);
 				
 				valor = categoryDAO.getChanneFather(channelID);
 				if (valor != 1)
 				{
+					//Towa RJR 20150924 inicio
+					Long contentid = categoryDAO.getContentByChannelId(channelID);
+					while (contentid!=0)
+					{
+						contentDAO.deleteContent(contentid);
+						contentid = categoryDAO.getContentByChannelId(channelID);
+					}
+									
+					//Towa RJR 20150924 fin
 					categoryDAO.deleteChannel(channelID);
 				}
-				
-				
 
 			}
 
@@ -863,6 +817,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 			
 			// load all family data.
 			JSONArray div_result = new JSONArray();
+			//dao connection
 			CategoryDAO categoryDao = new CategoryDAO(conn);
 			ArrayList list = categoryDao.getFamilyList();
 			for (int i=0; i<list.size(); i++){
@@ -875,16 +830,16 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				for (int i2=0; i2<list2.size(); i2++){
 					ChannelInfo item2 = (ChannelInfo) list2.get(i2);
 					JSONObject obj2 = new JSONObject();
+					// Initialize value.
 					obj2.put("parent", item2.toJSONObject());
 					obj2.put("child", categoryDao.recallChannelList(item.getId(), item2.getId(), "", ""));
 					div_result2.put(obj2);
 				}
-				
+				// Initialize value.
 				obj.put("child", div_result2);
 				div_result.put(obj);
 			}
 			
-			// Initialize all value.
 			result = setResponse(result, "list", div_result);
 			result.put(Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result.put(Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
@@ -921,8 +876,9 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 			HttpServletRequest req, HttpServletResponse res){
 
 		Connection conn = DSManager.getConnection();
-
 		JSONObject result = new JSONObject();
+		
+	
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 		
@@ -937,15 +893,18 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 			}
 
 			if (type.length()==0){
+
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 
+			//evaluated value type
 			if (!type.equals("family") && !type.equals("channel")){
+
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
-
+			//dao connection
 			CategoryDAO categoryDao = new CategoryDAO(conn);
 			conn.setAutoCommit(false);
 			

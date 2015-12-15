@@ -82,7 +82,7 @@ $(document).ready(function() {
 		            		if (row.show_in=='1' || row.show_in=='3')
 		            			data += "&nbsp;<span class='label'>" + $("#status_featured_msg").val()+ "</span>";
 
-		            		if (row.status=='D')
+		            		if (row.status=='B')
 		            			data += "&nbsp;<span class='label alert'>" + $("#status_deleted_msg").val()+ "</span>";
 
 		            		if (data=="")
@@ -102,10 +102,12 @@ $(document).ready(function() {
 
 	            			data+='&nbsp;<a href="javascript:editContent(\''+row.id+'\',\''+row.type_name+'\')"><i class="fa fa-pencil fa-lg"></i></a>';
 		            		
-		            		if (row.status=='0')
-		            			data+='&nbsp;<a href="javascript:deleteContent(\'remove\',\''+row.id+'\')"><i class="fa fa-times-circle fa-lg"></i></a>';
-		            		else{
-		            			data+='&nbsp;<a href="javascript:deleteContent(\'delete\',\''+row.id+'\')"><i class="fa fa-trash-o fa-lg"></i></a>';
+		            		if (row.status=='B')
+		            		//	data+='&nbsp;<a href="javascript:deleteContent(\'remove\',\''+row.id+'\')"><i class="fa fa-times-circle fa-lg"></i></a>';
+		            			
+		            			
+		            		/*else*/{
+		            			data+='&nbsp;<a href="javascript:deleteContent(\'remove\',\''+row.id+'\')"><i class="fa fa-trash-o fa-lg"></i></a>';
 		            			data+='&nbsp;<a href="javascript:deleteContent(\'reload\',\''+row.id+'\')"><i class="fa fa-history fa-lg"></i></a>';
 		            		}
 		            		

@@ -4001,17 +4001,18 @@ var RLANG = {
 		this.data('myeditor').observeImages();
 	};
 	
-	$.fn.insertVideo = function(name, key)
+	$.fn.insertVideo = function(name, key) 
 	{
 		this.data('myeditor').restoreSelection();
 		html = '<div>' +
 		'<object type="application/x-shockwave-flash" ' +  
 				 'data="/resources/swf/playerLite.swf"' + 
-				 'style="visibility: visible; width:400px;height:300px;">' +
+				 'style="visibility: visible; width:473px;height:245px;">' +
 				 '<param name="menu" value="true">'+
 				 '<param name="allowfullscreen" value="true">'+
 				 '<param name="allowscriptaccess" value="always">'+
-				 '<param name="flashvars" value="vidWidth=400&vidHeight=300&vidPath='+key+'&thumbPath=/resources/images/player_logo.png&autoPlay=false&autoLoop=false&watermark=hide&vidAspectRatio=fit&seekbar=show"></object>' +
+				 //'<param name="flashvars" value="vidWidth=400&vidHeight=300&vidPath='+key+'&thumbPath=/resources/images/player_logo.png&autoPlay=false&autoLoop=false&watermark=hide&vidAspectRatio=fit&seekbar=show"></object>' +
+				 '<param name="flashvars" value="vidWidth=473&vidHeight=245&vidPath='+key+'&autoPlay=false&autoLoop=false&watermark=hide&vidAspectRatio=fit&seekbar=show"></object>' +
 		'' +
 //				'<video src="' + key + '" style="width:100%; height:100%;" controls>'+
 //				'<source src="'+key+'">'+

@@ -2,6 +2,7 @@ package com.youandbbva.enteratv.controller;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,6 +44,7 @@ import com.youandbbva.enteratv.domain.ContentCountInfo;
 @RequestMapping("/content/")
 @Component("ContentController")
 public class ContentController extends com.youandbbva.enteratv.Controller{
+	
 
 	@ExceptionHandler(value = Exception.class)
 	public ModelAndView handlerException(HttpServletRequest req) {
@@ -73,7 +75,8 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 
 		UserInfo user = session.getUserInfo(req.getSession());
 		if (user==null){
-			return new ModelAndView("redirect:/user/login.html");
+			///user/adios.html
+			return new ModelAndView("redirect:/user/adios.html");
 		}
 
 		return new ModelAndView("active_content");
@@ -92,7 +95,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 
 		UserInfo user = session.getUserInfo(req.getSession());
 		if (user==null){
-			return new ModelAndView("redirect:/user/login.html");
+			return new ModelAndView("redirect:/user/adios.html");
 		}
 
 		return new ModelAndView("expired_content");
@@ -111,7 +114,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 
 		UserInfo user = session.getUserInfo(req.getSession());
 		if (user==null){
-			return new ModelAndView("redirect:/user/login.html");
+			return new ModelAndView("redirect:/user/adios.html");
 		}
 
 		return new ModelAndView("recycle_content");
@@ -138,8 +141,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 		if (type.length()==0)
 			type="add";
 		
-		
-		
+		//handle the form submission
 		mv.addObject("type", type);
 		mv.addObject("content_id", content_id);
 		
@@ -148,29 +150,29 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 		try{
 			UserInfo user = session.getUserInfo(req.getSession());
 			if (user==null){
-				return new ModelAndView("redirect:/user/login.html");
+				return new ModelAndView("redirect:/user/adios.html");
 			}
-
+			//dao connection
 			UtilityDAO codeDao = new UtilityDAO(conn);
 			ContentDAO contentDao = new ContentDAO(conn);
 			
+			//handle the form submission
 			mv.addObject("show_in", codeDao.getCodeList("cnt1", session.getLanguage(req.getSession())));
 			mv.addObject("featured", codeDao.getCodeList("cnt2", session.getLanguage(req.getSession())));
 			mv.addObject("tags", contentDao.getAllTag() );
 			
-	//////	
 			Long lngcontentid = Long.parseLong(content_id);
+			
+			//handle the form submission
 			mv.addObject("tag_list", contentDao.getTagList(lngcontentid) );
 			mv.addObject("content_id", lngcontentid);
-//			mv.addObject("content_type", content_type);
-//			mv.addObject("content", contentDao.getContent(lngcontentid));
-//    		mv.addObject("channel", contentDao.getContentChannelList(contentID));
-	////		
+
 			if (type.equals("edit")){
-				// load existing data.
 			}
 			
 		}catch (Exception e){
+			
+			//handle the form submission
 			mv.addObject("show_in", new ArrayList());
 			mv.addObject("featured", new ArrayList());
 			
@@ -197,7 +199,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			@RequestParam(value = "content_id", required = false) String content_id,
 			@RequestParam(value = "content_type", required = false) String content_type,
 			HttpServletRequest req, HttpServletResponse res){
-//		content_type="5";
+
 		ModelAndView mv = new ModelAndView("edit_content");
 		
 		content_id = Utils.checkNull(content_id);
@@ -205,24 +207,23 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 
 		Connection conn = DSManager.getConnection();
 		
-		
 		try{
 			UserInfo user = session.getUserInfo(req.getSession());
 			if (user==null){
-				return new ModelAndView("redirect:/user/login.html");
+				return new ModelAndView("redirect:/user/adios.html");
 			}
 
 			Long contentID = Utils.getLong(content_id);
+			//dao connection
 			ContentDAO dao = new ContentDAO(conn);
 			
+			//handle the form submission
 			mv.addObject("content_id", contentID);
 			mv.addObject("content_type", content_type);
 			mv.addObject("content", dao.getContent(contentID));
 			mv.addObject("channel", dao.getContentChannelList(contentID));
 			mv.addObject("tags", dao.getTagList(contentID));
 			
-			
-			System.out.println("el valor de edit de tipe es:"+content_type);
 			
 		}catch (Exception e){
 			log.error("ContentController", "edit", e.toString());
@@ -250,18 +251,15 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 
 	    String[] cols = { "c.ContentName", "c.Contentype_ContentypeId","c.ContentPublishDate","c.ContentEndDate"};
 	    String table = "Content";
-	     
-	    JSONObject result = new JSONObject();
+        JSONObject result = new JSONObject();
 	    int amount = 10;
 	    int start = 0;
 	    int echo = 0;
 	    int col = 3;
 	 
 	    String dir = "desc";
-	 
 	    String sStart = Utils.checkNull(request.getParameter("start"));
 	    String sAmount = Utils.checkNull(request.getParameter("length"));
-//	    String sEcho = Utils.checkNull(request.getParameter("sEcho"));
 	    String sCol = Utils.checkNull(request.getParameter("iSortCol_0"));
 	    String sdir = Utils.checkNull(request.getParameter("sSortDir_0"));
 
@@ -305,50 +303,16 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 	    Connection conn = DSManager.getConnection();
 
 		try{
+			//dao connection
 			ContentDAO dao = new ContentDAO(conn);
 			
-//			String sql = " select count(*) from " + table + " where active='" + Constants.DEFAULT_ACTIVE + "' and status='0' ";
 			total = dao.getCountByType("A");
 			totalAfterFilter = total;
 			
-/*			sql = " select c.*, d.value, d.value_en, d.value_me from " + table + " c, bbva_code d where d.div='cnt2' and d.code=c.type and c.active='" + Constants.DEFAULT_ACTIVE + "' and c.status='0' ";
-			String searchSQL = "";
-			String globeSearch =  " ( c.name like '%"+searchTerm+"%' "
-					+ " or c.id in ( select c_ch.content_id from bbva_content_channel c_ch, bbva_channel ch where c_ch.channel_id=ch.id and ch.name like '%" + searchTerm + "%' ) "
-                    + " or c.validity_start like '%"+searchTerm+"%'"
-                    + " or c.validity_end like '%"+searchTerm+"%'"
-                    + " or d.value like '%"+searchTerm+"%'"
-                    + " or d.value_en like '%"+searchTerm+"%'"
-                    + " or d.value_me like '%"+searchTerm+"%'"
-            		+ " ) " ;
-			
-	        if(searchTerm.length()>0 && individualSearch.length()>0){
-	            searchSQL = " ( " + globeSearch + " and " + individualSearch + " ) ";
-	        } else if(individualSearch.length()>0){
-	            searchSQL = individualSearch;
-	        }else if(searchTerm.length()>0){
-	            searchSQL = globeSearch;
-	        }
-	        
-	        if (searchSQL.length()>0)
-	        	searchSQL = " and " + searchSQL;
-			
-	        sql += searchSQL;
-	        sql += " order by " + colName + " " + dir;
-	        sql += " limit " + start + ", " + amount;	        
-*/			
 			ContentCountInfo contentinfo = dao.getContentByType("A",searchTerm,colName,dir,start,amount);
-//			JSONArray array = dao.getContent(sql, session.getLanguage(request.getSession()));
 			JSONArray array = contentinfo.getJSONArray();
-	        
-//			sql = " select count(*) from " + table + " c, bbva_code d where d.div='cnt2' and d.code=c.type and c.active='" + Constants.DEFAULT_ACTIVE + "' and c.status='0'  ";
-//			if (searchTerm!=""){
-//				sql += searchSQL;
-//				totalAfterFilter = dao.getCount(sql);
-//			}
-			
 			totalAfterFilter = dao.getContentCountByType("A",searchTerm);
-
+			// Initialize value.
 			result.put("recordsTotal", total);
 	        result.put("recordsFiltered", totalAfterFilter);
 	        result.put("data", array);
@@ -388,12 +352,10 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 	    int start = 0;
 	    int echo = 0;
 	    int col = 3;
-	 
+	
 	    String dir = "desc";
-	 
 	    String sStart = Utils.checkNull(request.getParameter("start"));
 	    String sAmount = Utils.checkNull(request.getParameter("length"));
-//	    String sEcho = Utils.checkNull(request.getParameter("sEcho"));
 	    String sCol = Utils.checkNull(request.getParameter("iSortCol_0"));
 	    String sdir = Utils.checkNull(request.getParameter("sSortDir_0"));
 
@@ -438,48 +400,15 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 
 		try{
 			String today = Utils.getToday("-");
+			//dao connection
 			ContentDAO dao = new ContentDAO(conn);
-			
-//			String sql = " select count(*) from " + table + " where ( active='0' or validity_end<'" + today + "' ) and status='0' " ;
+			// load existing data.
 			total = dao.getCountByType("E");
 			totalAfterFilter = total;
 			
-/*			sql = " select c.*, d.value, d.value_en, d.value_me from " + table + " c, bbva_code d where d.div='cnt2' and d.code=c.type and ( c.active='0' or c.validity_end<'" + today + "' ) and c.status='0'  ";
-			String searchSQL = "";
-			String globeSearch =  " ( c.name like '%"+searchTerm+"%' "
-					+ " or c.id in ( select c_ch.content_id from bbva_content_channel c_ch, bbva_channel ch where c_ch.channel_id=ch.id and ch.name like '%" + searchTerm + "%' ) "
-                    + " or c.validity_start like '%"+searchTerm+"%'"
-                    + " or c.validity_end like '%"+searchTerm+"%'"
-                    + " or d.value like '%"+searchTerm+"%'"
-                    + " or d.value_en like '%"+searchTerm+"%'"
-                    + " or d.value_me like '%"+searchTerm+"%'"
-            		+ " ) " ;
-			
-	        if(searchTerm.length()>0 && individualSearch.length()>0){
-	            searchSQL = " ( " + globeSearch + " and " + individualSearch + " ) ";
-	        } else if(individualSearch.length()>0){
-	            searchSQL = individualSearch;
-	        }else if(searchTerm.length()>0){
-	            searchSQL = globeSearch;
-	        }
-	        
-	        if (searchSQL.length()>0)
-	        	searchSQL = " and " + searchSQL;
-			
-	        sql += searchSQL;
-	        sql += " order by " + colName + " " + dir;
-	        sql += " limit " + start + ", " + amount;	        
-*/			
 	        ContentCountInfo contentinfo = dao.getContentByType("E",searchTerm,colName,dir,start,amount);
-//			JSONArray array = dao.getContent(sql, session.getLanguage(request.getSession()));
 			JSONArray array = contentinfo.getJSONArray();
-	        
-/*			sql = " select count(*) from " + table + " c, bbva_code d where d.div='cnt2' and d.code=c.type and ( c.active='0' or c.validity_end<'" + today + "' ) and c.status='0' ";
-			if (searchTerm!=""){
-				sql += searchSQL;
-				totalAfterFilter = dao.getCount(sql);
-			}*/
-		//	totalAfterFilter = contentinfo.getRecords();
+			// Initialize value.
 			result.put("recordsTotal", total);
 	        result.put("recordsFiltered", totalAfterFilter);
 	        result.put("data", array);
@@ -495,6 +424,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 		}
 		
 		try{
+			
 			response.setContentType("application/json");
 	        response.setHeader("Cache-Control", "no-store");
 	        response.getWriter().print(result);			
@@ -521,19 +451,17 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 	    int col = 3;
 	 
 	    String dir = "desc";
-	 
 	    String sStart = Utils.checkNull(request.getParameter("start"));
 	    String sAmount = Utils.checkNull(request.getParameter("length"));
-//	    String sEcho = Utils.checkNull(request.getParameter("sEcho"));
 	    String sCol = Utils.checkNull(request.getParameter("iSortCol_0"));
 	    String sdir = Utils.checkNull(request.getParameter("sSortDir_0"));
 
 	    Map<String, String[]> parameters = request.getParameterMap();
 	    sdir = parameters.get("order[0][dir]")[0];
 	    sCol = parameters.get("order[0][column]")[0];
-	    
 	    String searchTerm = Utils.checkNull(request.getParameter("search[value]"));
 	    String all_search = Utils.checkNull(request.getParameter("all_search"));
+	    
 	    if (all_search.length()>0)
 	    	searchTerm = all_search;
 	    String individualSearch = "";
@@ -568,51 +496,15 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 	    Connection conn = DSManager.getConnection();
 
 		try{
+			//dao connection
 			ContentDAO dao = new ContentDAO(conn);
 			
-/*			String sql = " select count(*) from " + table + " where status='1' " ;
-			total = dao.getCount(sql);
-			totalAfterFilter = total;   */
-			total = dao.getCountByType("D");
+			total = dao.getCountByType("B");
 			totalAfterFilter = total;
-			
-/*			sql = " select c.*, d.value, d.value_en, d.value_me from " + table + " c, bbva_code d where d.div='cnt2' and d.code=c.type and c.status='1'  ";
-			String searchSQL = "";
-			String globeSearch =  " ( c.name like '%"+searchTerm+"%' "
-					+ " or c.id in ( select c_ch.content_id from bbva_content_channel c_ch, bbva_channel ch where c_ch.channel_id=ch.id and ch.name like '%" + searchTerm + "%' ) "
-                    + " or c.validity_start like '%"+searchTerm+"%'"
-                    + " or c.validity_end like '%"+searchTerm+"%'"
-                    + " or d.value like '%"+searchTerm+"%'"
-                    + " or d.value_en like '%"+searchTerm+"%'"
-                    + " or d.value_me like '%"+searchTerm+"%'"
-            		+ " ) " ;
-			
-	        if(searchTerm.length()>0 && individualSearch.length()>0){
-	            searchSQL = " ( " + globeSearch + " and " + individualSearch + " ) ";
-	        } else if(individualSearch.length()>0){
-	            searchSQL = individualSearch;
-	        }else if(searchTerm.length()>0){
-	            searchSQL = globeSearch;
-	        }
-	        
-	        if (searchSQL.length()>0)
-	        	searchSQL = " and " + searchSQL;
-			
-	        sql += searchSQL;
-	        sql += " order by " + colName + " " + dir;
-	        sql += " limit " + start + ", " + amount;	        
-*/			
-			ContentCountInfo contentinfo = dao.getContentByType("D",searchTerm,colName,dir,start,amount);
+
+			ContentCountInfo contentinfo = dao.getContentByType("B",searchTerm,colName,dir,start,amount);
 			JSONArray array = contentinfo.getJSONArray();
-		//	JSONArray array = dao.getContent(sql, session.getLanguage(request.getSession()));
-	        
-/*			sql = " select count(*) from " + table + " c, bbva_code d where d.div='cnt2' and d.code=c.type and c.status='1' ";
-			if (searchTerm!=""){
-				sql += searchSQL;
-				totalAfterFilter = dao.getCount(sql);
-			}
-*/
-		//	totalAfterFilter = contentinfo.getRecords();
+			// Initialize value.
 			result.put("recordsTotal", total);
 	        result.put("recordsFiltered", totalAfterFilter);
 	        result.put("data", array);
@@ -628,6 +520,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 		}
 		
 		try{
+	
 			response.setContentType("application/json");
 	        response.setHeader("Cache-Control", "no-store");
 	        response.getWriter().print(result);			
@@ -652,6 +545,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 		Connection conn = DSManager.getConnection();
 
 		JSONObject result = new JSONObject();
+		
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 
@@ -663,13 +557,12 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			}
 
 			long contentID = Utils.getLong(content_id);
-
+			//dao connection
 			ContentDAO dao = new ContentDAO(conn);
-			
+		
 			result = setResponse(result, "content", dao.getContentOfJSON(contentID));
 			result = setResponse(result, "channel", dao.getContentChannelListOfJSON(contentID));
 			result = setResponse(result, "tags", dao.getTagListOfJSON(contentID));
-			
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
 			
@@ -703,6 +596,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 		Connection conn = DSManager.getConnection();
 
 		JSONObject result = new JSONObject();
+		
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 
@@ -714,13 +608,18 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			}
 
 			long contentID = Utils.getLong(content_id);
-
+			long channel = 0;
+			ArrayList<Long> contentidvideo= new ArrayList<Long>();
+			//dao connection
 			ContentDAO dao = new ContentDAO(conn);
+			channel = dao.getChannel_ID(contentID);
+			contentidvideo=dao.getContent_ID(channel);
+//			dao.getBlobVideo(channel);
+//			dao.getBlobImagen(channel);
 			
-			result = setResponse(result, "content", dao.getVideoContentListOfJSON(contentID));
-			
-			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
-			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
+				result = setResponse(result, "content", dao.getVideoContentListOfJSON(contentidvideo, channel));
+				result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
+				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
 			
 		}catch (Exception e){ 
 			log.error("ContentController", "getContentOfVideo", e.toString());
@@ -766,7 +665,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			HttpServletRequest req, HttpServletResponse res){
 
 		JSONObject result = new JSONObject();
-		
+
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 		
@@ -784,11 +683,13 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 
 		try{
 			UserInfo user = session.getUserInfo(req.getSession());
+			
 			if (user==null){
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 
+			//evaluated value type
 			if (type.length()==0){
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
@@ -800,7 +701,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			}
 			
 			conn.setAutoCommit(false);
-
+			//dao connection
 			ContentDAO dao = new ContentDAO(conn);
 			Long contentID = (long)0;
 			int channelid = 0;
@@ -814,7 +715,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			{
 				String[] channels = channel.split(",");
 				String firstchannel = channels[0];
-//				channelid = dao.getChannelIdByChannelName(firstchannel);
+
 				channelid = Integer.parseInt(firstchannel);
 			}
 			if (featured=="A")
@@ -824,14 +725,8 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			
 			if (type.equals("add")){
 				
-	//llega 1 cuando es ambos			
 				contentID = dao.insertContent(channelid,typecontent, title,strhtml,isvisible,validity_start, validity_end, active,show_in);
-	/*			if (channel.length()>0){
-				String[] channels = channel.split(",");
-				for (int i=0; i<channels.length; i++){
-					dao.insertContentChannel(contentID, Utils.getLong(channels[i]));
-				}
-				}*/
+	
 				
 				try{
 					String[] tags = req.getParameterValues("tag[]");
@@ -848,52 +743,15 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 					}
 				}catch (Exception eeff){}
 				
-			//	dao.updateContent(contentID);
+	
 			}else{
 				contentID = Utils.getLong(content_id);
-
+				//dao connection
 				ContentInfo previous = dao.getContent(contentID);
 				
-/*				if (!previous.getType().equals("001"))
-					dao.deleteContentVideo(contentID);
-
-				if (!previous.getType().equals("002"))
-					dao.deleteContentNews(contentID);
-
-				if (!previous.getType().equals("003")){
-					dao.deleteAnswer(contentID);
-					dao.deleteContentAnswer(contentID);
-					dao.deleteContentQuestion(contentID);
-				}
-
-				if (!previous.getType().equals("004"))
-					dao.deleteContentFAQs(contentID);
-
-				if (!previous.getType().equals("005")){
-					dao.deleteContentGalleryMedia(contentID);
-					dao.deleteContentGallery(contentID);
-				}
-
-				if (!previous.getType().equals("006")){
-					dao.deleteContentFileMedia(contentID);
-					dao.deleteContentFile(contentID);
-				}
-				
-				dao.deleteContentChannel(contentID);
-				dao.deleteTag(contentID);
-//				dao.deleteContent(contentID);
-				
-				conn.commit();   */
-				
-				//contentID = dao.insertContent(channelid,typecontent, title,html,isvisible,validity_start, validity_end, active,show_in);
 				dao.updateContent( channelid,typecontent, title,strhtml,isvisible,validity_start, validity_end, active,show_in,contentID);
-/*				if (channel.length()>0){
-				String[] channels = channel.split(",");
-				for (int i=0; i<channels.length; i++){
-					dao.insertContentChannel(contentID, Utils.getLong(channels[i]));
-				}
-				} */
 				dao.deleteContentlabelByContentId(contentID);
+				
 				try{
 					String[] tags = req.getParameterValues("tag[]");
 					int labelid = 0;
@@ -907,7 +765,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			}
 			
 			conn.commit();
-			
+			//dao connection
 			PublicDAO publicDao = new PublicDAO(conn);
 			SystemDAO systemDao = new SystemDAO(conn);
 			
@@ -916,11 +774,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			String[] html = publicDao.generateSlide();
 			
 			if (featured.equals("2")){
-//				publicDao.affectFeaturedNews();
-//				conn.commit();
-//				
-//				publicDao.generateFeaturesHTML();
-//				systemDao.update(Constants.OPTION_FEATURES_HTML, publicDao.generateFeaturesHTML());
+
 			}
 			
 			systemDao.update(Constants.OPTION_SLIDER_FOR_HTML, html[0]);
@@ -930,13 +784,13 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			conn.commit();
 			
 			ContentInfo content = dao.getContent(contentID);
-			if (content.getStatus().equals("D"))
+			if (content.getStatus().equals("B"))
 				result = setResponse(result, "move_to", "0");
 			else if (content.getStatus().equals("A") && content.getActive().equals("1"))
 				result = setResponse(result, "move_to", "1");
-			else if (content.getStatus().equals("I") && content.getActive().equals("0"))
+			else if (content.getStatus().equals("A") && content.getActive().equals("0"))
 				result = setResponse(result, "move_to", "2");
-
+			// Initialize all value.
 			result = setResponse(result, "contentID", contentID);
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
@@ -978,6 +832,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 		Connection conn = DSManager.getConnection();
 
 		JSONObject result = new JSONObject();
+	
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 
@@ -987,7 +842,8 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
-
+			//evaluated value type
+			
 			if (type.length()==0){
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("ACT0003"));
@@ -999,14 +855,15 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			}
 			
 			long contentID = Utils.getLong(content_id);
-
+			//dao connection
 			ContentDAO dao = new ContentDAO(conn);
 			conn.setAutoCommit(false);
 			
 			ContentInfo content = dao.getContent(contentID);
 			
 			if (type.equals("remove")){
-				dao.removeContent(contentID);
+//				dao.removeContent(contentID);
+				dao.deleteContent(contentID);
 				
 			}else if (type.equals("delete")){
 				dao.deleteContentLogical(contentID);
@@ -1019,17 +876,14 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			}
 			
 			conn.commit();
-
+			
+			//dao connection
 			PublicDAO publicDao = new PublicDAO(conn);
 			SystemDAO systemDao = new SystemDAO(conn);
 			String[] html = publicDao.generateSlide();
 			
 			if (content.getType().equals("002")){
-//				publicDao.affectFeaturedNews();
-//				conn.commit();
-//				
-//				systemDao.update(Constants.OPTION_FEATURES_HTML, publicDao.generateFeaturesHTML());
-////				publicDao.generateFeaturesHTML();
+
 			}
 			
 			systemDao.update(Constants.OPTION_SLIDER_FOR_HTML, html[0]);
@@ -1037,7 +891,6 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			systemDao.update(Constants.OPTION_SLIDER_FOR_HTML+"_mobile", html[2]);
 			systemDao.update(Constants.OPTION_SLIDER_NAV_HTML+"_mobile", html[3]);
 			conn.commit();
-			
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
 			
@@ -1057,438 +910,6 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 		response(res, result);
 	}
 
-	
-	/**
-	 * Load Content FAQs List.
-	 * 
-	 * @param content_id
-	 * @param req
-	 * @param res
-	 */
-/*	@RequestMapping("loadContentFAQs.html")
-	public void loadContentFAQs(
-			@RequestParam(value = "content_id", required = false) String content_id,
-			HttpServletRequest req, HttpServletResponse res){
-
-		content_id = Utils.checkNull(content_id);
-
-		Connection conn = DSManager.getConnection();
-
-		JSONObject result = new JSONObject();
-		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
-		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
-
-		try{
-			UserInfo user = session.getUserInfo(req.getSession());
-			if (user==null){
-				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
-				throw new Exception(reg.getMessage("ACT0003"));
-			}
-
-			long contentID = Utils.getLong(content_id);
-
-			ContentDAO dao = new ContentDAO(conn);
-			
-			result = setResponse(result, "faqs", dao.getContentFAQsListOfJSON(contentID));
-			
-			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
-			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
-			
-		}catch (Exception e){ 
-			log.error("ContentController", "loadContentFAQs", e.toString());
-			
-		}finally{
-			try{
-				if (conn!=null)
-					conn.close();
-			}catch (Exception f){}
-		}
-
-		response(res, result);
-	}*/
-	
-	/**
-	 * Get Content FAQs.
-	 * 
-	 * @param content_faqs_id
-	 * @param req
-	 * @param res
-	 */
-/*	@RequestMapping("getContentFAQs.html")
-	public void getContentFAQs(
-			@RequestParam(value = "content_faqs_id", required = false) String content_faqs_id,
-			HttpServletRequest req, HttpServletResponse res){
-
-		content_faqs_id = Utils.checkNull(content_faqs_id);
-
-		Connection conn = DSManager.getConnection();
-
-		JSONObject result = new JSONObject();
-		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
-		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
-
-		try{
-			UserInfo user = session.getUserInfo(req.getSession());
-			if (user==null){
-				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
-				throw new Exception(reg.getMessage("ACT0003"));
-			}
-
-			long contentFAQsID = Utils.getLong(content_faqs_id);
-
-			ContentDAO dao = new ContentDAO(conn);
-			
-			result = setResponse(result, "faqs", dao.getContentFAQsOfJSON(contentFAQsID));
-			
-			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
-			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
-			
-		}catch (Exception e){ 
-			log.error("ContentController", "getContentFAQs", e.toString());
-			
-		}finally{
-			try{
-				if (conn!=null)
-					conn.close();
-			}catch (Exception f){}
-		}
-
-		response(res, result);
-	} */
-	
-	/**
-	 * Update Content FAQs. 
-	 * 		add new, update or delete existing one.
-	 * 
-	 * @param content_id
-	 * @param type
-	 * @param content_faqs_id
-	 * @param question
-	 * @param answer
-	 * @param req
-	 * @param res
-	 */
-/*	@RequestMapping("updateContentFAQs.html")
-	public void updateContentFAQs(
-			@RequestParam(value = "content_id", required = false) String content_id,
-			@RequestParam(value = "type", required = false) String type,
-			@RequestParam(value = "content_faqs_id", required = false) String content_faqs_id,
-			@RequestParam(value = "question", required = false) String question,
-			@RequestParam(value = "answer", required = false) String answer,
-			HttpServletRequest req, HttpServletResponse res){
-
-		JSONObject result = new JSONObject();
-		
-		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
-		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
-		
-		type = Utils.checkNull(type);
-		content_id = Utils.checkNull(content_id);
-		content_faqs_id = Utils.checkNull(content_faqs_id);
-		question = Utils.encode(Utils.checkNull(question));
-		answer = Utils.encode(Utils.checkNull(answer));
-
-		Connection conn = DSManager.getConnection();
-
-		try{
-			UserInfo user = session.getUserInfo(req.getSession());
-			if (user==null){
-				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
-				throw new Exception(reg.getMessage("ACT0003"));
-			}
-
-			if (type.length()==0){
-				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
-				throw new Exception(reg.getMessage("ACT0003"));
-			}
-
-			if (!type.equals("add") && !type.equals("edit") && !type.equals("delete")){
-				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
-				throw new Exception(reg.getMessage("ACT0003"));
-			}
-			
-			conn.setAutoCommit(false);
-
-			ContentDAO dao = new ContentDAO(conn);
-			
-			Long contentID = Utils.getLong(content_id);
-			
-			if (type.equals("add")){
-				dao.insertContentFAQs(contentID, question, answer);
-			}else if (type.equals("edit")){
-				dao.updateContentFAQs(Utils.getLong(content_faqs_id), question, answer);
-			}else {
-				dao.deleteContentFAQsByID(Utils.getLong(content_faqs_id));
-			}
-			
-			dao.updateContentTime(contentID);
-			
-			conn.commit();
-
-			dao.generateHTML(contentID, session.getLanguage(req.getSession()));
-			conn.commit();
-
-			ContentInfo content = dao.getContent(contentID);
-			if (content.getStatus().equals("1"))
-				result = setResponse(result, "move_to", "0");
-			else if (content.getActive().equals("1") && Utils.getToday("-").compareTo(content.getValidityEnd())<0)
-				result = setResponse(result, "move_to", "1");
-			else
-				result = setResponse(result, "move_to", "2");
-			
-			result = setResponse(result, "faqs", dao.getContentFAQsListOfJSON(contentID));
-			
-			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
-			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
-			
-		}catch (Exception e){ 
-			log.error("ContentController", "updateContentFAQs", e.toString());
-			
-			try{
-				conn.rollback();
-			}catch (Exception ex){}
-		}finally{
-			try{
-				if (conn!=null)
-					conn.close();
-			}catch (Exception f){}
-		}
-
-		response(res, result);
-	}*/
-	
-
-	/**
-	 * Load Content Poll List.
-	 * 
-	 * @param content_id
-	 * @param req
-	 * @param res
-	 */
-/*	@RequestMapping("loadContentPoll.html")
-	public void loadContentPoll(
-			@RequestParam(value = "content_id", required = false) String content_id,
-			HttpServletRequest req, HttpServletResponse res){
-
-		content_id = Utils.checkNull(content_id);
-
-		Connection conn = DSManager.getConnection();
-
-		JSONObject result = new JSONObject();
-		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
-		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
-
-		try{
-			UserInfo user = session.getUserInfo(req.getSession());
-			if (user==null){
-				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
-				throw new Exception(reg.getMessage("ACT0003"));
-			}
-
-			long contentID = Utils.getLong(content_id);
-
-			ContentDAO dao = new ContentDAO(conn);
-			
-			result = setResponse(result, "question", dao.getContentQuestionListOfJSON(contentID));
-			
-			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
-			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
-			
-		}catch (Exception e){ 
-			log.error("ContentController", "loadContentPoll", e.toString());
-			
-		}finally{
-			try{
-				if (conn!=null)
-					conn.close();
-			}catch (Exception f){}
-		}
-
-		response(res, result);
-	}*/
-	
-	/**
-	 * Get Content Poll.
-	 * 
-	 * @param content_question_id
-	 * @param req
-	 * @param res
-	 */
-/*	@RequestMapping("getContentPoll.html")
-	public void getContentPoll(
-			@RequestParam(value = "content_question_id", required = false) String content_question_id,
-			HttpServletRequest req, HttpServletResponse res){
-
-		content_question_id = Utils.checkNull(content_question_id);
-
-		Connection conn = DSManager.getConnection();
-
-		JSONObject result = new JSONObject();
-		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
-		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
-
-		try{
-			UserInfo user = session.getUserInfo(req.getSession());
-			if (user==null){
-				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
-				throw new Exception(reg.getMessage("ACT0003"));
-			}
-
-			Long questionID = Utils.getLong(content_question_id);
-
-			ContentDAO dao = new ContentDAO(conn);
-			
-			result = setResponse(result, "question", dao.getContentQuestionOfJSON(questionID));
-			result = setResponse(result, "answer", dao.getContentAnswerListOfJSON(questionID));
-			
-			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
-			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
-			
-		}catch (Exception e){ 
-			log.error("ContentController", "getContentPoll", e.toString());
-			
-		}finally{
-			try{
-				if (conn!=null)
-					conn.close();
-			}catch (Exception f){}
-		}
-
-		response(res, result);
-	}*/
-	
-	/**
-	 * Update Content Poll. 
-	 * 		add new, update or delete existing one.
-	 * 
-	 * @param content_id
-	 * @param type
-	 * @param content_question_id
-	 * @param question
-	 * @param open_question
-	 * @param req
-	 * @param res
-	 */
-/*	@RequestMapping("updateContentPoll.html")
-	public void updateContentPoll(
-			@RequestParam(value = "content_id", required = false) String content_id,
-			@RequestParam(value = "type", required = false) String type,
-			@RequestParam(value = "content_question_id", required = false) String content_question_id,
-			
-			@RequestParam(value = "question", required = false) String question,
-			@RequestParam(value = "open_question", required = false) String open_question,
-			HttpServletRequest req, HttpServletResponse res){
-
-		JSONObject result = new JSONObject();
-		
-		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
-		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
-		
-		type = Utils.checkNull(type);
-		content_id = Utils.checkNull(content_id);
-		content_question_id = Utils.checkNull(content_question_id);
-		
-		question = Utils.encode(Utils.checkNull(question));
-		open_question = Utils.encode(Utils.checkNull(open_question));
-
-		String[] answer = null;
-		try{
-			answer = req.getParameterValues("answer[]");
-			for (int i=0; i<answer.length; i++){
-				answer[i] = Utils.encode(Utils.checkNull(answer[i]));
-			}
-		}catch (Exception ee){}
-
-		Connection conn = DSManager.getConnection();
-
-		try{
-			UserInfo user = session.getUserInfo(req.getSession());
-			if (user==null){
-				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
-				throw new Exception(reg.getMessage("ACT0003"));
-			}
-
-			if (type.length()==0){
-				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
-				throw new Exception(reg.getMessage("ACT0003"));
-			}
-
-			if (!type.equals("add") && !type.equals("edit") && !type.equals("delete")){
-				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
-				throw new Exception(reg.getMessage("ACT0003"));
-			}
-			
-			conn.setAutoCommit(false);
-
-			ContentDAO dao = new ContentDAO(conn);
-			
-			Long contentID = Utils.getLong(content_id);
-			
-			if (type.equals("add")){
-				Long questionID = dao.insertContentQuestion(contentID, question, open_question);
-				
-				try{
-					for (int i=0; i<answer.length; i++){
-						dao.insertContentAnswer(contentID, questionID, answer[i]);
-					}
-				}catch (Exception ff){}
-				
-			}else if (type.equals("edit")){
-				Long questionID = Utils.getLong(content_question_id);
-				dao.deleteAnswerByQuestion(questionID);
-				dao.deleteContentAnswerByID(questionID);
-				conn.commit();
-				
-				dao.updateContentQuestion(contentID, questionID, question, open_question);
-				try{
-					for (int i=0; i<answer.length; i++){
-						dao.insertContentAnswer(contentID, questionID, answer[i]);
-					}
-				}catch (Exception ff){}
-			}else {
-				Long questionID = Utils.getLong(content_question_id);
-				dao.deleteContentAnswerByID(questionID);
-				dao.deleteAnswerByQuestion(questionID);
-				dao.deleteContentQuestionByID(questionID);
-			}
-			
-			dao.updateContentTime(contentID);
-			
-			conn.commit();
-
-			dao.generateHTML(contentID, session.getLanguage(req.getSession()));
-			conn.commit();
-			
-			ContentInfo content = dao.getContent(contentID);
-			if (content.getStatus().equals("1"))
-				result = setResponse(result, "move_to", "0");
-			else if (content.getActive().equals("1") && Utils.getToday("-").compareTo(content.getValidityEnd())<0)
-				result = setResponse(result, "move_to", "1");
-			else
-				result = setResponse(result, "move_to", "2");
-			
-			result = setResponse(result, "question", dao.getContentQuestionListOfJSON(contentID));
-			
-			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
-			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
-			
-		}catch (Exception e){ 
-			log.error("ContentController", "updateContentPoll", e.toString());
-			
-			try{
-				conn.rollback();
-			}catch (Exception ex){}
-		}finally{
-			try{
-				if (conn!=null)
-					conn.close();
-			}catch (Exception f){}
-		}
-
-		response(res, result);
-	}*/
-
-	
 	/**
 	 * Load Content File List.
 	 * 
@@ -1517,12 +938,10 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			}
 
 			long contentID = Utils.getLong(content_id);
-
+			//dao connection
 			ContentDAO dao = new ContentDAO(conn);
-			
 			result = setResponse(result, "file", dao.getContentFileOfJSON(contentID));
 			result = setResponse(result, "media", dao.getContentFileMediaListOfJSON(contentID));
-			
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
 			
@@ -1555,13 +974,10 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			HttpServletRequest req, HttpServletResponse res){
 
 		JSONObject result = new JSONObject();
-		
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
-		
 		content_id = Utils.checkNull(content_id);
 		description = Utils.encode(Utils.checkNull(description));
-
 		String[] key = req.getParameterValues("filekey[]");
 		String[] name = req.getParameterValues("filename[]");
 		try{
@@ -1580,14 +996,13 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			}
 
 			conn.setAutoCommit(false);
-
+			//dao connection
 			ContentDAO dao = new ContentDAO(conn);
-			
 			Long contentID = Utils.getLong(content_id);
 			
 			try{
 				dao.deleteContentMediaByContentId(contentID);
-	//			dao.deleteContentFile(contentID);
+
 			}catch (Exception e){}
 			conn.commit();
 
@@ -1595,19 +1010,16 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			for (int i=0; i<key.length; i++){
 				dao.insertContentmedia(contentID, dao.getMediaContent(key[i]));
 			}
-			
-//			dao.updateContentTime(contentID);
 			conn.commit();
-			
 			dao.generateHTML(contentID);
 			conn.commit();
-			
 			ContentInfo content = dao.getContent(contentID);
-			if (content.getStatus().equals("D"))
+			
+			if (content.getStatus().equals("B"))
 				result = setResponse(result, "move_to", "0");
 			else if (content.getStatus().equals("A") && content.getActive().equals("1"))
 				result = setResponse(result, "move_to", "1");
-			else if (content.getStatus().equals("I") && content.getActive().equals("0"))
+			else if (content.getStatus().equals("A") && content.getActive().equals("0"))
 				result = setResponse(result, "move_to", "2");
 			
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
@@ -1647,6 +1059,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 		Connection conn = DSManager.getConnection();
 
 		JSONObject result = new JSONObject();
+		// Initialize all value.
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 
@@ -1658,12 +1071,11 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			}
 
 			long contentID = Utils.getLong(content_id);
-
+			//dao connection
 			ContentDAO dao = new ContentDAO(conn);
-			
+
 			result = setResponse(result, "file", dao.getContentFileOfJSON(contentID));
 			result = setResponse(result, "media", dao.getContentFileMediaListOfJSON(contentID));
-			
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
 			
@@ -1696,7 +1108,6 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			HttpServletRequest req, HttpServletResponse res){
 
 		JSONObject result = new JSONObject();
-		
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 		
@@ -1721,37 +1132,34 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			}
 
 			conn.setAutoCommit(false);
-
+			//dao connection
 			ContentDAO dao = new ContentDAO(conn);
 			
 			Long contentID = Utils.getLong(content_id);
 			
 			try{
 				dao.deleteContentMediaByContentId(contentID);
-//				dao.deleteContentGallery(contentID);
 			}catch (Exception e){}
 			conn.commit();
 
 			dao.updateContentDescriptionById(contentID, detail);
 			dao.deleteContentMediaByContentId(contentID);
+			
 			for (int i=0; i<key.length; i++){
 				dao.insertContentmedia(contentID, dao.getMediaContent(key[i]));
 			}
 			
-//			dao.updateContentTime(contentID);
 			conn.commit();
-			
 			dao.generateHTML(contentID);
 			conn.commit();
 			
 			ContentInfo content = dao.getContent(contentID);
-			if (content.getStatus().equals("D"))
+			if (content.getStatus().equals("B"))
 				result = setResponse(result, "move_to", "0");
 			else if (content.getStatus().equals("A") && content.getActive().equals("1"))
 				result = setResponse(result, "move_to", "1");
-			else if (content.getStatus().equals("I") && content.getActive().equals("0"))
+			else if (content.getStatus().equals("A") && content.getActive().equals("0"))
 				result = setResponse(result, "move_to", "2");
-			
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
 			
@@ -1800,12 +1208,11 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			}
 
 			Long contentID = Utils.getLong(content_id);
-
+			//dao connection
 			ContentDAO dao = new ContentDAO(conn);
 			
 			ContentNewsInfo news =  dao.getContentNews(contentID);
 			result = setResponse(result, "news", news.toJSONObject());
-			
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
 			
@@ -1840,7 +1247,6 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			HttpServletRequest req, HttpServletResponse res){
 
 		JSONObject result = new JSONObject();
-		
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 		
@@ -1858,9 +1264,8 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			}
 			
 			conn.setAutoCommit(false);
-
+			//dao connection
 			ContentDAO dao = new ContentDAO(conn);
-			
 			Long contentID = Utils.getLong(content_id);
 			
 			ContentNewsInfo news =  dao.getContentNews(contentID);
@@ -1869,30 +1274,17 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			}else{
 				dao.updateContentNews(contentID, content, image);
 			} 
-//			dao.updateContentNews(contentID, content, image);
-//			dao.updateContentTime(contentID);
-			conn.commit();
 
+			conn.commit();
 			dao.generateHTML(contentID);
-			
-//			PublicDAO publicDao = new PublicDAO(conn);
-//			SystemDAO systemDao = new SystemDAO(conn);
-
-//			publicDao.affectFeaturedNews();
 			conn.commit();
-			
-//			publicDao.generateFeaturesHTML();
-//			systemDao.update(Constants.OPTION_FEATURES_HTML, publicDao.generateFeaturesHTML());
-//			conn.commit();
-			
 			ContentInfo content1 = dao.getContent(contentID);
-			if (content1.getStatus().equals("D"))
+			if (content1.getStatus().equals("B"))
 				result = setResponse(result, "move_to", "0");
 			else if (content1.getStatus().equals("A") && content1.getActive().equals("1"))
 				result = setResponse(result, "move_to", "1");
-			else if (content1.getStatus().equals("I") && content1.getActive().equals("0"))
+			else if (content1.getStatus().equals("A") && content1.getActive().equals("0"))
 				result = setResponse(result, "move_to", "2");
-			
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
 			
@@ -1941,12 +1333,10 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			}
 
 			Long contentID = Utils.getLong(content_id);
-
-			ContentDAO dao = new ContentDAO(conn);
-			
+			ContentDAO dao = new ContentDAO(conn);	
 			ContentVideoInfo video =  dao.getContentVideo(contentID);
+
 			result = setResponse(result, "video", video.toJSONObject());
-			
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
 			
@@ -1981,7 +1371,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			HttpServletRequest req, HttpServletResponse res){
 
 		JSONObject result = new JSONObject();
-		
+		// Initialize all value.
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 		
@@ -1999,23 +1389,16 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			}
 			
 			conn.setAutoCommit(false);
-
+			//dao connection
 			ContentDAO dao = new ContentDAO(conn);
 			
 			Long contentID = Utils.getLong(content_id);
 			
 			ContentVideoInfo obj =  dao.getContentVideo(contentID);
-/*			if (obj.getContentID()==0){
-				dao.insertContentVideo(contentID, video, image);
-			}else{
-				dao.updateContentVideo(contentID, video, image);
-			} */
 			dao.updateContentVideo(contentID, video, image);
-		//	dao.updateContentTime(contentID);
 			conn.commit();
-			
 			dao.generateHTML(contentID);
-			
+			//dao connection
 			PublicDAO publicDao = new PublicDAO(conn);
 			SystemDAO systemDao = new SystemDAO(conn);
 			
@@ -2027,13 +1410,12 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			conn.commit();
 			
 			ContentInfo content = dao.getContent(contentID);
-			if (content.getStatus().equals("D"))
+			if (content.getStatus().equals("B"))
 				result = setResponse(result, "move_to", "0");
 			else if (content.getStatus().equals("A") && content.getActive().equals("1"))
 				result = setResponse(result, "move_to", "1");
-			else if (content.getStatus().equals("I") && content.getActive().equals("0"))
+			else if (content.getStatus().equals("A") && content.getActive().equals("0"))
 				result = setResponse(result, "move_to", "2");
-			
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
 			

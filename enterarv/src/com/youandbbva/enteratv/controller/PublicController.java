@@ -2,6 +2,7 @@ package com.youandbbva.enteratv.controller;
 
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -70,73 +71,102 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 	 */
 	@RequestMapping("home.html")
 	public ModelAndView home(
-			HttpServletRequest req, HttpServletResponse res){
+			HttpServletRequest req, HttpServletResponse res, ArrayList<String> lista){
 		Connection conn = DSManager.getConnection();
 
 		ModelAndView mv = new ModelAndView("public_home");
+		//ModelAndView mv = new ModelAndView("prueba");
+		//dao connection
 		UserDAO user = new UserDAO(conn);
 		UserInfo userinfo = new UserInfo();
+		
 		user.getUserInfo(userinfo.getUserId());
-		
 		userinfo = session.getFrontUserInfo(req.getSession());
-		if (userinfo==null){
-			return new ModelAndView("redirect:/user/login.html");
-		}
 		
+		if (userinfo==null){
+			return new ModelAndView("redirect:/user/adios.html");
+		}
 		
 
 		try{
-			
-			/////////
-			
+			//dao connection
 			PublicDAO publicDao = new PublicDAO(conn);
 			SystemDAO systemDao = new SystemDAO(conn);
+			String ua = req.getHeader("User-Agent");
+			String[] html=null;
 			
-			String[] html = publicDao.generateSlide();
+			boolean navegador= false;
+			
+			int mozilla = ua.indexOf("Firefox");
+			if(mozilla > 0)
+			{
+				html = publicDao.generateSlideMozilla();
+			}
+			else
+			{
+				html = publicDao.generateSlide();
+			}
+			
 			
 					
 			systemDao.update(Constants.OPTION_SLIDER_FOR_HTML, html[0]);
 			systemDao.update(Constants.OPTION_SLIDER_NAV_HTML, html[1]);
 			systemDao.update(Constants.OPTION_SLIDER_FOR_HTML+"_mobile", html[2]);
 			systemDao.update(Constants.OPTION_SLIDER_NAV_HTML+"_mobile", html[3]);
-			
-			
-			///////
-			
+		
 			String sessionID = req.getSession().getId();
 			String today = Utils.getToday();
 			String time = Utils.getTodayWithTime();
 			String addr = req.getRemoteAddr();
 			
 			conn.setAutoCommit(false);
-
-			PublicDAO dao = new PublicDAO(conn);
 			
-			if (!dao.isExistVisitor(userinfo.getUserId())){
-				dao.insertVisitor(userinfo.getUserId(), Constants.LogType.ACCESS.getCode(), time, addr);
+			//dao connection
+			//PublicDAO publicDao = new PublicDAO(conn);
+			
+			if (!publicDao.isExistVisitor(userinfo.getUserId())){
+				//dao.insertVisitor(userinfo.getUserId(), Constants.LogType.ACCESS.getCode(), time, addr);
 			}
 			conn.commit();
 			
 			String agent = Utils.checkNull(req.getHeader("User-Agent"));
 			System.out.println("CCCCC:"+Utils.isMobile(agent));
 			
-			mv.addObject("family", dao.getFamilyList());
+			//handle the form submission
+			mv.addObject("family", publicDao.getFamilyList());
 
 			if (Utils.isMobile(agent)){
-				mv.addObject("slider_nav", dao.getOptionHTML(Constants.OPTION_SLIDER_NAV_HTML+"_mobile"));
-				mv.addObject("slider_for", dao.getOptionHTML(Constants.OPTION_SLIDER_FOR_HTML+"_mobile"));
+				//handle the form submission
+				mv.addObject("slider_nav", publicDao.getOptionHTML(Constants.OPTION_SLIDER_NAV_HTML+"_mobile"));
+				mv.addObject("slider_for", publicDao.getOptionHTML(Constants.OPTION_SLIDER_FOR_HTML+"_mobile"));
 			} else {
-				mv.addObject("slider_nav", dao.getOptionHTML(Constants.OPTION_SLIDER_NAV_HTML));
-				mv.addObject("slider_for", dao.getOptionHTML(Constants.OPTION_SLIDER_FOR_HTML));
+				//handle the form submission
+				mv.addObject("slider_nav", publicDao.getOptionHTML(Constants.OPTION_SLIDER_NAV_HTML));
+				mv.addObject("slider_for", publicDao.getOptionHTML(Constants.OPTION_SLIDER_FOR_HTML));
+			}
+			//handle the form submission
+			
+			if(mozilla > 0)
+			{
+				navegador = true;
 			}
 			
-			mv.addObject("most_visited_channel", dao.getMostVisitedChannel(userinfo));
-			mv.addObject("latest_video", dao.getLatestVideo());
+			mv.addObject("navegador", navegador);	
+			mv.addObject("most_visited_channel", publicDao.getMostVisitedChannel(userinfo));
+			mv.addObject("latest_video", publicDao.getLatestVideo());			
+			mv.addObject("banner_sidebar", publicDao.getOptionHTML(Constants.OPTION_BANNER_HOME_SIDEBAR_HTML));
+			mv.addObject("banner_bottom", publicDao.getOptionHTML(Constants.OPTION_BANNER_HOME_BOTTOM_HTML));
+//			mv.addObject("saludo", saludd);	
+//			String valor = dao.VideoMozillaselect(0);
+//			System.out.println("valor de consulta" + valor);
 			
-			mv.addObject("banner_sidebar", dao.getOptionHTML(Constants.OPTION_BANNER_HOME_SIDEBAR_HTML));
-			mv.addObject("banner_bottom", dao.getOptionHTML(Constants.OPTION_BANNER_HOME_BOTTOM_HTML));
-//			mv.addObject("features", dao.getOptionHTML(Constants.OPTION_FEATURES_HTML));
-			//mv.addObject("gallerylink", reg.getStringOfApplication("application.path")+"public/galerias.html");
+			mv.addObject("Video1", publicDao.VideoMozillaselect(1));	
+			mv.addObject("Video2", publicDao.VideoMozillaselect(2));	
+			mv.addObject("Video3", publicDao.VideoMozillaselect(3));	
+			mv.addObject("Video4", publicDao.VideoMozillaselect(4));	
+			mv.addObject("Video5", publicDao.VideoMozillaselect(5));
+			
+			
 		}catch (Exception e){ 
 			log.error("PublicController", "home", e.toString());
 
@@ -183,7 +213,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 
-			
+			//dao connection
 			CategoryDAO categoryDao = new CategoryDAO(conn);
 			PublicDAO dao = new PublicDAO(conn);
 			
@@ -193,28 +223,25 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			boolean isFirefox = (ua != null && ua.indexOf("Firefox/") != -1);
 			String version="1";
 			if (isFirefox){
-				version = ua.replaceAll("^.*?Firefox/", "");//.replaceAll("", "");
+				version = ua.replaceAll("^.*?Firefox/", "");
 			}
 			
-//			user.setMozila(isFirefox);
-//			user.setChannelID(channel_id);
-//			user.setVersion(version);
+
 			
-			ArrayList list = categoryDao.getFamilyList();
+			ArrayList<?> list = categoryDao.getFamilyList();
 			
 			for (int i=0; i<list.size(); i++){
 				FamilyInfo item = (FamilyInfo) list.get(i);
 				if (item.getVisible().equals("1")){
 					JSONObject obj = new JSONObject();
+					// Initialize value.
 					obj.put("parent", item.toJSONObject());
 					obj.put("child", dao.recallChannelList(item.getId(), (long)0, user));
 					div_result.put(obj);	
 					
 				}				
 			}
-			
-			
-			
+
 			// Initialize all value.
 			result = setResponse(result, "list", div_result);
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
@@ -252,7 +279,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 
 		UserInfo user = session.getFrontUserInfo(req.getSession());
 		if (user==null){
-			return new ModelAndView("redirect:/user/login.html");
+			return new ModelAndView("redirect:/user/adios.html");
 		}
 
 		ModelAndView mv = new ModelAndView("public_channel");
@@ -265,12 +292,12 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		try{
 			if (channel_id.length()==0 && from.equals("search")){
 				
+				//dao connection
 				PublicDAO dao = new PublicDAO(conn);
+				//handle the form submission
 				mv.addObject("family", dao.getFamilyList());
 				mv.addObject("channel_id", "");
-
 				mv.addObject("most_visited_channel", dao.getMostVisitedChannel(user));
-				
 				mv.addObject("banner_sidebar", dao.getOptionHTML(Constants.OPTION_BANNER_INTERNAL_SIDEBAR_HTML));
 				mv.addObject("banner_bottom", dao.getOptionHTML(Constants.OPTION_BANNER_INTERNAL_BOTTOM_HTML));
 				
@@ -286,16 +313,19 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 				String time = Utils.getTodayWithTime();
 				String addr = req.getRemoteAddr();
 				
+				//dao connection
 				PublicDAO dao = new PublicDAO(conn);
 				VisitorDAO visitorDao = new VisitorDAO(conn);
 				ContentDAO cont = new ContentDAO();
-				
 				
 				if (!visitorDao.isExist(Integer.parseInt(userID),time))
 					visitorDao.insert(Integer.parseInt(userID),cont.getChannel_IDcontent(channel_id)  , time, req.getRemoteAddr());
 				conn.commit();
 				
-				ContentInfo content = dao.getContentID(channelID);
+				//ContentInfo content = dao.getContentID(channelID);
+				//JR - Towa
+				ContentInfo content = dao.getCotentIdNew(channelID);
+				
 				if (content!=null){
 					return new ModelAndView("redirect:/public/content.html?content_id="+content.getId()+"&channel_id="+channelID+"&content_blog="+content.getBlog());
 				}else{
@@ -316,8 +346,9 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			if (conn!=null)
 				conn.close();
 		}catch (Exception f){}
-//		return mv;
-		return new ModelAndView("redirect:/public/home.html");
+		//JR
+		//return new ModelAndView("redirect:/public/home.html");
+		return new ModelAndView("redirect:/public/content.html");
 	}
 	
 	/**
@@ -332,10 +363,10 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			@RequestParam(value = "channel_id", required = false) String channel_id,
 			HttpServletRequest request, HttpServletResponse response){
 
-		channel_id = Utils.checkNull(channel_id);
+			channel_id = Utils.checkNull(channel_id);
 	     
-	    JSONObject result = new JSONObject();
-//			Long channelID = Utils.getLong(channel_id);
+			JSONObject result = new JSONObject();
+
 			String today = Utils.getToday("-");
 			
 		    String[] cols = { "c.name", "c.updated_at" };
@@ -346,10 +377,8 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		    int col = 1;
 		 
 		    String dir = "desc";
-		 
 		    String sStart = Utils.checkNull(request.getParameter("start"));
 		    String sAmount = Utils.checkNull(request.getParameter("length"));
-//		    String sEcho = Utils.checkNull(request.getParameter("sEcho"));
 		    String sCol = Utils.checkNull(request.getParameter("iSortCol_0"));
 		    String sdir = Utils.checkNull(request.getParameter("sSortDir_0"));
 
@@ -391,13 +420,14 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		    
 		    String additionalSQL = "";
 		    if (channel_id.length()>0){
-		    	//additionalSQL += " c.id in ( select content_id from content where Channel_ChannelId=" + channel_id + " ) ";
+		    
 		    }
 		    
 		    if (additionalSQL.length()>0)
 		    	additionalSQL = " and " + additionalSQL;
 
 			try{
+				//dao connection
 				PublicDAO dao = new PublicDAO(conn);
 				
 				String sql = " select count(*) from " + table + " c where c.Contenttype_ContenttypeId=2 and c.ContentStatus='A' "/* + additionalSQL*/; 
@@ -432,7 +462,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 					sql += searchSQL;
 					totalAfterFilter = dao.getCount(sql);
 				}
-
+				// Initialize value.
 				result.put("recordsTotal", total);
 		        result.put("recordsFiltered", totalAfterFilter);
 		        result.put("data", array);
@@ -472,25 +502,19 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 
 		String access_from = Utils.checkNull(req.getParameter("access_from"));
 		if (access_from.equals("cms")){
-//			UserInfo user = session.getUserInfo(req.getSession());
-//			UserInfo user = new UserInfo();
-//			user.setId(Constants.OUTSIDE_USER_ID);
-//			user.setUserName("");
-//			user.setLastName("");
-//			session.setFrontUserInfo(req.getSession(), user);
+
 		}
 		
 		UserInfo user = session.getFrontUserInfo(req.getSession());
 		if (user==null){
-			return new ModelAndView("redirect:/user/login.html");
+			return new ModelAndView("redirect:/user/adios.html");
 		}
 
 		ModelAndView mv = new ModelAndView("public_content");
 		
 		content_id = Utils.checkNull(content_id, "0");
 		channel_id = Utils.checkNull(channel_id);
-		//content_blog = Utils.checkNull(content_blog);
-		
+
 		Connection conn = DSManager.getConnection();
 
 		try{
@@ -506,6 +530,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			String time = Utils.getTodayWithTime();
 			String addr = req.getRemoteAddr();
 			
+			//dao connection
 			VisitorDAO visitorDao = new VisitorDAO(conn);
 			ContentDAO contentDao = new ContentDAO(conn);
 									
@@ -516,25 +541,55 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 					visitorDao.insert(Integer.parseInt(userID), contentDao.getChannel_IDcontent(channel_id) , time, req.getRemoteAddr());
 				}
 			}
-				
-			
 			conn.commit();
+			
 			PublicDAO dao = new PublicDAO();
-//			CategoryDAO categoryDao = new CategoryDAO(conn);
+			//List <String> validacion = new ArrayList<>();
+			if(channel_id.equals(""))
+			{
+				channel_id="0";
+			}
+			//validacion = dao.descarga(channel_id);
+			
+			
+			//dao connection
+			
+			//handle the form submission
 			mv.addObject("family", dao.getFamilyList());
 			mv.addObject("banner_sidebar", dao.getOptionHTML(Constants.OPTION_BANNER_INTERNAL_SIDEBAR_HTML));
 			mv.addObject("banner_bottom", dao.getOptionHTML(Constants.OPTION_BANNER_INTERNAL_BOTTOM_HTML));
-			
 			mv.addObject("most_visited_channel", dao.getMostVisitedChannel(user));
 			
+			System.out.println("lista " + dao.descarga(channel_id));
+			mv.addObject("descarga", dao.descarga(channel_id) );
+			
+			
+			
+				
+				
+			
+			
+			long x=0;
 			ContentInfo content = null;
 			if(contentID != 0){
-				content = contentDao.getContent(contentID);
+				if(content_blog.equals("1"))
+				{
+					content = contentDao.getContent(contentID);
+				}
+				else
+				{
+					Long channel_ID = Utils.getLong(channel_id);
+					x = contentDao.getContent_T(channel_ID);
+					content = contentDao.getContent(x);
+					//content = contentDao.getContent(channel_ID);
+				}
+				
+				
 			}else{
 				content_id = contentDao.getChannel_IDcontent(channel_id);
 				content = contentDao.getContent(Long.parseLong(content_id));
 			}
-		
+			//handle the form submission
 			mv.addObject("channel_id", channel_id);
 			mv.addObject("files", new ArrayList());
 
@@ -543,62 +598,49 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			if(!channel_id.isEmpty()) {
 				channelID = Utils.getLong(channel_id);
 			}
-			//mv.addObject("gallerylink", reg.getStringOfApplication("application.path")+"public/galerias.html");
+			
 			if(channelID != 0) {
 				long galleryId = contentDao.getGalleryIdForChannel(channelID);
 				if(galleryId != 0)
 					mv.addObject("gallerylink", Long.toString(galleryId));
 			}
-// mv.addObject("file", "");
+
 			
-			if (content!=null/* && content.getBlog()!=null && content.getBlog().equals(content_blog)*/){
-//				return new ModelAndView("redirect:/public/home.html");
+			if (content!=null){
+				//handle the form submission
 				mv.addObject("content_id", contentID);
-			//	mv.addObject("content_blog", content.getBlog());
 				mv.addObject("title", content.getName());
 				
 				if (Utils.isMobile(agent)){
+					//handle the form submission
 					mv.addObject("content", content.getHtmlMobile());
 				} else {
+					//handle the form submission
 					mv.addObject("content", content.getHtml());
 				}
-				
-				if (content.getType().equals("2")){
+				System.out.print(content.getType());
+				if (content.getType().equals("4")){
 					if (channel_id.length()>0){
-						
-						//Long channelID = Utils.getLong(channel_id);
-//						if (!dao.isExistVisitor(Integer.parseInt(userID), Constants.LogType.CHANNEL.getCode(), sessionID, today)){
-//							dao.insertVisitor(userID, Constants.LogType.CHANNEL.getCode(), sessionID, today, time, addr, channelID, "");
-//							conn.commit();
-//						}
-
+						//handle the form submission
 						mv.addObject("files", contentDao.getFileContent(channelID));
-//						ContentInfo c = contentDao.getFileContent(channelID);
-//						if (c!=null)
-//							mv.addObject("file", c.getHtml());
 						
 					}else{
 						channelID = contentDao.getGalleryIdForChannel(contentID);
 						if (channelID!=0){
+							//handle the form submission
 							mv.addObject("channel_id", channelID);
-//							if (!dao.isExistVisitor(Integer.parseInt(userID), Constants.LogType.CHANNEL.getCode(), sessionID, today)){
-//								dao.insertVisitor(userID, Constants.LogType.CHANNEL.getCode(), sessionID, today, time, addr, channelID, "");
-//								conn.commit();
-//							}
-							
 							mv.addObject("files", contentDao.getFileContent(channelID));
-//							ContentInfo c = contentDao.getFileContent(channelID);
-//							if (c!=null)
-//								mv.addObject("file", c.getHtml());
+
 						}
 					}
 					
 				}else{
+					//handle the form submission
 					mv.addObject("file", "");
 				}
 			}else{
+				//handle the form submission
 				mv.addObject("content_id", "");
-			//	mv.addObject("content_blog", "");
 				mv.addObject("title", "No se encontraron contenidos");
 				mv.addObject("content", "");
 			}
@@ -609,9 +651,8 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			try{
 				conn.rollback();
 			}catch (Exception f){}
-			
+			//handle the form submission
 			mv.addObject("content_id", "");
-		//	mv.addObject("content_blog", "");
 			mv.addObject("title", "No se encontraron contenidos");
 			mv.addObject("content", "");
 			mv.addObject("files", new ArrayList());
@@ -620,99 +661,12 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		}
 		try{
 			if (conn!=null)
-				conn.close();
+			conn.close();
 		}catch (Exception f){}
 		return mv;
 	}
 	
-	/**
-	 * Insert open answer. 
-	 * 		add answer.
-	 * 
-	 * @param content_id
-	 * @param count
-	 * @param req
-	 * @param res
-	 */
-	//@RequestMapping("insertAnswer.html")
-/*	public void insertAnswer(
-			@RequestParam(value = "content_id", required = false) String content_id,
-			@RequestParam(value = "count", required = false) String count,
-			HttpServletRequest req, HttpServletResponse res){
 
-		JSONObject result = new JSONObject();
-		
-		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
-		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
-		
-		content_id = Utils.checkNull(content_id);
-		count = Utils.checkNull(count);
-
-		Connection conn = DSManager.getConnection();
-
-		try{
-			UserInfo user = session.getFrontUserInfo(req.getSession());
-			if (user==null){
-//				user = new UserInfo();
-//				user.setId(Constants.OUTSIDE_USER_ID);
-//				user.setUserName("");
-//				user.setLastName("");
-				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
-				throw new Exception(reg.getMessage("ACT0003"));
-			}
-			
-			conn.setAutoCommit(false);
-
-			ContentDAO dao = new ContentDAO(conn);
-			
-			Long contentID = Utils.getLong(content_id);
-			int c = Utils.getInt(count);
-			
-			for (int i=0; i<c; i++){
-				String question_id = Utils.checkNull(req.getParameter("question["+i+"][question]"));
-				String answer = Utils.checkNull(req.getParameter("question["+i+"][answer]"));
-				String answer_id = Utils.checkNull(req.getParameter("question["+i+"][answer_id]"));
-				
-				if (question_id.length()>0 && (answer.length()>0 || !answer_id.equals("0"))){
-					Long questionID = Utils.getLong(question_id);
-					
-					if (answer.length()>0)
-			/*			if (!dao.isValidAnswer(contentID, questionID, answer))
-							throw new Exception("");
-					if (answer_id.length()>0)
-						if (!dao.isValidAnswer(contentID, questionID, Utils.getLong(answer_id)))
-							dao.deleteContentAnswer(contentID, questionID, Utils.getLong(answer_id));
-					
-					answer_id = answer_id.length()==0 ? "0" : answer_id;
-					dao.insertAnswer(contentID, questionID, user.getUserId(), answer, Utils.getLong(answer_id));
-				}
-			}
-
-			conn.commit();
-			
-			dao.generateHTML(contentID, session.getLanguage(req.getSession()));
-			conn.commit();
-			
-			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
-			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
-			
-		}catch (Exception e){ 
-			log.error("PublicController", "insertAnswer", e.toString());
-			
-			try{
-				conn.rollback();
-			}catch (Exception ex){}
-		}finally{
-			try{
-				if (conn!=null)
-					conn.close();
-			}catch (Exception f){}
-		}
-
-		response(res, result);
-	}	
-
-	*/
 	/**
 	 * Search content with Dialog.
 	 * 
@@ -743,7 +697,8 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 	    String sql = "";
 	    
 	    String sqlFrom = " content c ";
-	    String sqlWhere = " ( c.Contenttype_ContenttypeId='2' or c.Contenttype_ContenttypeId='5' ) and c.ContentStatus='A' ";
+	    //String sqlWhere = " ( c.Contenttype_ContenttypeId='2' or c.Contenttype_ContenttypeId='5' ) and c.ContentStatus='A' ";
+	    String sqlWhere = " c.ContentStatus='A' ";
 	    String sqlChannel = "";
 	    
 	    Connection conn = DSManager.getConnection();
@@ -760,9 +715,8 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		    if (search_text.length()>0){
 				if (additionalSQL.length()>0)
 			    	additionalSQL += " and ";
-		    		additionalSQL += " ( c.ContentName like '%" + search_text + "%' ) ";   // or  ";
-//		    		additionalSQL += " c.ContentId in ( select b.content_id from bbva_content_channel b, bbva_channel ch where b.channel_id=ch.id and ch.name like '%" + search_text + "%' ) ";
-//		    		additionalSQL += " ) ";
+		    		additionalSQL += " ( c.ContentName like '%" + search_text + "%' ) ";  
+
 		    }
 		    
 		    // user filter
@@ -803,8 +757,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		    		
 		    		if (user.getUserAccessLevel() != 0){
 			    		if (sqlChannel.length()>0)
-			    			sqlChannel += " and ";
-		    			
+			    			sqlChannel += " and ";		
 			    		if (user.getUserAccessLevel() == 1)
 			    			sqlChannel += " a.ChannelSecurityLevel in ( '1', '2', '3', '4' ) ";
 			    		if (user.getUserAccessLevel() == 2)
@@ -817,20 +770,20 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		    	}
 		    }
 		    
-		    // -------------
-		    
+
+		  //dao connection
 			PublicDAO dao = new PublicDAO(conn);
 			
 			sql = " select count(*) from " + sqlFrom + " where " + sqlWhere ;
 			if (additionalSQL.length()>0)
 				sql += " and ( " + additionalSQL + " ) ";
 			if (sqlChannel.length()>0)
-				sql += "and c.ContentId in ( select t.ContentId from content t, channel a where t.Channel_ChannelId=a.ChannelId and " + sqlChannel + " ) ";
-			
-//			System.out.println("CCC:"+sql);
+				sql += "and c.ContentId in ( select t.ContentId from content t, channel a where t.Channel_ChannelId=a.ChannelId and " + sqlChannel + " ) ";			
+
 			Long total = dao.getCount(sql);
-			//select c.* , d.MenuValue from  content c  , menu d where d.MenuDivl='cnt2' and d.MenuCode=c.Contenttype_ContenttypeId and  ( c.Contenttype_ContenttypeId='2' or c.Contenttype_ContenttypeId='5' )  and c.ContentStatus='A' and (  ( c.ContentName like '%hola%'   ))  order by c.ContentPublishDate desc  limit 10;
-			sql = " select c.* , d.MenuValue from"+ sqlFrom + " , menu d where d.MenuDivl='cnt2' and d.MenuCode="+ "c.Contenttype_ContenttypeId and  " + sqlWhere ;
+
+			//sql = " select c.* , d.MenuValue from"+ sqlFrom + " , menu d where d.MenuDivl='cnt2' and d.MenuCode="+ "c.Contenttype_ContenttypeId and  " + sqlWhere ;
+			sql = " select c.* from"+ sqlFrom +" where " + sqlWhere ;
 			if (additionalSQL.length()>0)
 				sql += " and ( " + additionalSQL + " ) ";
 			if (sqlChannel.length()>0)
@@ -839,7 +792,11 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			sql += "  order by c.ContentPublishDate desc ";
 			sql += " limit " + start + ", " + amount + " ";
 			
-			JSONArray array = dao.getContent(sql, session.getLanguage(req.getSession()), start);
+			String sql2 = "SELECT * FROM content c, contentlabel cl, label l WHERE c.ContentStatus ='A' AND cl.Content_ContentId = c.ContentId AND cl.Label_LabelId = l.LabelId AND c.ContentName LIKE '%"+ search_text +"%' order by c.ContentPublishDate desc " + " limit " + start + ", " + amount + " ";
+			
+			String sql3 = "(SELECT c.* FROM content c, contentlabel cl, label l WHERE c.ContentStatus ='A' AND c.ContentId=cl.Content_ContentId AND cl.Label_LabelId = l.LabelId AND c.ContentName LIKE '%"+ search_text +"%' order by c.ContentPublishDate desc) UNION (Select * from content where ContentId in ( select distinct(Content_ContentId) from contentlabel where Label_LabelId in (select LabelId from label where LabelText like '%"+ search_text +"%')) order by 1 asc)";
+			
+			JSONArray array = dao.getContent(sql3, session.getLanguage(req.getSession()), start);
 			
 			long size=0;
 			if (total % amount == 0)
@@ -849,8 +806,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			
 			result = setResponse(result, "page", Utils.getInt(page));
 			result = setResponse(result, "pages", size);
-			result = setResponse(result, "result", array);
-		    
+			result = setResponse(result, "result", array);		    
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
 			
@@ -862,7 +818,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		}
 	    try{
 			if (conn!=null)
-				conn.close();
+			conn.close();
 		}catch (Exception f){}
 	    
         response(res, result);
@@ -873,7 +829,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			HttpServletRequest req, HttpServletResponse res){
 		UserInfo user = session.getFrontUserInfo(req.getSession());
 		if (user==null){
-			return new ModelAndView("redirect:/user/login.html");
+			return new ModelAndView("redirect:/user/adios.html");
 		}
 		
 		int userid_body = user.getUserId();
@@ -887,7 +843,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 
 		UserInfo user = session.getFrontUserInfo(req.getSession());
 		if (user==null){
-			return new ModelAndView("redirect:/user/login.html");
+			return new ModelAndView("redirect:/user/adios.html");
 		}
 
 		ModelAndView mv = new ModelAndView("public_gallerys");
@@ -895,11 +851,12 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		Connection conn = DSManager.getConnection();
 
 		try{
+			//dao connection
 			PublicDAO dao = new PublicDAO(conn);
+			//handle the form submission
 			mv.addObject("family", dao.getFamilyList());
 			mv.addObject("banner_sidebar", dao.getOptionHTML(Constants.OPTION_BANNER_INTERNAL_SIDEBAR_HTML));
-			mv.addObject("banner_bottom", dao.getOptionHTML(Constants.OPTION_BANNER_INTERNAL_BOTTOM_HTML));
-			
+			mv.addObject("banner_bottom", dao.getOptionHTML(Constants.OPTION_BANNER_INTERNAL_BOTTOM_HTML));		
 			mv.addObject("most_visited_channel", dao.getMostVisitedChannel(user));
 			
 		}catch (Exception e){ 
@@ -910,7 +867,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		}
 		try{
 			if (conn!=null)
-				conn.close();
+			conn.close();
 		}catch (Exception f){}
 		return mv;
 	}
@@ -925,8 +882,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		
 		String today = Utils.getToday("-");
 	    String additionalSQL = "";
-	    String sql = "";
-	    
+	    String sql = "";	    
 	    String sqlFrom = " bbva_content c,  bbva_content_gallery pa, bbva_content_gallery_media ga ";
 	    String sqlWhere = " c.type='005' and c.active='" + Constants.DEFAULT_ACTIVE + "' and c.status='0' and c.validity_end>='" + today + "' and pa.content_id=c.id and ga.content_id=c.id  " ;
 	    String sqlChannel = "";
@@ -940,17 +896,12 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			
-		    // user filter
+
 		    
 		    if (user.getUserRol()!=null && user.getUserRol().equals("1")){	
 		    	
 		    }else{
-/*    	if (user.getUserId() == Integer.parseInt(Constants.OUTSIDE_USER_ID)){
-		    		if (sqlChannel.length()>0)
-		    			sqlChannel += " and ";
-		    		sqlChannel += " a.id not in ( select channel_id from bbva_channel_ciudad ) and a.id not in ( select channel_id from bbva_channel_direccion ) and a.id not in ( select channel_id from bbva_channel_empresa ) ";
-		    	}else{
-*/    
+
 		    		if (sqlChannel.length()>0)
 		    			sqlChannel += " and ";
 		    		
@@ -991,10 +942,8 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			    			sqlChannel += " a.security_level in ( '4' ) ";
 		    		}
 		    	}
-	//   }
 		    
-		    // -------------
-		    
+		  //dao connection
 			PublicDAO dao = new PublicDAO(conn);
 			
 			sql = " select count(*) from " + sqlFrom + " where " + sqlWhere ;
@@ -1003,7 +952,6 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			if (sqlChannel.length()>0)
 				sql += " and c.id in ( select t.content_id from bbva_content_channel t, bbva_channel a where t.channel_id=a.id and " + sqlChannel + " ) ";
 			
-//			System.out.println("CCC:"+sql);
 			Long total = dao.getCountT(sql);
 			
 			sql = " select c.* , ga.media from " + sqlFrom + " where " + sqlWhere ;
@@ -1030,7 +978,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		}
 	    try{
 			if (conn!=null)
-				conn.close();
+			conn.close();
 		}catch (Exception f){}
 				
         response(res, result);
@@ -1043,7 +991,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 
 		UserInfo user = session.getFrontUserInfo(req.getSession());
 		if (user==null){
-			return new ModelAndView("redirect:/user/login.html");
+			return new ModelAndView("redirect:/user/adios.html");
 		}
 
 		content_id = Utils.checkNull(content_id);
@@ -1057,6 +1005,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			
 			conn.setAutoCommit(false);
 			
+			//dao connection
 			PublicDAO dao = new PublicDAO(conn);
 			
 			String sessionID = req.getSession().getId();
@@ -1066,24 +1015,14 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			String addr = req.getRemoteAddr();
 			
 			Long contentID = Utils.getLong(content_id);
-//			if (contentID!=0){
-//				if (!dao.isExistVisitor(Integer.parseInt(userID), Constants.LogType.CONTENT.getCode(), sessionID, today)){
-//					dao.insertVisitor(userID, Constants.LogType.CONTENT.getCode(), sessionID, today, time, addr, contentID, "");
-//					conn.commit();
-//				}
-//			}
 			
 			ModelAndView mv = new ModelAndView("public_gallery");
-			
+			//handle the form submission
 			mv.addObject("family", dao.getFamilyList());
 			mv.addObject("banner_sidebar", dao.getOptionHTML(Constants.OPTION_BANNER_INTERNAL_SIDEBAR_HTML));
-			mv.addObject("banner_bottom", dao.getOptionHTML(Constants.OPTION_BANNER_INTERNAL_BOTTOM_HTML));
-			
+			mv.addObject("banner_bottom", dao.getOptionHTML(Constants.OPTION_BANNER_INTERNAL_BOTTOM_HTML));			
 			mv.addObject("most_visited_channel", dao.getMostVisitedChannel(user));
-			//req.getHeader("Referer")
 			mv.addObject("content", dao.getContent(contentID));
-//			mv.addObject("content_id", contentID);
-//			mv.addObject("gallery", dao.getContentGallery(contentID));
 		
 			return mv;
 		}catch (Exception e){ 
@@ -1094,7 +1033,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		}
 		try{
 			if (conn!=null)
-				conn.close();
+			conn.close();
 		}catch (Exception f){}
 		
 		return new ModelAndView("redirect:/public/galerias.html");
@@ -1125,10 +1064,10 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			
+			//dao connection
 			PublicDAO dao = new PublicDAO(conn);
 			
 			result = setResponse(result, "result", dao.getContentGallery(Utils.getLong(content_id)));
-			
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
 			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
 			
@@ -1139,7 +1078,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			
 		}try{
 			if (conn!=null)
-				conn.close();
+			conn.close();
 		}catch (Exception f){}
 				
         response(res, result);

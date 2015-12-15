@@ -3,6 +3,7 @@
 	pageEncoding="utf-8"%>
 <%@include file="../variable.jsp"%>
 <%@include file="jsp/public_header.jsp"%>
+<%@page import="java.util.List"%>
 
 <!--[if lt IE 9]>
 <script src="<%=resPath%>bower_components/REM-unit-polyfill/js/rem.min.js"></script>
@@ -64,9 +65,10 @@
 					<c:if test="${fn:length(files) > 0}">
 						<div id="downloads">
 							<h3><%=registry.getStringOfLanguage("public.downloads", language) %></h3>
-							<c:forEach var="item" items="${files }">
-								${item.html }
-							</c:forEach>
+						
+<%-- 							<c:forEach var="item" items="${files }"> --%>
+<%-- 								${item.html } --%>
+<%-- 							</c:forEach> --%>
 						</div>
 					</c:if>
 				</div>
@@ -90,13 +92,25 @@
 				</div>
 				
 				<div class="spacer"></div>
-				<!--
+				
 				<div id="downloads">
 					<h3><%=registry.getStringOfLanguage("public.downloads", language) %></h3>
-					<c:forEach var="item" items="${files }">
-					${item.html }
-					</c:forEach>
-				</div>-->
+					
+						<% 
+							List<String> descarga = (List<String>)request.getAttribute("descarga");
+							
+							%>
+							
+							<% for(String html : descarga){ %>
+									<%=html %>
+									
+							<% } %>
+							
+<%-- 					<c:forEach var="item" items="${files }"> --%>
+<%-- 					${item.html } --%>
+					
+<%-- 					</c:forEach> --%>
+				</div>
 			</aside>
 		</div>
 
@@ -155,5 +169,6 @@
 <script src="<%=resPath%>js/public_menu.js"></script>
 <script src="<%=resPath%>js/public_content.js"></script>
 <script src="<%=resPath%>js/public_gallerys.js"></script>
+<%-- <script src="<%=resPath%>js/swfobject.js"></script> --%>
 
 <%@include file="jsp/public_footer.jsp"%>
