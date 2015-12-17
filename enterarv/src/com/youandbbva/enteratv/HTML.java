@@ -252,9 +252,16 @@ public class HTML {
 		}
 		
 		result += html;
-		System.out.println("Result :"+result);		
+		System.out.println("Result :"+result);	
+		String strCadenaAnterior= "\" style=&plShowAtStart=true&plHideDelay=2000&autoPlay";
+		String strCadenaLimpia ="&plShowAtStart=true&plHideDelay=2000&autoPlay";
+		String resultado="";
 		
-		return result;
+		resultado = result.replaceAll(strCadenaAnterior, strCadenaLimpia);
+		System.out.println("resultado " + resultado);
+		
+		
+		return resultado;
 	}
 	
 	public static String replaceVideoForMobile(String html) {

@@ -1,0 +1,33 @@
+busqueda oferta 
+busqueda candidato
+base da datos facade
+
+-----------------------------
+parametro busqueda ofertaVo
+
+-----------------------------
+
+
+Candidato dao
+candidatobp
+
+----------------
+proyecto ejb
+
+-------------------
+ejb divide capa servicios
+
+---------------------------------
+eventos que se cargan cuando se inicializa -->web --> aplicationListener.java
+
+--------------------
+
+mvn clean package Dmaven.test.skip=true
+
+--------------------------------------------
+
+http://manuel.cillero.es/doc/metrica-3/tecnicas/diagrama-de-secuencia
+---------------
+
+
+mvn clean package Dmaven.test.skip=true

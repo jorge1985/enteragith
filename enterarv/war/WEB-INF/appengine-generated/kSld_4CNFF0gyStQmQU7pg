@@ -1,0 +1,191 @@
+>>busqueda por ----------------------Siisne-----------------------------------------(mailService)
+
+
+------------------------------------------------------------
+STPS
+
+-->mx.gob.stps.portal.admin.core.postulacionExterna.service.impl;
+
+Funciona al envio de la postulacion externa al candidato
+enviaCorreoEstatusFueraPPC-->
+
+Nota: No se manda a llamar ese metodo(No se usa)
+
+---------------------------------------------------------
+
+Funcion del envio de email para recuperar contraseña 
+del sistema  
+
+-->mx.gob.stps.portal.admin.core.postulacionExterna.service.impl;
+recuperaContrasena-->329
+
+POSIBLE REGRAS DE NEGOCIO
+
+-- si el correo electronico no se codifica bien no se
+puede mandar correo electronico marca error de cifrado.
+
+---------------------------------------------------------
+
+-->mx.gob.stps.siasne.core.oferta.service.impl;
+enviarSolicitudCapacitacionPorCorreo-->90
+
+POSIBLES REGLAS DE NEGOCIOS
+
+--Si el usuario pidio capacitacion se le enviara 
+mensaje al correo electronico dado en el registro
+
+
+----------------------------------------------------------
+
+mx.gob.stps.siasne.core.postulacion.service.impl
+
+enviaCorreoCandidatoContratacion-->3820
+
+--Se le envia correo electronico al candidato que ya aya 
+sido contratado. Indicando:
+-Nombre de la empresa.
+-Tipo de la empresa.
+-El titulo de la oferta del empleo.
+
+--------------
+
+enviaCorreoCandidatoRechazado-->3836
+--Se le envian a los candidatos que an sido rechados por las
+empresas se les envia la siguiente informacion.
+-Nombre de la empresa.
+-Tipo de la empresa.
+-El titulo de la oferta del empleo.
+
+---------------
+
+enviaCorreoEntrevista-->3920
+--Se les envia a los candidatos como recordatorio de entrevista
+para la postulacion para una vacante. Se le envian la siguiente
+informacion:
+-nombre del candidato
+-fechaEntrevista
+-tituloOferta
+
+--------------------------------------------------------
+
+mx.gob.stps.snetel.core.queja.service.impl;
+
+asignaAreaResponsable-->533
+--Se les envia un correo electronico a los encargados de
+area si es que existe una queja y no a sido atendida.
+(se requiere el correo del encargado del area y que exista la queja)
+
+----------------
+reasignaAreaResponsable-->589
+--Cuando no se a resuelto la queja y la consulta sigue en pie 
+se renvia correo mostrando desde cuando se asigno la queja.
+(se requiere el correo del encargado del area y que exista la queja)
+
+----------------
+registraNotificacionQueja-->687
+--Cuando la queja se a echo pero se requiere noificacion de
+parte del usuario.
+
+--------------------
+registraSugerencia-->726
+--Cuendo existe una sugeriencia y se requiere informar al usuario que se 
+envio su sugerencia.
+
+-------------------
+mx.gob.stps.snetel.core.quejasysugerencias.service
+
+enviaCorreosElectronicosNotificacionQuejas-->33
+--Se ejecuta cuando el sistema detecta una quea que no a sido atendida.
+
+---------------------------------------------------------------------------------------------------------------------------------------------
+WEB
+
+mx.gob.stps.portal.admin.web.servlet;
+
+Obtiene informacion de las vistas y lo envian por correo electronico
+
+-------------------
+mx.gob.stps.siasne.web.exposition.candidato
+
+registraraEvento-->282 , 286
+
+Se ejecuta cuando el candidato cuenta con correo electronico y si se 
+encontro alguna oferta correspondiente a su perfil.
+En el caso de no encontrar ofertas compatibles con el perfil se enviara
+denuevo el correo 2 dias antes del evento.
+
+-------------------
+
+mx.gob.stps.siasne.web.exposition.empresa
+
+notificarCancelacionPorCorreo-->788
+
+Se implementa cuando sucedio una cancelacion del 
+evento donde la empresa participa 
+
+--------------------------
+notificarAceptadaParticipacionPorCorreo-->942
+
+Se implemtna cuando la empresa es aceptada para participar 
+en algun evento.
+
+--------------------------
+
+notificarRechazoParticipacionPorCorreo-->1133
+
+Se le envia a la empresa correo electronico de que a sido rechazado para 
+participar a un evento
+
+-------------------------
+
+mx.gob.stps.siasne.web.exposition.evento
+
+notificarOfertaAceptada-->522
+
+Se le envia correo electronico a la empresa cuando sus ofertas
+an sido aceptadas para alguna feria
+
+
+--------------------------
+
+notificarOfertaRechazada-->852
+
+Se le envia correo electronico a la emprea cuando sus ofertas
+fueron rechazadas para participar en alguna feria
+
+----------------------------------
+
+mx.gob.stps.snetel.web.exposition.cita (AdminCitaBusquedaMB)
+
+cancelarCitasPeriodo-->1441						
+
+Se envia cuando hay la cancelacion de la citas por un periodo. 
+Al candidato se le envia correo si es que el candidato 
+cuenta con correo registrado
+
+------------------------------------
+
+(AdminCitaMB)
+
+agendarCita-->612
+
+Se ejecuta para agendar una cita con la empresa primero
+se valida que el horario y los datos sean validos para asi
+poder mandar notificacion de que la cita se a agendado. de lo 
+contrario no se envia  ninguna notificacion via email
+
+
+--------------------------
+
+
+mx.gob.stps.snetel.web.exposition.oficina
+
+desactivarOficina-->331
+
+Esta funcion sirve para la cancelacion de citas por medio
+de desactivacion de oficina. Se hace una validacion para 
+saber si es un motivo valido la desactivacion de la oficina 
+en el caso que lo sea se procede a recavar la informacion 
+de los candidatos que tenian cita y se les envia notificacion
+por email validando que tenga con asunto de cancelacion de citas.
+AdminOficinaBusquedaMB

@@ -220,7 +220,10 @@ $(document).ready(function() {
 		});
 	}
 	
+	debugger
+	
 	$.ajax({
+		
         url: 'loadChannels.html',
         data: {  },
         dataType: 'json', 

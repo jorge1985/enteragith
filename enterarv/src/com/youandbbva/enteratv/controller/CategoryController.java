@@ -1,6 +1,7 @@
 package com.youandbbva.enteratv.controller;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.youandbbva.enteratv.Constants;
 import com.youandbbva.enteratv.DSManager;
+import com.youandbbva.enteratv.DataSource;
 import com.youandbbva.enteratv.Utils;
 import com.youandbbva.enteratv.dao.CategoryDAO;
 import com.youandbbva.enteratv.dao.ContentDAO;
@@ -306,15 +308,18 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 	@RequestMapping("loadChannels.html")
 	public void loadChannels(
 			HttpServletRequest req, HttpServletResponse res){
-		
-		Connection conn = DSManager.getConnection();
 
+		Connection conn = null;
+		
 		JSONObject result = new JSONObject();
 
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 
 		try{
+			
+			conn = DataSource.getInstance().getConnection();
+			
 			UserInfo user = session.getUserInfo(req.getSession());
 			if (user==null){  
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
@@ -354,10 +359,8 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 			log.error("CategoryController", "loadChannels", e.toString());
 			result = setResponse(result, "list", "");
 		}finally{
-			try{
-				if (conn!=null)
-					conn.close();
-			}catch (Exception f){}
+
+			if(conn != null)try{conn.close();}catch (SQLException e){e.printStackTrace();}
 		}
 		
 		response(res, result);

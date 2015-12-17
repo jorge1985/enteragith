@@ -527,6 +527,8 @@ $(document).ready(function() {
 	
 	showLoading();
 	
+	
+	
    	$.ajax({
         url: 'loadChannels.html',
         data: {  },

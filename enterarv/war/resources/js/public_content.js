@@ -224,6 +224,9 @@ function poll_submit(){
 }
 
 $(document).ready(function() {
+	
+	/*
+	
 	$.ajax({
         url: 'loadChannels.html',
         data: {  },
@@ -238,6 +241,8 @@ $(document).ready(function() {
 //        	hideLoading();
         }
     });
+    
+    */
 });
 
 

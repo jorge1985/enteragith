@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import com.youandbbva.enteratv.DAO;
 import com.youandbbva.enteratv.DSManager;
+import com.youandbbva.enteratv.DataSource;
 import com.youandbbva.enteratv.Utils;
 import com.youandbbva.enteratv.domain.ChannelCityInfo;
 import com.youandbbva.enteratv.domain.ChannelDivisionInfo;
@@ -277,9 +278,10 @@ public class CategoryDAO extends DAO{
 	 */
 	public ArrayList getFamilyList(){
 		ArrayList result = new ArrayList();
-		Connection conn = DSManager.getConnection();
+		Connection conn = null;
 		try{
-																	// RUNNING QUERY
+	
+			conn = DataSource.getInstance().getConnection();
 			PreparedStatement stmt = conn.prepareStatement(SELECT__FAMILY);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -295,12 +297,7 @@ public class CategoryDAO extends DAO{
 		}
 		finally
 		{
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			if(conn != null)try{conn.close();}catch (SQLException e){e.printStackTrace();}
 		}
 
 		return result;
@@ -762,10 +759,11 @@ public class CategoryDAO extends DAO{
 	 * @return list
 	 */
 	public ArrayList getChannelList(Long parentID){
-		Connection conn = DSManager.getConnection();
+		Connection conn = null;
 		ArrayList result = new ArrayList();
 		try{
-																	// RUNNING QUERY
+																	// RUNNING QUERY		
+			conn = DataSource.getInstance().getConnection();
 			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_PARENT_ID__CHANNEL);
 			stmt.setLong(1, parentID);
 			ResultSet rs = stmt.executeQuery();
@@ -788,12 +786,7 @@ public class CategoryDAO extends DAO{
 		}
 		finally
 		{
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			if(conn != null)try{conn.close();}catch (SQLException e){e.printStackTrace();}
 		}
 
 		return result;

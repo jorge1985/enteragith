@@ -320,7 +320,8 @@ function close_search(){
 }
 
 $(document).ready(function() {
-
+	
+	
 	$.ajax({
         url: 'loadChannels.html',
         data: {  },

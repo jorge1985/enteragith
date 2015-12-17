@@ -249,6 +249,9 @@ function showGalleryData(data){
 }
 
 $(document).ready(function() {
+	
+	
+	
 	$.ajax({
         url: 'loadChannels.html',
         data: {  },

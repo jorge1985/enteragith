@@ -245,6 +245,8 @@ $(document).ready(function() {
    	
 	showLoading();
 	
+	
+	
    	$.ajax({
         url: $('#basePath').val() + 'category/loadChannels.html',
         data: {  },
