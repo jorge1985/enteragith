@@ -3,6 +3,7 @@
 <%@page import="com.youandbbva.enteratv.beans.SessionHandler"%>
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="utf-8"%>
+	
 
 <%
 	String basePath_topbar = request.getContextPath() + "/";
@@ -22,6 +23,7 @@
 %>
 
 <header class="small-16 columns">
+
 	<div class="row">
 		<div class="left large-4 medium-6 small-8  columns logo-wrapper">
 			<span><span><a
