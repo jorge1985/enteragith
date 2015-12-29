@@ -87,46 +87,30 @@
 				
 				<div class="spacer"></div>
 				
-				
-					
-					
-						<% 
-							List<String> descarga = (List<String>)request.getAttribute("descarga");
-							String strRec=" ";
-							if(!(descarga.isEmpty()))
-							{
-								strRec= "Recursos";
-							}
-														
-							%>
-							
-							<div id="downloads">
-							<h3><%=strRec %></h3>
-							
-							<% for(String html : descarga){ %>
-							
-									<%=html %>
-									
-							<% } 
-							%>
-							
-							
-<%-- 					<c:forEach var="item" items="${files }"> --%>
-<%-- 					${item.html } --%>
-					
-<%-- 					</c:forEach> --%>
-				</div>
-				
-				
-				<div class="spacer"></div>
-				
 				<div id="side-banners">
 					${banner_sidebar }
 				</div>
 				
 				<div class="spacer"></div>
 				
-				
+				<div id="downloads">
+					<h3><%=registry.getStringOfLanguage("public.downloads", language) %></h3>
+					
+						<% 
+							List<String> descarga = (List<String>)request.getAttribute("descarga");
+							
+							%>
+							
+							<% for(String html : descarga){ %>
+									<%=html %>
+									
+							<% } %>
+							
+<%-- 					<c:forEach var="item" items="${files }"> --%>
+<%-- 					${item.html } --%>
+					
+<%-- 					</c:forEach> --%>
+				</div>
 			</aside>
 		</div>
 

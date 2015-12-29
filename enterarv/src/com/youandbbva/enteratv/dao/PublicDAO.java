@@ -14,7 +14,6 @@ import org.springframework.stereotype.Repository;
 import com.youandbbva.enteratv.Constants;
 import com.youandbbva.enteratv.DAO;
 import com.youandbbva.enteratv.DSManager;
-import com.youandbbva.enteratv.DataSource;
 import com.youandbbva.enteratv.HTML;
 import com.youandbbva.enteratv.Utils;
 import com.youandbbva.enteratv.domain.BannerInfo;
@@ -1161,12 +1160,7 @@ public String[] generateSlideMozilla(){
 	 * @return
 	 */
 	private boolean isEmptyCodeTable(String table, Long channelID){
-		Connection conn = null;
-		
-		
-		
 		try{
-			conn = DataSource.getInstance().getConnection();
 			long result = 0;
 			PreparedStatement stmt = null;
 			if(table.equals("channelcity"))
@@ -1193,10 +1187,6 @@ public String[] generateSlideMozilla(){
 			return result==0 ? true : false;
 		}catch (Exception e){
 			log.error("PublicDAO", "isEmptyCodeTable", e.toString());
-		}
-		finally
-		{
-			if(conn != null)try{conn.close();}catch (SQLException e){e.printStackTrace();}
 		}
 
 		return false;

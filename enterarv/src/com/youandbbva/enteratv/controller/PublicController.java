@@ -1,7 +1,9 @@
 package com.youandbbva.enteratv.controller;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,6 +23,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.youandbbva.enteratv.Constants;
 import com.youandbbva.enteratv.DSManager;
+import com.youandbbva.enteratv.DataSource;
 import com.youandbbva.enteratv.Utils;
 import com.youandbbva.enteratv.dao.CategoryDAO;
 import com.youandbbva.enteratv.dao.ContentDAO;
@@ -30,7 +33,6 @@ import com.youandbbva.enteratv.dao.UserDAO;
 import com.youandbbva.enteratv.dao.VisitorDAO;
 import com.youandbbva.enteratv.domain.ContentInfo;
 import com.youandbbva.enteratv.domain.FamilyInfo;
-import com.youandbbva.enteratv.domain.Menu;
 import com.youandbbva.enteratv.domain.UserInfo;
 
 /**
@@ -237,17 +239,6 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 					obj.put("child", dao.recallChannelList(item.getId(), (long)0, user));
 					div_result.put(obj);	
 					
-					JSONArray datos = new JSONArray();
-					ArrayList<?> list1 = new ArrayList(); 
-					Menu menu = new Menu();
-					menu.setList(list);
-				
-					datos = dao.recallChannelList(item.getId(), (long)0, user);
-					menu.setDatos(datos);
-					//System.out.println("datos "+menu.getDatos());
-					System.out.println("datos list1 " + menu.getList());
-					System.out.println("datos item "+ item.toJSONObject());
-					
 				}				
 			}
 
@@ -317,15 +308,9 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 				PublicDAO dao = new PublicDAO(conn);
 				VisitorDAO visitorDao = new VisitorDAO(conn);
 				ContentDAO cont = new ContentDAO();
-				String strValidar="";
-				strValidar = cont.getChannel_IDcontent(channel_id);
 				
-				if(!(strValidar.isEmpty()))
-				{
-					if (!visitorDao.isExist(Integer.parseInt(userID),time))
-						visitorDao.insert(Integer.parseInt(userID),cont.getChannel_IDcontent(channel_id)  , time, req.getRemoteAddr());
-				}
-				
+				if (!visitorDao.isExist(Integer.parseInt(userID),time))
+					visitorDao.insert(Integer.parseInt(userID),cont.getChannel_IDcontent(channel_id)  , time, req.getRemoteAddr());
 				conn.commit();
 				
 				//ContentInfo content = dao.getContentID(channelID);
@@ -540,17 +525,13 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			VisitorDAO visitorDao = new VisitorDAO(conn);
 			ContentDAO contentDao = new ContentDAO(conn);
 									
-			if (contentID != 0)
-			{
-				
-			 if (!visitorDao.isExist(Integer.parseInt(userID),time)){
+			if (!visitorDao.isExist(Integer.parseInt(userID),time)){
 				if(contentID != 0){
 					visitorDao.insert(Integer.parseInt(userID), content_id , time, req.getRemoteAddr());
 				}else{
 					visitorDao.insert(Integer.parseInt(userID), contentDao.getChannel_IDcontent(channel_id) , time, req.getRemoteAddr());
 				}
 			}
-			} 
 			conn.commit();
 			
 			PublicDAO dao = new PublicDAO();
@@ -1094,74 +1075,5 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
         response(res, result);
 	}
 	
-	@RequestMapping("cargarmenu.html")
-	public void cargarmenu(
-			@RequestParam(value = "channel_id", required = false) String channel_id,
-			HttpServletRequest req, HttpServletResponse res){
-		int vuelta = 0;
-		channel_id = Utils.checkNull(channel_id);
-				
-		JSONObject result = new JSONObject();
-		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
-		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
-		JSONArray div_result = new JSONArray();
-
-		
-		try{
-			
-			UserInfo user = session.getFrontUserInfo(req.getSession());
-			if (user==null){  
-				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
-				throw new Exception(reg.getMessage("ACT0003"));
-			}
-
-			//dao connection
-			CategoryDAO categoryDao = new CategoryDAO();
-			PublicDAO dao = new PublicDAO();
-			
-			String ua = req.getHeader("User-Agent");
-			log.info("PublicController", "header", ua);
-			
-			boolean isFirefox = (ua != null && ua.indexOf("Firefox/") != -1);
-			String version="1";
-			if (isFirefox){
-				version = ua.replaceAll("^.*?Firefox/", "");
-			}
-			
-			
-			ArrayList<?> list = categoryDao.getFamilyList();
-			
-			for (int i=0; i<list.size(); i++){
-				FamilyInfo item = (FamilyInfo) list.get(i);
-				if (item.getVisible().equals("1")){
-					JSONObject obj = new JSONObject();
-					// Initialize value.
-					obj.put("parent", item.toJSONObject());
-					obj.put("child", dao.recallChannelList(item.getId(), (long)0, user));
-					div_result.put(obj);	
-					
-					JSONArray datos = new JSONArray();
-					Menu menu = new Menu();
-					
-					datos = dao.recallChannelList(item.getId(), (long)0, user);
-					menu.setDatos(datos);
-					//System.out.println("datos "+menu.getDatos());
-					
-				}				
-			}
-
-			// Initialize all value.
-			result = setResponse(result, "list", div_result);
-			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
-			result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0001", session.getLanguage(req.getSession())));
-			
-		}catch (Exception e){
-			log.error("PublicController", "loadChannels", e.toString());
-			result = setResponse(result, "list", "");
-		}
-		
-		response(res, result);
-	}
-
 	
 }
