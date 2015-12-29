@@ -61,7 +61,6 @@
 
 
 <script language="Javascript">
-	
    	 setTimeout("location.href='/user/home.html'", 1000);
  </script>
 
