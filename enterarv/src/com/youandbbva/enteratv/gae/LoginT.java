@@ -46,7 +46,12 @@ public class LoginT extends HttpServlet {
 
 			
 
-			//validar = userDao.validarCorreo(cuenta);
+			try {
+				validar = userDao.validarCorreo(cuenta);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			if (validar) {
 				if (user != null) {
 					System.out.println("Welcome, " + cuenta);
@@ -76,19 +81,7 @@ public class LoginT extends HttpServlet {
 					
 		}
 
-	}
-
-	
-	
-	
-	
-	
-	
-	
-	
-
-
-	
+	}	
 	
 }
 

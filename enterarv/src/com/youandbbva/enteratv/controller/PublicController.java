@@ -73,8 +73,8 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 	public ModelAndView home(
 			HttpServletRequest req, HttpServletResponse res, ArrayList<String> lista){
 		Connection conn = DSManager.getConnection();
-		
-		ModelAndView mv = new ModelAndView("public_home_p");
+
+		ModelAndView mv = new ModelAndView("public_home");
 		//ModelAndView mv = new ModelAndView("prueba");
 		//dao connection
 		UserDAO user = new UserDAO(conn);
@@ -113,8 +113,6 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			systemDao.update(Constants.OPTION_SLIDER_NAV_HTML, html[1]);
 			systemDao.update(Constants.OPTION_SLIDER_FOR_HTML+"_mobile", html[2]);
 			systemDao.update(Constants.OPTION_SLIDER_NAV_HTML+"_mobile", html[3]);
-			
-			
 		
 			String sessionID = req.getSession().getId();
 			String today = Utils.getToday();
@@ -167,21 +165,6 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			mv.addObject("Video3", publicDao.VideoMozillaselect(3));	
 			mv.addObject("Video4", publicDao.VideoMozillaselect(4));	
 			mv.addObject("Video5", publicDao.VideoMozillaselect(5));
-			
-			mv.addObject("Imagen1", html[4]);
-			mv.addObject("Imagen2", html[5]);
-			mv.addObject("Imagen3", html[6]);
-			mv.addObject("Imagen4", html[7]);
-			mv.addObject("Imagen5", html[8]);
-			
-			
-			
-			System.out.println("imagen1 " + html[4]);
-			System.out.println("imagen1 " + html[5]);
-			System.out.println("imagen1 " + html[6]);
-			System.out.println("imagen1 " + html[7]);
-			System.out.println("imagen1 " + html[8]);
-			
 			
 			
 		}catch (Exception e){ 

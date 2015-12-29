@@ -755,20 +755,16 @@ public String[] generateSlideMozilla(){
 		String htmlvideo3="";
 		String htmlvideo4="";
 		String htmlvideo5="";
-		String imagen="";
 		
-		
-		
-		String[] result = {"", "", "", "", "", "", "", "", ""};
+		String[] result = {"", "", "", ""};
 		ArrayList<?> list = getLatestVideo();
-				
+		
 		for (int i=0; i<list.size(); i++){
 			ContentVideoInfo video = (ContentVideoInfo)list.get(i);
 //			result[0] += "<div id='oculto1' style='display:none;' ><h3>";
 //			result[0] += "<li><img src="+HTML.attr("src", HTML.media("image", video.getImage()))+" />";
-			result[0] += "<video "+  HTML.attr("poster", HTML.media("image", video.getImage())) +" "+ HTML.attr("src", HTML.media("video", video.getVideo())) + " controls " + HTML.attr("style", "width: 473px; height:245px;") + "></video>";
+			result[0] += "<video " + HTML.attr("src", HTML.media("video", video.getVideo())) + " controls " + HTML.attr("style", "width: 100%; height:230px;") + "></video>";
 			
-			//result[0] += "serve?blob-key=" + video.getVideo(); 
 //			result[0] += "</h3></div>";
 			result[1] += "<div><h3><img " + HTML.attr("src", HTML.media("image", video.getImage())) + " " + HTML.attr("alt", "") + " " + HTML.attr("style", "width:113px; height:54px;") + "></h3></div>";
 			
@@ -776,8 +772,6 @@ public String[] generateSlideMozilla(){
 			result[2] += "<video id=\"content_video_"+i+"\" " + HTML.attr("src", HTML.media("video", video.getVideo())) + " controls " + HTML.attr("style", "width: 100%; height:auto;") + "></video>";
 			result[2] += "</h3></div>";
 			result[3] += "<div><h3><img " + HTML.attr("src", HTML.media("image", video.getImage())) + " " + HTML.attr("alt", "") + " " + HTML.attr("style", "width:113px; height:54px;") + "></h3></div>";
-			
-			imagen = HTML.media("image", video.getImage());
 			
 			if(i == 0)
 			{
@@ -787,8 +781,6 @@ public String[] generateSlideMozilla(){
 					resul = htmlvideo1.replaceAll("style='display:none;'", "style='display:inline;'");
 					System.out.println(htmlvideo1);
 					insertvideo(1, resul);
-					result[4]=imagen;
-					
 					
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -803,7 +795,6 @@ public String[] generateSlideMozilla(){
 					String resul="";
 					resul = htmlvideo2.replaceAll("oculto1", "oculto2");
 					insertvideo(2, resul);
-					result[5]=imagen;
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -817,7 +808,6 @@ public String[] generateSlideMozilla(){
 					String resul="";
 					resul = htmlvideo3.replaceAll("oculto1", "oculto3");
 					insertvideo(3, resul);
-					result[6]=imagen;
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -831,7 +821,6 @@ public String[] generateSlideMozilla(){
 					String resul="";
 					resul = htmlvideo4.replaceAll("oculto1", "oculto4");
 					insertvideo(4, resul);
-					result[7]=imagen;
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -845,7 +834,6 @@ public String[] generateSlideMozilla(){
 				try {
 					resul = htmlvideo5.replaceAll("oculto1", "oculto5");
 					insertvideo(5, resul);
-					result[8]=imagen;
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -1779,7 +1767,5 @@ public String[] generateSlideMozilla(){
 
 		return lista;
 	}
-	
-
 	
 }
