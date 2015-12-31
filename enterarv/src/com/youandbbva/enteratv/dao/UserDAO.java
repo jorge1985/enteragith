@@ -25,6 +25,7 @@ import org.springframework.stereotype.Repository;
 
 import com.youandbbva.enteratv.DAO;
 import com.youandbbva.enteratv.DSManager;
+import com.youandbbva.enteratv.UsuarioEnBaseDatos;
 import com.youandbbva.enteratv.Utils;
 import com.youandbbva.enteratv.domain.UserInfo;
 
@@ -71,10 +72,6 @@ public class UserDAO extends DAO {
 		// TODO Auto-generated constructor stub
 	}
 
-	public UserDAO(Connection conn) {
-		// TODO Auto-generated constructor stub
-		super(conn);
-	}
 
 	/**
 	 * Check whether valid user or not.
@@ -85,10 +82,11 @@ public class UserDAO extends DAO {
 	 */
 	public boolean isValidUser(int i) {
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try {
 			long result = 0;
 			// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(COUNT_BY_ID);
+			stmt = conn.prepareStatement(COUNT_BY_ID);
 			stmt.setInt(1, i);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -102,6 +100,7 @@ public class UserDAO extends DAO {
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -121,11 +120,12 @@ public class UserDAO extends DAO {
 	 */
 	public boolean isValidUserWithMusuario(String musuario, String user_id) {
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt  = null;
 		try {
 			long result = 0;
 			String sql = COUNT_BY_Musuario;
 			// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(COUNT_BY_Musuario);
+			stmt = conn.prepareStatement(COUNT_BY_Musuario);
 			stmt.setInt(1, Integer.parseInt(user_id));
 			stmt.setString(1, musuario);
 			ResultSet rs = stmt.executeQuery();
@@ -141,6 +141,7 @@ public class UserDAO extends DAO {
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -160,9 +161,10 @@ public class UserDAO extends DAO {
 	 */
 	public UserInfo getUserInfo(int id) {
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try {
 			// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID);
+			stmt = conn.prepareStatement(SELECT_BY_ID);
 			stmt.setInt(1, id);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
@@ -202,6 +204,7 @@ public class UserDAO extends DAO {
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -220,9 +223,10 @@ public class UserDAO extends DAO {
 	 */
 	public UserInfo getUserInfoFromMusuario(String Email) {
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try {
 			// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_EMAIL);
+			stmt = conn.prepareStatement(SELECT_BY_EMAIL);
 			stmt.setString(1, Email);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
@@ -263,6 +267,7 @@ public class UserDAO extends DAO {
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -282,6 +287,7 @@ public class UserDAO extends DAO {
 	public Long getCount(char type) {
 		long result = 0;
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		String sql = "select count(UserId) from user ";
 
 		if (type == 'a') {
@@ -290,7 +296,7 @@ public class UserDAO extends DAO {
 		}
 		try {
 			// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				result = rs.getLong(1);
@@ -303,6 +309,7 @@ public class UserDAO extends DAO {
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -322,9 +329,10 @@ public class UserDAO extends DAO {
 	public Long getCount(String sql) {
 		Long result = (long) 0;
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try {
 			// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
 				result = rs.getLong(1);
@@ -336,6 +344,7 @@ public class UserDAO extends DAO {
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -356,10 +365,11 @@ public class UserDAO extends DAO {
 	public JSONArray getContent(String sql, String language) {
 		JSONArray result = new JSONArray();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt =  null;
 
 		try {
 			// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
 				JSONObject item = new JSONObject();
@@ -386,6 +396,7 @@ public class UserDAO extends DAO {
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -424,7 +435,9 @@ public class UserDAO extends DAO {
 			String firstname, String lastname, String email, String password,
 			String active, String level, String security_level, int Direction,
 			int Company, int City) throws Exception {
+		
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		if (Company == 0)
 			Company = 1;
 		if (City == 0)
@@ -434,7 +447,7 @@ public class UserDAO extends DAO {
 
 		int nivel_segu = NumNull(security_level);
 		// RUNNING QUERY
-		PreparedStatement stmt = conn.prepareStatement(INSERT);
+		stmt = conn.prepareStatement(INSERT);
 		stmt.setString(1, level);
 		stmt.setString(2, username);
 		stmt.setString(3, firstname);
@@ -447,6 +460,8 @@ public class UserDAO extends DAO {
 		stmt.setInt(10, City);
 		stmt.setInt(11, Company);
 		stmt.executeUpdate();
+		
+		stmt.close();
 		conn.close();
 	}
 
@@ -474,13 +489,14 @@ public class UserDAO extends DAO {
 			String Admission, String Muser, String Horary, String entered,
 			String Hierarchy) throws Exception {
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		int NToken = NumNull(Token);
 		int NKeyDepartament = NumNull(KeyDepartament);
 		int NHierarchy = NumNull(Hierarchy);
 		String Fecha = Birthday;
 		String FechAdmin = Admission;
 		// RUNNING QUERY
-		PreparedStatement stmt = conn.prepareStatement(UPDATE_ADDITIONAL);
+		stmt = conn.prepareStatement(UPDATE_ADDITIONAL);
 
 		stmt.setString(1, Gender);
 		stmt.setString(2, Keyjob);
@@ -496,6 +512,8 @@ public class UserDAO extends DAO {
 		stmt.setInt(12, NHierarchy);
 		stmt.setString(13, NumberEmpleyoo);
 		stmt.executeUpdate();
+		
+		stmt.close();
 		conn.close();
 	}
 
@@ -528,8 +546,9 @@ public class UserDAO extends DAO {
 			String security_level, int Direction, int Company, int City)
 			throws Exception {
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		// RUNNING QUERY
-		PreparedStatement stmt = conn.prepareStatement(UPDATE);
+		stmt = conn.prepareStatement(UPDATE);
 		stmt.setString(1, UseName);
 		stmt.setString(2, FirstName);
 		stmt.setString(3, LastName);
@@ -541,6 +560,8 @@ public class UserDAO extends DAO {
 		stmt.setInt(9, City);
 		stmt.setString(10, NumberEmpleyoo);
 		stmt.executeUpdate();
+		
+		stmt.close();
 		conn.close();
 	}
 
@@ -553,10 +574,13 @@ public class UserDAO extends DAO {
 	public void delete(int userId) throws Exception {
 		// RUNNING QUERY
 		Connection conn = DSManager.getConnection();
-		PreparedStatement stmt = conn.prepareStatement(DELETE);
+		PreparedStatement stmt = null;
+		stmt = conn.prepareStatement(DELETE);
 		stmt.setInt(1, 9);
 		stmt.setInt(2, userId);
 		stmt.executeUpdate();
+		
+		stmt.close();
 		conn.close();
 	}
 
@@ -568,9 +592,10 @@ public class UserDAO extends DAO {
 	 */
 	public int searchEmployeeNumber(String NumEmployee) throws Exception {
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		int result = 0;
 		// RUNNING QUERY
-		PreparedStatement stmt = conn
+		stmt = conn
 				.prepareStatement(SEARCH_USEREMPLOYEENUMBER);
 		stmt.setString(1, NumEmployee);
 		ResultSet rs = stmt.executeQuery();
@@ -578,6 +603,7 @@ public class UserDAO extends DAO {
 		while (rs.next()) {
 			result = rs.getInt(1);
 		}
+			stmt.close();
 			conn.close();
 		
 
@@ -672,26 +698,53 @@ public class UserDAO extends DAO {
 	// stmt.executeUpdate();
 	// }
 
-	public boolean validarCorreo(String Email) throws SQLException {
-		boolean validar = false;
+	public UsuarioEnBaseDatos validarCorreo(String Email)
+	{
 		Connection conn = DSManager.getConnection();
-
-		PreparedStatement stmt = conn.prepareStatement(SELECT_BY_EMAIL);
+		PreparedStatement stmt = null;
+		try {
+		stmt = conn.prepareStatement(SELECT_BY_EMAIL);
 		stmt.setString(1, Email);
 		
 		ResultSet rs = stmt.executeQuery();
 		if (rs.next()) {
-			return validar = true;
+				
+			String strUsuario = rs.getString("UserName");
+			if (!(strUsuario.equalsIgnoreCase("USUARIO")))
+			{
+				return UsuarioEnBaseDatos.NOMBRECORRECTO;
+			}
+			
+			return UsuarioEnBaseDatos.NOMBREINCORRECTO;
 		}
-		conn.close();
-		return validar;
+			
+		return UsuarioEnBaseDatos.NOEXISTE;
+		} catch (SQLException e) 
+		
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		finally 
+		{
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return UsuarioEnBaseDatos.NOEXISTE;
 	}
 
 	public void agregarUsuario(String correo, String nombre, String apellpat, String apellmat) {
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try {
 			
-			PreparedStatement stmt = conn
+			stmt = conn
 					.prepareStatement(" INSERT INTO user (UserRol, UserName,  UserFirstName, UserLastName, UserEmployeeNumber, UserDateOfBirth, UserEmail, UserAdmisionDate, UserStatus, Maindirection_MaindirectionId, UserMuser, City_CityId, Company_CompanyId ) VALUES ('2', '"
 							+ nombre
 							+ "','"+ apellpat +"','"+ apellmat +"', '111', '2015-10-18', '"
@@ -703,6 +756,7 @@ public class UserDAO extends DAO {
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -722,6 +776,7 @@ public class UserDAO extends DAO {
 		stmt.setString(3, apellmat);
 		stmt.setString(4, correo);
 		stmt.execute();
+		stmt.close();
 		conn.close();
 	}
 }

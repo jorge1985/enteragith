@@ -14,7 +14,6 @@ import com.youandbbva.enteratv.beans.LogHandler;
 
 public class DAO {
 
-	public static Connection conn = null;
 	public static LogHandler log = LogHandler.getInstance();
 	public static Registry reg = Registry.getInstance();
 	
@@ -22,8 +21,4 @@ public class DAO {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public DAO(Connection conn) {
-		// TODO Auto-generated constructor stub
-		this.conn = conn;
-	}
 }

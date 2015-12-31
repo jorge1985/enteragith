@@ -45,7 +45,7 @@ public class Export extends HttpServlet {
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
-		
+		PreparedStatement stmt = null;
 		String search = req.getParameter("search");
 		String type = Utils.checkNull(req.getParameter("type"));
 		String start_day = Utils.checkNull(req.getParameter("start_day"));
@@ -99,7 +99,7 @@ public class Export extends HttpServlet {
             	
             	csv.writeNext(column);
 
-    			VisitorDAO dao = new VisitorDAO(conn);
+    			VisitorDAO dao = new VisitorDAO();
     			
 				String sql = "";
 
@@ -187,7 +187,7 @@ public class Export extends HttpServlet {
 					}
 				}
     			
-    			PreparedStatement stmt = conn.prepareStatement(sql);
+    			stmt = conn.prepareStatement(sql);
     			ResultSet rs = stmt.executeQuery();
     			
     			while (rs.next()){
@@ -254,12 +254,7 @@ public class Export extends HttpServlet {
                 	} 
                 	
     			}
-    			try {
-					stmt.close();
-			 		} catch (SQLException e) {
-                 // TODO Controlar exception
-			 		e.printStackTrace();
-         							} 
+    			
     			
     			
                 csv.flush();
@@ -268,7 +263,7 @@ public class Export extends HttpServlet {
 
 		}finally{
 			    
-             
+			stmt.close();
 				if (conn != null){
                      	try {
                              conn.close();

@@ -177,7 +177,7 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			}
 			
 			ModelAndView mv = new ModelAndView("opp_inmueble-3");
-			OpportDAO dao = new OpportDAO(conn);
+			OpportDAO dao = new OpportDAO();
 			mv.addObject("state_list", dao.getStateList(session.getLanguage(req.getSession()), false));
 			return mv;
 		}catch (Exception e){ 
@@ -215,7 +215,7 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
 			}
 			
-			OpportDAO dao = new OpportDAO(conn);
+			OpportDAO dao = new OpportDAO();
 			
 			ModelAndView mv = new ModelAndView("opp_inmueble-3_2");
 			if (state_id.length()==0 || state_id.equals("0") || state_id.equals("all")){
@@ -293,7 +293,7 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			}
 			
 			ModelAndView mv = new ModelAndView("opp_automovil-2");
-			OpportDAO dao = new OpportDAO(conn);
+			OpportDAO dao = new OpportDAO();
 			mv.addObject("brand_list", dao.getBrandList(session.getLanguage(req.getSession()), false));
 			return mv;
 		}catch (Exception e){ 
@@ -417,7 +417,7 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			}
 			
 			ModelAndView mv = new ModelAndView("opp_varios-2");
-			UtilityDAO codeDao = new UtilityDAO(conn);
+			UtilityDAO codeDao = new UtilityDAO();
 			mv.addObject("varios_list", codeDao.getCodeList("opp5", session.getLanguage(req.getSession())));
 			return mv;
 		}catch (Exception e){ 
@@ -584,7 +584,7 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003", session.getLanguage(request.getSession())));
 			}
 			
-			OpportDAO dao = new OpportDAO(conn);
+			OpportDAO dao = new OpportDAO();
 			
 			conn.setAutoCommit(false);
 			dao.updateVisible();
@@ -756,7 +756,7 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			ModelAndView mv = new ModelAndView("opp_detail");
 			mv.addObject("publish_id", publish_id);
 			
-			OpportDAO dao = new OpportDAO(conn);
+			OpportDAO dao = new OpportDAO();
 			OpportunitiesInfo opport = dao.getOpportunities(Utils.getLong(publish_id));
 			if (opport!=null){
 				mv.addObject("type", opport.getType());
@@ -970,7 +970,7 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 				res.addCookie(cookie2);
 			}
 			
-			OppUserDAO OppUserDAO = new OppUserDAO(conn);
+			OppUserDAO OppUserDAO = new OppUserDAO();
 			if (!OppUserDAO.isValidUser(userID)){
 				session.setFlashMessage(req.getSession(), reg.getMessage("USR0002", session.getLanguage(req.getSession())));
 				throw new Exception(reg.getMessage("USR0002"));
@@ -1042,7 +1042,7 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("USR0004"));
 			}
 
-			OppUserDAO dao = new OppUserDAO(conn);
+			OppUserDAO dao = new OppUserDAO();
 			UserInfo user = dao.getUserInfo(username);
 			if (user==null){
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
@@ -1105,7 +1105,7 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 				throw new Exception("");
 			}
 			
-			OppUserDAO dao = new OppUserDAO(conn);
+			OppUserDAO dao = new OppUserDAO();
 			UserInfo user = dao.getUserInfo(username);
 			//ValidationInfo v = dao.getValidation(username, session_id);
 			
@@ -1175,7 +1175,7 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			
 			conn.setAutoCommit(false);
 
-			OppUserDAO dao = new OppUserDAO(conn);
+			OppUserDAO dao = new OppUserDAO();
 			UserInfo user = dao.getUserInfo(username);
 			if (user==null){
 				result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0003", session.getLanguage(req.getSession())));
@@ -1255,7 +1255,7 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 				throw new Exception("");
 			}
 			
-			UtilityDAO codeDao = new UtilityDAO(conn);
+			UtilityDAO codeDao = new UtilityDAO();
 			
 			ModelAndView mv = new ModelAndView("opp_publish");
 			mv.addObject("type", type);
@@ -1267,7 +1267,7 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			mv.addObject("transmission_list", codeDao.getCodeList("opp3", session.getLanguage(req.getSession())));
 			mv.addObject("varios_list", codeDao.getCodeList("opp5", session.getLanguage(req.getSession())));
 			
-			OpportDAO dao = new OpportDAO(conn);
+			OpportDAO dao = new OpportDAO();
 			mv.addObject("brand_list", dao.getBrandList(session.getLanguage(req.getSession()), false));
 			mv.addObject("state_list", dao.getStateList(session.getLanguage(req.getSession()), false));
 			
@@ -1377,7 +1377,7 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 
-			OpportDAO dao = new OpportDAO(conn);
+			OpportDAO dao = new OpportDAO();
 			
 			Long stateID = Utils.getLong(state_id);
 			
@@ -1509,8 +1509,8 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			
 			conn.setAutoCommit(false);
 			
-			OpportDAO dao = new OpportDAO(conn);
-			MediaDAO mediaDao = new MediaDAO(conn);
+			OpportDAO dao = new OpportDAO();
+			MediaDAO mediaDao = new MediaDAO();
 			
 
 			if (publish_type.equals("add")){
@@ -1691,7 +1691,7 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 		    
-			OpportDAO dao = new OpportDAO(conn);
+			OpportDAO dao = new OpportDAO();
 			
 			conn.setAutoCommit(false);
 			dao.updateVisible();
@@ -1854,13 +1854,13 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			}
 			
 			ModelAndView mv = new ModelAndView("opp_form_automovil");
-			UtilityDAO codeDao = new UtilityDAO(conn);
+			UtilityDAO codeDao = new UtilityDAO();
 			mv.addObject("property_list", codeDao.getCodeList("opp1", session.getLanguage(req.getSession())));
 			mv.addObject("several_list", codeDao.getCodeList("opp2", session.getLanguage(req.getSession())));
 			mv.addObject("transmission_list", codeDao.getCodeList("opp3", session.getLanguage(req.getSession())));
 			mv.addObject("varios_list", codeDao.getCodeList("opp5", session.getLanguage(req.getSession())));
 			
-			OpportDAO dao = new OpportDAO(conn);
+			OpportDAO dao = new OpportDAO();
 			mv.addObject("brand_list", dao.getBrandList(session.getLanguage(req.getSession()), false));
 			mv.addObject("state_list", dao.getStateList(session.getLanguage(req.getSession()), false));
 			
@@ -1898,13 +1898,13 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			}
 			
 			ModelAndView mv = new ModelAndView("opp_form_inmueble");
-			UtilityDAO codeDao = new UtilityDAO(conn);
+			UtilityDAO codeDao = new UtilityDAO();
 			mv.addObject("property_list", codeDao.getCodeList("opp1", session.getLanguage(req.getSession())));
 			mv.addObject("several_list", codeDao.getCodeList("opp2", session.getLanguage(req.getSession())));
 			mv.addObject("transmission_list", codeDao.getCodeList("opp3", session.getLanguage(req.getSession())));
 			mv.addObject("varios_list", codeDao.getCodeList("opp5", session.getLanguage(req.getSession())));
 			
-			OpportDAO dao = new OpportDAO(conn);
+			OpportDAO dao = new OpportDAO();
 			mv.addObject("brand_list", dao.getBrandList(session.getLanguage(req.getSession()), false));
 			mv.addObject("state_list", dao.getStateList(session.getLanguage(req.getSession()), false));
 			
@@ -1942,13 +1942,13 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 			}
 			
 			ModelAndView mv = new ModelAndView("opp_form_varios");
-			UtilityDAO codeDao = new UtilityDAO(conn);
+			UtilityDAO codeDao = new UtilityDAO();
 			mv.addObject("property_list", codeDao.getCodeList("opp1", session.getLanguage(req.getSession())));
 			mv.addObject("several_list", codeDao.getCodeList("opp2", session.getLanguage(req.getSession())));
 			mv.addObject("transmission_list", codeDao.getCodeList("opp3", session.getLanguage(req.getSession())));
 			mv.addObject("varios_list", codeDao.getCodeList("opp5", session.getLanguage(req.getSession())));
 			
-			OpportDAO dao = new OpportDAO(conn);
+			OpportDAO dao = new OpportDAO();
 			mv.addObject("brand_list", dao.getBrandList(session.getLanguage(req.getSession()), false));
 			mv.addObject("state_list", dao.getStateList(session.getLanguage(req.getSession()), false));
 			
@@ -2031,7 +2031,7 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 
 		ModelAndView mv = new ModelAndView("install");
 		try{
-			OpportDAO dao = new OpportDAO(conn);
+			OpportDAO dao = new OpportDAO();
 			conn.setAutoCommit(false);
 			
 			if (key.equals("BBVAOPPORTUNITIESPROJECTSYSTEMINSTALLABJOVM34321POKNV21872UIPOM56")){

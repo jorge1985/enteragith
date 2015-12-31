@@ -52,10 +52,6 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 		// TODO Auto-generated constructor stub
 	}
 	
-	public VisitorDAO(Connection conn) {
-		// TODO Auto-generated constructor stub
-		super(conn);
-	}
 
 		/**
 	 * Insert.
@@ -72,13 +68,27 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 	{
 															// RUNNING QUERY
 		Connection conn = DSManager.getConnection();
-		PreparedStatement stmt = conn.prepareStatement(INSERT);
-		stmt.setInt(1, i);
-		stmt.setString(2, type);
-		stmt.setString(3, date);
-		stmt.setString(4, ip_addr);
-		stmt.executeUpdate();
-		conn.close();
+		PreparedStatement stmt = null;
+		try
+		{
+			stmt = conn.prepareStatement(INSERT);
+			stmt.setInt(1, i);
+			stmt.setString(2, type);
+			stmt.setString(3, date);
+			stmt.setString(4, ip_addr);
+			stmt.executeUpdate();
+		}catch (Exception e)
+		{
+			System.out.print(e);
+		}
+		
+		
+		finally
+		{
+			stmt.close();
+			conn.close();
+		}
+		
 	}
 
 	/**
@@ -92,10 +102,11 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 	 */
 	public boolean isExist(int userId, String date){
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 			long result = 0;
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(COUNT_BY_USER_SESSION_DATE);
+			stmt = conn.prepareStatement(COUNT_BY_USER_SESSION_DATE);
 			stmt.setInt(1, userId);
 			stmt.setString(2, date);
 			ResultSet rs = stmt.executeQuery();
@@ -110,6 +121,7 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -128,10 +140,11 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 	 */
 	public Long getTodayCount(String date){
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 			long result = 0;
 																	// 	RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(COUNT_BY_TODAY);
+			stmt = conn.prepareStatement(COUNT_BY_TODAY);
 			stmt.setString(1, date+"%");
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -145,6 +158,7 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -162,10 +176,11 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 	 */
 	public Long getHistoricCount(){
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 			long result = 0;
 																			// 	RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(COUNT_HISTORIC_TABLE_VISIT);
+			stmt = conn.prepareStatement(COUNT_HISTORIC_TABLE_VISIT);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
 				result = rs.getLong(1);
@@ -178,6 +193,7 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -196,10 +212,11 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 	 */
 	public Long getHistoricUniqueCount(){
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 			long result = 0;
 																		// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(COUNT_HISTORIC_UNIQUE_TABLA_VISIT);
+			stmt = conn.prepareStatement(COUNT_HISTORIC_UNIQUE_TABLA_VISIT);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
 				result = rs.getLong(1);
@@ -212,6 +229,7 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -229,10 +247,11 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 	 */
 	public Long getChannelCount(){
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 			long result = 0;
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(COUNT_CHANNEL);
+			stmt = conn.prepareStatement(COUNT_CHANNEL);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
 				result = rs.getLong(1);
@@ -245,6 +264,7 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -263,10 +283,11 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 	 */
 	public Long getContentCount(String active){
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 			long result = 0;
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(COUNT_CONTENT);
+			stmt = conn.prepareStatement(COUNT_CONTENT);
 			stmt.setString(1, active);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -280,6 +301,7 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -300,10 +322,11 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 	public JSONArray getContent(String sql, String language){
 		JSONArray result = new JSONArray();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
 				JSONObject item = new JSONObject();
@@ -326,6 +349,7 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -344,11 +368,12 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 	 */
 	public Long getUniqueCountSystemUser(String date){
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 			long result = 0;
 																	// RUNNING QUERY
 			String sql = "SELECT COUNT(DISTINCT B.User_UserId)  from user A, visit B where A.UserStatus='1' AND VisitDate like '" + date + "%' and A.UserRol='1' AND A.UserId=B.User_UserId";
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
 				result = rs.getLong(1);
@@ -361,6 +386,7 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -379,11 +405,12 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 	 */
 	public Long getUniqueCountOutsideUser(String time){
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 			long result = 0;
 																	// 	RUNNING QUERY
 			String sql = "SELECT COUNT(DISTINCT B.User_UserId)  from user A, visit B where A.UserStatus='1' AND VisitDate like '" + time + "%' and A.UserRol='2' AND A.UserId=B.User_UserId";
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
 				result = rs.getLong(1);
@@ -396,6 +423,7 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -415,10 +443,11 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 	public String getMonthCount(String date){
 		String result = "";
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try
 		{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(VISIT_DATE);
+			stmt = conn.prepareStatement(VISIT_DATE);
 			stmt.setString(1, date+"%");
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -431,6 +460,7 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -448,10 +478,10 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 	public Long getCount(String sql){
 		Long result = (long)0;
 		Connection conn = DSManager.getConnection();
-		
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
 				result = rs.getLong(1);
@@ -463,6 +493,7 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -482,10 +513,11 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 	public String getUserName(String table, String id, String language){
 		String result="";
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
 			String sql ="Select UserName,UserFirstName, UserLastName from "+table+" where UserId=?";
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			
 			if (table.equals("user")){
 				stmt.setString(1, id);
@@ -504,6 +536,7 @@ private static final String SELECT_BY_ID_CONTENT = " SELECT " + COLUMNS_TABLE_CO
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block

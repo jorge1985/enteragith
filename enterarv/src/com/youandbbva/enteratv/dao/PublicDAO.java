@@ -77,10 +77,6 @@ public class PublicDAO extends DAO{
 		// TODO Auto-generated constructor stub
 	}
 	
-	public PublicDAO(Connection conn) {
-		// TODO Auto-generated constructor stub
-		super(conn);
-	}
 
 	/**
 	 * Get Content Information by Content ID.
@@ -90,9 +86,10 @@ public class PublicDAO extends DAO{
 	 */
 	public ContentInfo getContent(Long contentID){
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_CONTENT_BY_ID);
+			stmt = conn.prepareStatement(SELECT_CONTENT_BY_ID);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -118,6 +115,7 @@ public class PublicDAO extends DAO{
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -137,11 +135,12 @@ public class PublicDAO extends DAO{
 	public ContentInfo getContentID(Long channelID){
 		ContentInfo result = new ContentInfo();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		
 		try
 		{
 																	//	RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_LATEST_NEWS__CONTENT);
+			stmt = conn.prepareStatement(SELECT_LATEST_NEWS__CONTENT);
 			stmt.setString(1, Utils.getToday("-"));
 			stmt.setLong(2, channelID);
 			ResultSet rs = stmt.executeQuery();
@@ -157,6 +156,7 @@ public class PublicDAO extends DAO{
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -182,6 +182,7 @@ public class PublicDAO extends DAO{
 			result.setName(rs.getString("ContentName"));
 			//result.setBlog(Utils.checkNull(rs.getString("blog")));
 		}
+		stmt.close();
 		conn.close();
 		return result;
 	}
@@ -198,10 +199,11 @@ public class PublicDAO extends DAO{
 	 */
 	public boolean isExistVisitor(int outsideUserId){
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 			long result = 0;
 																	// 	RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(COUNT_BY_USER_SESSION_VISIT);
+			stmt = conn.prepareStatement(COUNT_BY_USER_SESSION_VISIT);
 			stmt.setInt(1, outsideUserId);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -215,6 +217,7 @@ public class PublicDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -245,6 +248,7 @@ public class PublicDAO extends DAO{
 		stmt.setString(3, date);
 		stmt.setString(4, ip_addr);
 		stmt.executeUpdate();
+		stmt.close();
 		conn.close();
 	}
 	
@@ -258,10 +262,11 @@ public class PublicDAO extends DAO{
 	public Long getCount(String sql){
 		Long result = (long)0;
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
 				result = rs.getLong(1);
@@ -273,6 +278,7 @@ public class PublicDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -293,10 +299,10 @@ public class PublicDAO extends DAO{
 	public JSONArray getContent(String sql, String language){
 		JSONArray result = new JSONArray();
 		Connection conn = DSManager.getConnection();
-		
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
 				JSONObject item = new JSONObject();
@@ -319,6 +325,7 @@ public class PublicDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -339,10 +346,11 @@ public class PublicDAO extends DAO{
 	public JSONArray getContent(String sql, String language, int start){
 		JSONArray result = new JSONArray();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
 				JSONObject item = new JSONObject();
@@ -369,6 +377,7 @@ public class PublicDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -387,12 +396,12 @@ public class PublicDAO extends DAO{
 	public ArrayList<ContentVideoInfo> getLatestVideo(){
 		ArrayList<ContentVideoInfo> result = new ArrayList<ContentVideoInfo>();
 		Connection conn = DSManager.getConnection();
-	
+		PreparedStatement stmt = null;
 		ContentDAO dao = new ContentDAO();
 		
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_LATEST_5_VIDEO__CONTENT);
+			stmt = conn.prepareStatement(SELECT_LATEST_5_VIDEO__CONTENT);
 
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -407,6 +416,7 @@ public class PublicDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -427,10 +437,10 @@ public class PublicDAO extends DAO{
 	private BannerInfo getBanner(Long bannerID){
 		ArrayList result = new ArrayList();
 		Connection conn = DSManager.getConnection();
-		
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID__BANNNER);
+			stmt = conn.prepareStatement(SELECT_BY_ID__BANNNER);
 			stmt.setLong(1, bannerID);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -449,6 +459,7 @@ public class PublicDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -468,10 +479,11 @@ public class PublicDAO extends DAO{
 	private ArrayList getFeatures(Long featuresID){
 		ArrayList result = new ArrayList();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID__FEATURES);
+			stmt = conn.prepareStatement(SELECT_BY_ID__FEATURES);
 			stmt.setLong(1, featuresID);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -491,6 +503,7 @@ public class PublicDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -600,9 +613,10 @@ public class PublicDAO extends DAO{
 		JSONArray result = new JSONArray();
 		String today = Utils.getToday("-");
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		
 		try{
-			PreparedStatement stmt = conn.prepareStatement(SELECT_LATEST_2_NEWS__CONTENT);
+			stmt = conn.prepareStatement(SELECT_LATEST_2_NEWS__CONTENT);
 			stmt.setString(1, today);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -631,6 +645,7 @@ public class PublicDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -646,11 +661,12 @@ public class PublicDAO extends DAO{
 	 */
 	public void affectFeaturedNews(){
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		ArrayList list =new ArrayList();//= getLatestNews();
 		if (list.size()==0){
 			try{
 																	// RUNNING QUERY
-				PreparedStatement stmt = conn.prepareStatement(" update bbva_features set content_id=0 ");
+				stmt = conn.prepareStatement(" update bbva_features set content_id=0 ");
 				stmt.executeUpdate();
 			}catch (Exception e){ }
 			
@@ -664,7 +680,7 @@ public class PublicDAO extends DAO{
 		
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(" update bbva_features set image=?, title=?, date=?, content=?, content_id=? where sub_id=1 ");
+			stmt = conn.prepareStatement(" update bbva_features set image=?, title=?, date=?, content=?, content_id=? where sub_id=1 ");
 			stmt.setString(1, f.getImage());
 			stmt.setString(2, f.getName());
 			stmt.setString(3, date);
@@ -679,7 +695,7 @@ public class PublicDAO extends DAO{
 			
 			try{
 																	// RUNNING QUERY
-				PreparedStatement stmt = conn.prepareStatement(" update bbva_features set image=?, title=?, date=?, content=?, content_id=? where sub_id=2 ");
+				stmt = conn.prepareStatement(" update bbva_features set image=?, title=?, date=?, content=?, content_id=? where sub_id=2 ");
 				stmt.setString(1, f.getImage());
 				stmt.setString(2, f.getName());
 				stmt.setString(3, date);
@@ -691,12 +707,13 @@ public class PublicDAO extends DAO{
 		}else{
 			try{
 																	//	RUNNING QUERY	
-				PreparedStatement stmt = conn.prepareStatement(" update bbva_features set content_id=0 where sub_id=2 ");
+				stmt = conn.prepareStatement(" update bbva_features set content_id=0 where sub_id=2 ");
 				stmt.executeUpdate();
 			}catch (Exception e){ }
 			finally
 			{
 				try {
+					stmt.close();
 					conn.close();
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
@@ -860,10 +877,11 @@ public String[] generateSlideMozilla(){
 	public String getOptionHTML(String kind){
 		String result = "";
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		
 		try{
 																	// 	RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_WIDGET_HTML__CONFIG);
+			stmt = conn.prepareStatement(SELECT_WIDGET_HTML__CONFIG);
 			stmt.setString(1, kind);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -875,6 +893,7 @@ public String[] generateSlideMozilla(){
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -896,12 +915,13 @@ public String[] generateSlideMozilla(){
 	public ArrayList<ChannelInfo> getChannelList(Long familyID, Long parentID) throws SQLException{
 		ArrayList<ChannelInfo> result = new ArrayList<ChannelInfo>();
 		Connection conn1 = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 													// RUNNING QUERY
 			
 			
 			
-			PreparedStatement stmt = conn1.prepareStatement(SELECT_BY_FAMILY_PARENT_ID__CHANNEL);
+			stmt = conn1.prepareStatement(SELECT_BY_FAMILY_PARENT_ID__CHANNEL);
 			stmt.setLong(1, familyID);
 			stmt.setLong(2, parentID);
 			ResultSet rs = stmt.executeQuery();
@@ -925,6 +945,7 @@ public String[] generateSlideMozilla(){
 		finally
 		{
 			try {
+				stmt.close();
 				conn1.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -945,10 +966,11 @@ public String[] generateSlideMozilla(){
 		ArrayList<ChannelInfo> result = new ArrayList<ChannelInfo>();
 		
 		Connection conn1 = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn1.prepareStatement(SELECT_BY_PARENT_ID__CHANNEL);
+			stmt = conn1.prepareStatement(SELECT_BY_PARENT_ID__CHANNEL);
 			stmt.setLong(1, parentID);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -971,6 +993,7 @@ public String[] generateSlideMozilla(){
 		finally
 		{
 			try {
+				stmt.close();
 				conn1.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1038,10 +1061,11 @@ public String[] generateSlideMozilla(){
 	 */
 	private boolean isInCodeTable(String table, Long channelID, Long value, String type){
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 			long result = 0;
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(" select count(*) from " + table + " where type=? and Channel_ChannelId=? and " + table + "ChannelcityId=? ");
+			stmt = conn.prepareStatement(" select count(*) from " + table + " where type=? and Channel_ChannelId=? and " + table + "ChannelcityId=? ");
 			stmt.setString(1, type);
 			stmt.setLong(2, channelID);
 			stmt.setLong(3, value);
@@ -1057,6 +1081,7 @@ public String[] generateSlideMozilla(){
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1076,6 +1101,7 @@ public String[] generateSlideMozilla(){
 	 * @return boolean
 	 */
 	private boolean isInCodeTable(String table, Long channelID, int i){
+		Connection conn = DSManager.getConnection();
 		
 		PreparedStatement stmt = null;
 		try{
@@ -1108,6 +1134,15 @@ public String[] generateSlideMozilla(){
 			log.error("PublicDAO", "isInCodeTable", e.toString());
 		}
 
+		finally {
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		return false;
 	}
 	
@@ -1120,9 +1155,12 @@ public String[] generateSlideMozilla(){
 	 * @return boolean
 	 */
 	private boolean isInCodeTable(String table, Long channelID, Long value){
+		
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 			long result = 0;
-			PreparedStatement stmt = null;
+			
 			if(table.equals("channelcity"))
 			{
 				// RUNNING QUERY
@@ -1149,6 +1187,16 @@ public String[] generateSlideMozilla(){
 		}catch (Exception e){
 			log.error("PublicDAO", "isInCodeTable", e.toString());
 		}
+		finally {
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
 
 		return false;
 	}
@@ -1160,9 +1208,14 @@ public String[] generateSlideMozilla(){
 	 * @return
 	 */
 	private boolean isEmptyCodeTable(String table, Long channelID){
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		
 		try{
+			conn = DSManager.getConnection();
 			long result = 0;
-			PreparedStatement stmt = null;
+			
 			if(table.equals("channelcity"))
 			{
 				// RUNNING QUERY
@@ -1179,7 +1232,7 @@ public String[] generateSlideMozilla(){
 				stmt = conn.prepareStatement(" select count(*) from " + table + " where Channel_ChannelId=? ");
 			}
 			stmt.setLong(1, channelID);
-			ResultSet rs = stmt.executeQuery();
+			rs = stmt.executeQuery();
 			while (rs.next()){
 				result = rs.getLong(1);
 			}
@@ -1188,6 +1241,20 @@ public String[] generateSlideMozilla(){
 		}catch (Exception e){
 			log.error("PublicDAO", "isEmptyCodeTable", e.toString());
 		}
+		finally
+		{
+			if(conn != null)try{
+				
+					rs.close();
+					stmt.close();
+					conn.close();
+			
+				}
+			catch (SQLException e){e.printStackTrace();}
+			
+			
+		}
+		
 
 		return false;
 	}
@@ -1246,13 +1313,13 @@ public String[] generateSlideMozilla(){
 			ArrayList<?> list = getChannelList(familyID, parentID);
 			for (int i=0; i<list.size(); i++){
 				ChannelInfo item = (ChannelInfo) list.get(i);
-				if (checkCondition(item, user)){
+//				if (checkCondition(item, user)){
 					JSONObject obj = new JSONObject();
 					obj.put("parent", item.toJSONObject());
 					obj.put("child", recallChannelList(familyID, item.getId(), user));
 					result.put(obj);
 					
-				}
+//				}
 			}
 			
 		}catch (Exception e){
@@ -1379,9 +1446,10 @@ public String[] generateSlideMozilla(){
 	public ArrayList<FamilyInfo> getFamilyList(){
 		ArrayList<FamilyInfo> result = new ArrayList<FamilyInfo>();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 			// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_FAMILY);
+			stmt = conn.prepareStatement(SELECT_FAMILY);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
 				FamilyInfo item = new FamilyInfo();
@@ -1396,6 +1464,7 @@ public String[] generateSlideMozilla(){
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1414,6 +1483,7 @@ public String[] generateSlideMozilla(){
 	public ArrayList getMostVisitedChannel(UserInfo user){
 		ArrayList result = new ArrayList();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		int count=0;
 		try{
 			// RUNNING QUERY
@@ -1433,7 +1503,7 @@ public String[] generateSlideMozilla(){
 					"  INNER JOIN channel ch ON c.Channel_ChannelId = ch.ChannelId\n" +
 					"  WHERE c.ContentStatus='A' and ch.ChannelIsVisible = 1 GROUP BY ch.ChannelId  ORDER BY 6";
 				
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
 				if (count>4)
@@ -1460,6 +1530,7 @@ public String[] generateSlideMozilla(){
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1478,9 +1549,10 @@ public String[] generateSlideMozilla(){
 	public JSONArray getContent(String sql){
 		JSONArray result = new JSONArray();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 			Long contentID = (long)0;
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
 				JSONObject item = new JSONObject();
@@ -1501,6 +1573,7 @@ public String[] generateSlideMozilla(){
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1519,10 +1592,11 @@ public String[] generateSlideMozilla(){
 	public ArrayList getContentGallery(Long contentID){
 		ArrayList result = new ArrayList();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_MEDIAID);
+			stmt = conn.prepareStatement(SELECT_MEDIAID);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -1539,6 +1613,7 @@ public String[] generateSlideMozilla(){
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1557,11 +1632,12 @@ public String[] generateSlideMozilla(){
 	public String getGalleryFirstImage(Long contentid)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		String media = "";
 		try
 		{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECTMEDIACONTENT);
+			stmt = conn.prepareStatement(SELECTMEDIACONTENT);
 			stmt.setLong(1, contentid);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -1574,6 +1650,7 @@ public String[] generateSlideMozilla(){
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1588,10 +1665,11 @@ public String[] generateSlideMozilla(){
 		JSONArray result = new JSONArray();
 																	// RUNNING QUERY
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		String sql2 = "select ContentId,ContentName from content where Contenttype_ContenttypeId = '3' and ContentEndDate >='" + Utils.getToday("-") + "' order by ContentId desc";
 		try{
 			Long contentID = (long)0;
-			PreparedStatement stmt = conn.prepareStatement(sql2);
+			stmt = conn.prepareStatement(sql2);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
 				JSONObject item = new JSONObject();
@@ -1611,6 +1689,7 @@ public String[] generateSlideMozilla(){
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1629,10 +1708,11 @@ public String[] generateSlideMozilla(){
 	public Long getCountT(String sql){
 		Long result = (long)0;
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 																	// RUNNING QUERY
 		String sql2 = "select count(ContentId) from content where Contenttype_ContenttypeId = '3' and ContentEndDate >= '" + Utils.getToday("-") + "'";
 		try{
-			PreparedStatement stmt = conn.prepareStatement(sql2);
+			stmt = conn.prepareStatement(sql2);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
 				result = rs.getLong(1);
@@ -1643,6 +1723,7 @@ public String[] generateSlideMozilla(){
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1679,11 +1760,15 @@ public String[] generateSlideMozilla(){
 	public void insertvideo(int id, String html) throws Exception {
 		// RUNNING QUERY
 		//insert into html (html) values (?)";
+		Connection conn = DSManager.getConnection();
 		String sql =" update html set htmlvideo = ? where id = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setString(1, html);
 		stmt.setInt(2, id);
 		stmt.execute();
+		
+		stmt.close();
+		conn.close();
 		
 	}
 	
@@ -1694,9 +1779,10 @@ public String[] generateSlideMozilla(){
 		// RUNNING QUERY
 		String sql = "select htmlvideo from html where id=?";
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try 
 		{
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			stmt.setInt(1, id);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) {
@@ -1711,6 +1797,7 @@ public String[] generateSlideMozilla(){
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1725,6 +1812,7 @@ public String[] generateSlideMozilla(){
 	{
 		int channel = Integer.parseInt(channel_id);
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		ArrayList<String> lista = new ArrayList ();
 		//select htmlvideo from html where id=1
 		String result = "";
@@ -1733,7 +1821,7 @@ public String[] generateSlideMozilla(){
 		try 
 		{
 			
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			stmt.setInt(1, channel);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -1748,6 +1836,7 @@ public String[] generateSlideMozilla(){
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block

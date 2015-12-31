@@ -65,7 +65,10 @@ public class DSManager {
 			url = reg.getStringOfApplication("database.url");
 			Connection conn = DriverManager.getConnection(url);
 			return conn;
-		} catch (Exception e) { }
+		} catch (Exception e) { 
+			
+			e.printStackTrace();
+		}
 
 		return null;
 	}

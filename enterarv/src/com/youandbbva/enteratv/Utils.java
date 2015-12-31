@@ -887,7 +887,7 @@ public class Utils {
 		Connection conn = DSManager.getConnection();
 		
 		try{
-			OpportDAO dao = new OpportDAO(conn);
+			OpportDAO dao = new OpportDAO();
 			return dao.countOpportunities(userid);
 		}catch (Exception e){
 		}finally{

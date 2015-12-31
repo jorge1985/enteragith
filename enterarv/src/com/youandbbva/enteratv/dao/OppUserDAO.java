@@ -3,12 +3,14 @@ package com.youandbbva.enteratv.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Repository;
 
 import com.youandbbva.enteratv.DAO;
+import com.youandbbva.enteratv.DSManager;
 import com.youandbbva.enteratv.Utils;
 import com.youandbbva.enteratv.domain.UserInfo;
 import com.youandbbva.enteratv.domain.ValidationInfo;
@@ -42,10 +44,6 @@ public class OppUserDAO extends DAO{
 		// TODO Auto-generated constructor stub
 	}
 	
-	public OppUserDAO(Connection conn) {
-		// TODO Auto-generated constructor stub
-		super(conn);
-	}
 
 	/**
 	 * Check whether valid user or not.
@@ -54,10 +52,12 @@ public class OppUserDAO extends DAO{
 	 * @return boolean
 	 */
 	public boolean isValidUser(String id){
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 			long result = 0;
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(COUNT_BY_ID);
+			stmt = conn.prepareStatement(COUNT_BY_ID);
 			stmt.setString(1, id);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -68,6 +68,16 @@ public class OppUserDAO extends DAO{
 		}catch (Exception e){
 
 			log.error("UserDAO", "isValidUser", e.toString());
+		}
+		finally 
+		{
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 		return false;
@@ -80,9 +90,11 @@ public class OppUserDAO extends DAO{
 	 * @return User Information
 	 */
 	public UserInfo getUserInfo(String id){
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID);
+			stmt = conn.prepareStatement(SELECT_BY_ID);
 			stmt.setString(1, id);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -117,6 +129,16 @@ public class OppUserDAO extends DAO{
 		}catch (Exception e){
 			log.error("UserDAO", "isValidUser", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+				stmt.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return null;
 	}
@@ -129,6 +151,8 @@ public class OppUserDAO extends DAO{
 	 * @return count of User
 	 */
 	public Long getCount(String level, String active){
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 			long result = 0;
 																	// 	RUNNING QUERY
@@ -146,7 +170,7 @@ public class OppUserDAO extends DAO{
 				}
 			}
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
 				result = rs.getLong(1);
@@ -155,6 +179,16 @@ public class OppUserDAO extends DAO{
 			return result;
 		}catch (Exception e){
 			log.error("UserDAO", "getCount", e.toString());
+		}
+		finally
+		{
+			try {
+				conn.close();
+				stmt.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		return (long)0;
@@ -169,10 +203,11 @@ public class OppUserDAO extends DAO{
 	 */
 	public Long getCount(String sql){
 		Long result = (long)0;
-		
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
 				result = rs.getLong(1);
@@ -180,6 +215,16 @@ public class OppUserDAO extends DAO{
 		}catch (Exception e){
 			log.error("UserDAO", "getCount", e.toString());
 			result = (long)0;
+		}
+		finally
+		{
+			try {
+				conn.close();
+				stmt.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		return result;
@@ -196,9 +241,11 @@ public class OppUserDAO extends DAO{
 	 */
 	private String getName(String table, String div, String id, String language){
 		String result = "";
+		PreparedStatement stmt = null;
+		Connection conn = DSManager.getConnection();
 		try{
 			String value="";
-			PreparedStatement stmt = null;
+			stmt = null;
 			if (table.equals("code")){
 																	// RUNNING QUERY
 				stmt = conn.prepareStatement(" select * from bbva_code a where a.div=? and a.code=? " );
@@ -222,6 +269,17 @@ public class OppUserDAO extends DAO{
 		}catch (Exception e){
 			log.error("UserDAO", "getName", e.toString());
 		}
+		
+		finally
+		{
+			try {
+				conn.close();
+				stmt.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return result;
 	}
@@ -235,10 +293,12 @@ public class OppUserDAO extends DAO{
 	 */
 	public JSONArray getContent(String sql, String language){
 		JSONArray result = new JSONArray();
+		PreparedStatement stmt = null;
+		Connection conn = DSManager.getConnection();
 		
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
 				JSONObject item = new JSONObject();
@@ -295,6 +355,16 @@ public class OppUserDAO extends DAO{
 		}catch (Exception e){
 			log.error("UserDAO", "getContent", e.toString());
 		}
+		finally
+		{
+			try {
+				conn.close();
+				stmt.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
 		return result;
 	}
@@ -323,7 +393,7 @@ public class OppUserDAO extends DAO{
 	 */
 	public void insert(String id, String username, String firstname, String lastname, String email, String password, Long division, Long city, String people_manager, String newhire, String jobgrade, String payowner, String promote, String active, Long parent_division, Long parent_city, String level) throws Exception {
 		String today = Utils.getTodayWithTime();
-																	// RUNNING QUERY
+		Connection conn = DSManager.getConnection();														// RUNNING QUERY
 		PreparedStatement stmt = conn.prepareStatement(INSERT);
 		stmt.setString(1, id);
 		stmt.setString(2, username);
@@ -345,6 +415,8 @@ public class OppUserDAO extends DAO{
 		stmt.setString(18, today);
 		stmt.setString(19, level);
 		stmt.executeUpdate();
+		stmt.close();
+		conn.close();
 	}
 	
 	/**
@@ -370,7 +442,7 @@ public class OppUserDAO extends DAO{
 	 */
 	public void update(String id, String username, String firstname, String lastname, String email, String password, Long division, Long city, String people_manager, String newhire, String jobgrade, String payowner, String promote, String active, Long parent_division, Long parent_city, String level) throws Exception {
 		String today = Utils.getTodayWithTime();
-																	// RUNNING QUERY
+		Connection conn = DSManager.getConnection();															// RUNNING QUERY
 		PreparedStatement stmt = conn.prepareStatement(UPDATE);
 		stmt.setString(1, username);
 		stmt.setString(2, firstname);
@@ -391,6 +463,8 @@ public class OppUserDAO extends DAO{
 		stmt.setString(17, level);
 		stmt.setString(18, id);
 		stmt.executeUpdate();
+		stmt.close();
+		conn.close();
 	}
 	
 	/**
@@ -401,9 +475,12 @@ public class OppUserDAO extends DAO{
 	 */
 	public void delete(String id) throws Exception {
 																	// RUNNING QUERY
+		Connection conn = DSManager.getConnection();
 		PreparedStatement stmt = conn.prepareStatement(DELETE);
 		stmt.setString(1, id);
 		stmt.executeUpdate();
+		stmt.close();
+		conn.close();
 	}
 
 	/**
@@ -413,9 +490,11 @@ public class OppUserDAO extends DAO{
 	 * @throws Exception
 	 */
 	public void rename(String table) throws Exception {
-																	// RUNNING QUERY
+		Connection conn = DSManager.getConnection();															// RUNNING QUERY
 		PreparedStatement stmt = conn.prepareStatement("rename table bbva_user_opport to bbva_user_opport_"+table);
 		stmt.executeUpdate();
+		stmt.close();
+		conn.close();
 	}
 	
 	/**
@@ -428,8 +507,10 @@ public class OppUserDAO extends DAO{
 	 */
 	public String getCode(String table, String div, String value){
 		String result = "";
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
-			PreparedStatement stmt = null;
+			
 			if (table.equals("code")){
 																	// RUNNING QUERY
 				stmt = conn.prepareStatement(" select * from bbva_code a where div=? and ( value=? or value_en=? or value_me=? ) " );
@@ -455,6 +536,16 @@ public class OppUserDAO extends DAO{
 			}
 		}catch (Exception e){
 			log.error("UserDAO", "getCode", e.toString());
+		}
+		finally
+		{
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 		return result;

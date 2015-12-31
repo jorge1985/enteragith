@@ -210,7 +210,7 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 
 		try {
 			//dao connection
-			VisitorDAO dao = new VisitorDAO(conn);
+			VisitorDAO dao = new VisitorDAO();
 			String sql_count = "select COUNT(*) from user a INNER JOIN visit v ON a.UserId = v.User_UserId INNER JOIN content c ON c.ContentId = v.Content_ContentId INNER JOIN channel ch ON c.Channel_ChannelId = ch.ChannelId where CAST(v.VisitDate AS DATE) BETWEEN '"
 					+ start_day + "' and '" + end_day + "'";
 			String sql = "select a.UserId, a.UserName, a.UserFirstName, a.UserLastName, v.VisitDate, v.VisitIp, c.ContentName, ch.ChannelName from user a INNER JOIN visit v ON a.UserId = v.User_UserId INNER JOIN content c ON c.ContentId = v.Content_ContentId INNER JOIN channel ch ON c.Channel_ChannelId = ch.ChannelId where CAST(v.VisitDate AS DATE) BETWEEN '"
@@ -337,7 +337,7 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 
 		try {
 			//dao connection
-			VisitorDAO dao = new VisitorDAO(conn);
+			VisitorDAO dao = new VisitorDAO();
 			String sql_count = "select COUNT(*) from user a INNER JOIN visit v ON a.UserId = v.User_UserId INNER JOIN content c ON c.ContentId = v.Content_ContentId INNER JOIN channel ch ON c.Channel_ChannelId = ch.ChannelId where CAST(v.VisitDate AS DATE) BETWEEN '"
 					+ start_day + "' and '" + end_day + "'";
 			String sql = "select a.UserId, a.UserName, a.UserFirstName, a.UserLastName, v.VisitDate, v.VisitIp, c.ContentName, ch.ChannelName from user a INNER JOIN visit v ON a.UserId = v.User_UserId INNER JOIN content c ON c.ContentId = v.Content_ContentId INNER JOIN channel ch ON c.Channel_ChannelId = ch.ChannelId where CAST(v.VisitDate AS DATE) BETWEEN '"
@@ -464,7 +464,7 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 
 		try {
 			//dao connection
-			VisitorDAO dao = new VisitorDAO(conn);
+			VisitorDAO dao = new VisitorDAO();
 			// JR
 			String sql_count = "select COUNT(*) from user a INNER JOIN visit v ON a.UserId = v.User_UserId INNER JOIN content c ON c.ContentId = v.Content_ContentId INNER JOIN channel ch ON c.Channel_ChannelId = ch.ChannelId where CAST(v.VisitDate AS DATE) BETWEEN '"
 					+ start_day + "' and '" + end_day + "'";
@@ -704,7 +704,7 @@ public class LogController extends com.youandbbva.enteratv.Controller {
 
 		try {
 			//dao connection
-			VisitorDAO dao = new VisitorDAO(conn);
+			VisitorDAO dao = new VisitorDAO();
 			// JR
 			total = dao.getCount(sql_count);
 			totalAfterFilter = total;

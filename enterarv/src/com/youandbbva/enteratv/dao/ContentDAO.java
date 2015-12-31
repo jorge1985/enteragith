@@ -141,10 +141,6 @@ public class ContentDAO extends DAO{
 		// TODO Auto-generated constructor stub
 	}
 
-	public ContentDAO(Connection conn) {
-		// TODO Auto-generated constructor stub
-		super(conn);
-	}
 
 	/**
 	 * Check whether valid name or not.
@@ -157,9 +153,10 @@ public class ContentDAO extends DAO{
 	
 	public boolean labelTextExist(String text) {
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try {
 			long result = 0;
-			PreparedStatement stmt = conn
+			stmt = conn
 					// 												RUNNING QUERY
 					.prepareStatement(COUNT_LABEL_BY_TEXT);
 			stmt.setString(1, text);
@@ -175,6 +172,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -197,10 +195,12 @@ public class ContentDAO extends DAO{
 	public int getLabelIdByText(String text) {
 		int result = 0;
 		Connection conn = DSManager.getConnection();
+		
+		PreparedStatement stmt = null;
 	
 		try {
 																	// 	RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_LABEL_BY_TEXT);
+			stmt = conn.prepareStatement(SELECT_LABEL_BY_TEXT);
 			stmt.setString(1, text);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -214,6 +214,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -230,10 +231,10 @@ public class ContentDAO extends DAO{
 	 */
 	public void insertLabel(String text) {
 		Connection conn = DSManager.getConnection();
-		
+		PreparedStatement stmt = null;
 		try {
 			
-			PreparedStatement stmt = conn
+			stmt = conn
 					.prepareStatement(INSERT_LABEL);
 			stmt.setString(1, text);
 			stmt.executeUpdate();
@@ -244,6 +245,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -261,9 +263,10 @@ public class ContentDAO extends DAO{
 	public void deleteLabel(int id) {
 			
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 			try {
 				
-				PreparedStatement stmt = conn
+				stmt = conn
 						.prepareStatement(DELETE_LABEL);
 				stmt.setInt(1, id);
 				stmt.executeQuery();
@@ -274,6 +277,7 @@ public class ContentDAO extends DAO{
 			finally
 			{
 				try {
+					stmt.close();
 					conn.close();
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
@@ -289,9 +293,12 @@ public class ContentDAO extends DAO{
 	 * @return
 	 */
 	public ContentInfo getContentByContentIdAll(Long contentid) {
+		
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try {
 					
-			PreparedStatement stmt = conn
+			stmt = conn
 																	// RUNNING QUERY
 					.prepareStatement(SELECT_CONTENT_BY_ID);
 			stmt.setLong(1, contentid);
@@ -312,7 +319,17 @@ public class ContentDAO extends DAO{
 		} catch (Exception e) {
 			log.error("ContentDAO", "getContentByContentIdAll", e.toString());
 		}
-
+		finally 
+		{
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
 		return null;
 	}
 	
@@ -324,9 +341,10 @@ public class ContentDAO extends DAO{
 	
 	public ContentInfo getContentByContentIdVis(int contentid) {
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt  = null;
 		try {
 					
-			PreparedStatement stmt = conn
+			stmt = conn
 																	// RUNNING QUERY
 					.prepareStatement(SELECT_CONTENT_BY_ID_V);
 			stmt.setInt(1, contentid);
@@ -352,6 +370,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -379,8 +398,9 @@ public class ContentDAO extends DAO{
 
 	public Long  insertContent(int channelid, int contenttypeid, String name, String html,int isvisible, String publishdate,String enddate,String status,String showview  ) {	
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try {
-			PreparedStatement stmt = conn
+			stmt = conn
 																	// RUNNING QUERY
 					.prepareStatement(INSERT_CONTENT,Statement.RETURN_GENERATED_KEYS);
 			stmt.setInt(1, channelid);
@@ -410,6 +430,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -428,9 +449,10 @@ public class ContentDAO extends DAO{
 	public String getContentSta(long contentid) {
 		String result="";
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try {
 	
-			PreparedStatement stmt = conn
+			stmt = conn
 																	// RUNNING QUERY
 					.prepareStatement(SELECT_ContentStatus);
 			stmt.setLong(1, contentid);
@@ -448,6 +470,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -477,9 +500,10 @@ public class ContentDAO extends DAO{
 	public void updateContent(int channelid, int contenttypeid, String name, String html,int isvisible, String publishdate,String enddate,String status,String showview,Long contentid  )
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try {
 			String result;
-			PreparedStatement stmt = conn
+			stmt = conn
 																	// RUNNING QUERY
 					.prepareStatement(UPDATE_CONTENT);
 			stmt.setInt(1, channelid);
@@ -512,6 +536,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -533,8 +558,9 @@ public class ContentDAO extends DAO{
 		deleteVisitByContentId(contentid);
 		
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try {
-			PreparedStatement stmt = conn.prepareStatement(DELETE_CONTENT);
+			stmt = conn.prepareStatement(DELETE_CONTENT);
 			stmt.setLong(1, contentid);
 
 			stmt.executeUpdate();
@@ -544,6 +570,7 @@ public class ContentDAO extends DAO{
 		finally 
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -563,9 +590,10 @@ public class ContentDAO extends DAO{
 	public ArrayList getContentlabelByLabelId(int labelid)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		ArrayList item = new ArrayList();
 		try {
-			PreparedStatement stmt = conn
+			stmt = conn
 																	// RUNNING QUERY
 					.prepareStatement(SELECT_CONTENTLABEL_BY_LABELID);
 			stmt.setInt(1, labelid);
@@ -581,6 +609,7 @@ public class ContentDAO extends DAO{
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -601,9 +630,10 @@ public class ContentDAO extends DAO{
 	public ArrayList getContentlabelByContentId(int contentid)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		ArrayList item = new ArrayList();
 		try {
-			PreparedStatement stmt = conn
+			stmt = conn
 																	// RUNNING QUERY
 					.prepareStatement(SELECT_CONTENTLABEL_BY_CONTENTID);
 			stmt.setInt(1, contentid);
@@ -620,6 +650,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -640,9 +671,10 @@ public class ContentDAO extends DAO{
 	public int insertContentlabel(Long contentid,int labelid)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try {
 			
-			PreparedStatement stmt = conn
+			stmt = conn
 																	// RUNNING QUERY
 					.prepareStatement(INSERT_CONTENTLABEL,Statement.RETURN_GENERATED_KEYS);
 			stmt.setLong(1, contentid);
@@ -659,6 +691,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -678,9 +711,10 @@ public class ContentDAO extends DAO{
 	public void deleteContentlabelByContentId(Long contentid)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try
 		{
-			PreparedStatement stmt = conn
+			stmt = conn
 					.prepareStatement(DELETE_CONTENTLABEL_BY_CONTENTID);
 			stmt.setLong(1, contentid);
 			stmt.executeUpdate();
@@ -690,6 +724,7 @@ public class ContentDAO extends DAO{
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -709,9 +744,10 @@ public class ContentDAO extends DAO{
 	public void deleteContentlabelByContentIdAndLabelId (int contentid,int labelid)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try 
 		{
-			PreparedStatement stmt = conn
+			stmt = conn
 																	// RUNNING QUERY
 					.prepareStatement(DELETE_CONTENTLABEL_BY_CONTENTID_AND_LABELID);
 			stmt.setInt(1, contentid);
@@ -723,6 +759,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -741,9 +778,10 @@ public class ContentDAO extends DAO{
 	public ArrayList getContentmediaByContentId(int contentid)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		ArrayList item = new ArrayList();
 		try {
-			PreparedStatement stmt = conn
+			stmt = conn
 																	// RUNNING QUERY
 					.prepareStatement(SELECT_CONTENTMEDIA_BY_CONTENTID);
 			stmt.setInt(1, contentid);
@@ -761,6 +799,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -780,9 +819,10 @@ public class ContentDAO extends DAO{
 	public ArrayList getContentmediaByMediaId(int mediaid)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		ArrayList item = new ArrayList();
 		try {
-			PreparedStatement stmt = conn
+			stmt = conn
 																	// RUNNING QUERY
 					.prepareStatement(SELECT_CONTENTMEDIA_BY_MEDIAID);
 			stmt.setInt(1, mediaid);
@@ -800,6 +840,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -819,9 +860,10 @@ public class ContentDAO extends DAO{
 	public int insertContentmedia (Long contentid,int mediaid)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try {
 			
-			PreparedStatement stmt = conn
+			stmt = conn
 																	// RUNNING QUERY
 					.prepareStatement(INSERT_CONTENTMEDIA,Statement.RETURN_GENERATED_KEYS);
 			stmt.setLong(1, contentid);
@@ -839,6 +881,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -857,9 +900,10 @@ public class ContentDAO extends DAO{
 	public void deleteContentMediaByContentId (Long contentid)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try
 		{
-			PreparedStatement stmt = conn
+			stmt = conn
 					.prepareStatement(DELETE_CONTENTMEDIA_BY_CONTENTID);
 			stmt.setLong(1, contentid);
 			stmt.executeUpdate();
@@ -869,6 +913,7 @@ public class ContentDAO extends DAO{
 		}
 		finally{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -885,9 +930,10 @@ public class ContentDAO extends DAO{
 	public void deleteContentMediaByMediaId (int mediaid)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try
 		{
-			PreparedStatement stmt = conn
+			stmt = conn
 																	// RUNNING QUERY
 					.prepareStatement(DELETE_CONTENTMEDIA_BY_MEDIAID);
 			stmt.setInt(1, mediaid);
@@ -899,6 +945,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -917,9 +964,10 @@ public class ContentDAO extends DAO{
 	public void deleteContentmediaByContentIdAndMediaId (Long contentid,int mediaid)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try
 		{
-			PreparedStatement stmt = conn
+			stmt = conn
 																	// RUNNING QUERY
 					.prepareStatement(DELETE_CONTENTMEDIA_BY_CONTENTID_AND_MEDIAID);
 			stmt.setLong(1, contentid);
@@ -931,6 +979,7 @@ public class ContentDAO extends DAO{
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -948,10 +997,11 @@ public class ContentDAO extends DAO{
 	public ArrayList getLabelTextByContentId(Long contentid)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		ArrayList item = new ArrayList();
 		try
 		{
-			PreparedStatement stmt = conn
+			stmt = conn
 																	// RUNNING QUERY
 					.prepareStatement(SELECT_LABELTEXT_BY_CONTENTID);
 			stmt.setLong(1, contentid);
@@ -971,6 +1021,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -990,9 +1041,10 @@ public class ContentDAO extends DAO{
 	public ArrayList getTagList(Long content_id){
 		ArrayList result = new ArrayList();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_LABELTEXT_BY_CONTENTID);
+			stmt = conn.prepareStatement(SELECT_LABELTEXT_BY_CONTENTID);
 			stmt.setLong(1, content_id);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -1006,6 +1058,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1027,10 +1080,11 @@ public class ContentDAO extends DAO{
 	public ArrayList getContentChannelList(Long contentID){
 		ArrayList result=new ArrayList();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_CHANNEL_BY_CONTENT_ID);
+			stmt = conn.prepareStatement(SELECT_CHANNEL_BY_CONTENT_ID);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -1059,6 +1113,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1079,9 +1134,10 @@ public class ContentDAO extends DAO{
 	public String getAllTag(){
 		JSONArray result = new JSONArray();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_LABEL_ALL);
+			stmt = conn.prepareStatement(SELECT_LABEL_ALL);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
 				result.put(Utils.checkNull(rs.getString("LabelText")));
@@ -1092,6 +1148,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1110,6 +1167,7 @@ public class ContentDAO extends DAO{
 	public long getCountByType(String contenttype)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		long result = 0;
 		String sql = COUNT_CONTENT_BY_TYPE;
 		String fecha = "";
@@ -1127,7 +1185,7 @@ public class ContentDAO extends DAO{
 			}else {
 				sql = sql + "))";
 			}
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			stmt.setString(1, contenttype);
 			if ((contenttype =="A") || (contenttype == "E"))
 			{
@@ -1144,6 +1202,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1164,9 +1223,10 @@ public class ContentDAO extends DAO{
 		public JSONArray getContentS(String sql){
 			JSONArray result = new JSONArray();
 			Connection conn = DSManager.getConnection();
+			PreparedStatement stmt = null;
 			try{
 																	// RUNNING QUERY										
-				PreparedStatement stmt = conn.prepareStatement(sql);
+				stmt = conn.prepareStatement(sql);
 				ResultSet rs = stmt.executeQuery();
 				while (rs.next()){
 					JSONObject item = new JSONObject();
@@ -1192,6 +1252,7 @@ public class ContentDAO extends DAO{
 			finally
 			{
 				try {
+					stmt.close();
 					conn.close();
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
@@ -1213,9 +1274,10 @@ public class ContentDAO extends DAO{
 			String result="";
 			int count = 0;
 			Connection conn = DSManager.getConnection();
+			PreparedStatement stmt  = null;
 			try{
 																	// RUNNING QUERY
-				PreparedStatement stmt = conn.prepareStatement(SELECT_LABELTEXT_BY_CONTENTID);
+				stmt = conn.prepareStatement(SELECT_LABELTEXT_BY_CONTENTID);
 				stmt.setLong(1, contentID);
 				ResultSet rs = stmt.executeQuery();
 				while (rs.next()){
@@ -1229,6 +1291,7 @@ public class ContentDAO extends DAO{
 			}finally
 			{
 				try {
+					stmt.close();
 					conn.close();
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
@@ -1253,9 +1316,10 @@ public class ContentDAO extends DAO{
 			String result="";
 			int count = 0;
 			Connection conn = DSManager.getConnection();
+			PreparedStatement stmt = null;
 			try{
 																	// RUNNING QUERY				
-				PreparedStatement stmt = conn.prepareStatement(SELECT_CONTENT_CHANNEL_BY_CONTENTID);
+				stmt = conn.prepareStatement(SELECT_CONTENT_CHANNEL_BY_CONTENTID);
 				stmt.setLong(1, contentID);
 				ResultSet rs = stmt.executeQuery();
 				while (rs.next()){
@@ -1270,6 +1334,7 @@ public class ContentDAO extends DAO{
 			finally
 			{
 				try {
+					stmt.close();
 					conn.close();
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
@@ -1292,8 +1357,9 @@ public class ContentDAO extends DAO{
 		public Long getCount(String sql){
 			Long result = (long)0;
 			Connection conn = DSManager.getConnection();
+			PreparedStatement stmt = null;
 			try{
-				PreparedStatement stmt = conn.prepareStatement(sql);
+				stmt = conn.prepareStatement(sql);
 				ResultSet rs = stmt.executeQuery();
 				if (rs.next()){
 					result = rs.getLong(1);
@@ -1304,6 +1370,7 @@ public class ContentDAO extends DAO{
 			}finally
 			{
 				try {
+					stmt.close();
 					conn.close();
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
@@ -1329,11 +1396,13 @@ public class ContentDAO extends DAO{
 	 */
 	public ContentCountInfo getContentByType(String type, String searchterm, String columna, String orden,int inicio,int registros)
 	{
+		
 		JSONArray result = new JSONArray();
 		Long lngregs = (long)0;
 		int intparam = 2;
 		ContentCountInfo conteninfo = new ContentCountInfo();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 																	// RUNNING QUERY
 		String sql = SELECT_CONTENT_BY_TYPE;
 		String status = "";
@@ -1361,7 +1430,7 @@ public class ContentDAO extends DAO{
 			sql = sql + " order by " + columna + " " + orden + " " + SELECT_LIMIT;
 								
 			
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			stmt.setString(1, type);
 			
 			if ((type == "A") || (type == "E"))
@@ -1412,6 +1481,7 @@ public class ContentDAO extends DAO{
 		}finally
 		{
 			try {
+				stmt.close();				
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1436,6 +1506,7 @@ public class ContentDAO extends DAO{
 	public Long getContentCountByType(String type, String searchterm)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		Long lngregs = (long)0;
 		int intparam = 2;
 		ContentCountInfo conteninfo = new ContentCountInfo();
@@ -1462,7 +1533,7 @@ public class ContentDAO extends DAO{
 
 								
 			
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt = conn.prepareStatement(sql);
 			stmt.setString(1, type);
 			
 			if ((type == "A") || (type == "E"))
@@ -1493,6 +1564,7 @@ public class ContentDAO extends DAO{
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1512,11 +1584,12 @@ public class ContentDAO extends DAO{
 	 */
 	public JSONObject getContentOfJSON(Long contentId){
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 			String showin = "";
 			
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_CONTENT_BY_ID);
+			stmt = conn.prepareStatement(SELECT_CONTENT_BY_ID);
 			stmt.setLong(1, contentId);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -1539,6 +1612,7 @@ public class ContentDAO extends DAO{
 		}
 		finally{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1557,10 +1631,11 @@ public class ContentDAO extends DAO{
 	public JSONArray getContentChannelListOfJSON(Long contentID){
 		JSONArray result=new JSONArray();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_CHANNEL_BY_CONTENT_ID);
+			stmt = conn.prepareStatement(SELECT_CHANNEL_BY_CONTENT_ID);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -1585,6 +1660,7 @@ public class ContentDAO extends DAO{
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1604,9 +1680,10 @@ public class ContentDAO extends DAO{
 	private String getFamilyName(Long familyID){
 		String result = "";
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_Familyname);
+			stmt = conn.prepareStatement(SELECT_Familyname);
 			stmt.setLong(1, familyID);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -1618,6 +1695,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1636,9 +1714,10 @@ public class ContentDAO extends DAO{
 	private String getChannelName(Long channelID){
 		String result = "";
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELEC_channelname);
+			stmt = conn.prepareStatement(SELEC_channelname);
 			stmt.setLong(1, channelID);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -1654,6 +1733,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1672,9 +1752,10 @@ public class ContentDAO extends DAO{
 	public JSONArray getTagListOfJSON(Long id){
 		JSONArray result = new JSONArray();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_LABELTEXT_BY_CONTENTID);
+			stmt = conn.prepareStatement(SELECT_LABELTEXT_BY_CONTENTID);
 			stmt.setLong(1, id);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -1688,6 +1769,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1706,9 +1788,10 @@ public class ContentDAO extends DAO{
 	public ContentVideoInfo getContentVideo(Long contentID){
 		ContentVideoInfo item = new ContentVideoInfo();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
+			stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
 		
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
@@ -1731,6 +1814,7 @@ public class ContentDAO extends DAO{
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1749,9 +1833,10 @@ public class ContentDAO extends DAO{
 	public ContentNewsInfo getContentNews(Long contentID){
 		ContentNewsInfo item = new ContentNewsInfo();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
+			stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -1770,6 +1855,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1791,10 +1877,11 @@ public class ContentDAO extends DAO{
 	public ArrayList getContentGalleryMediaList(Long contentID){
 		ArrayList result=new ArrayList();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
+			stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -1812,6 +1899,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1942,10 +2030,11 @@ public class ContentDAO extends DAO{
 	public ArrayList getContentFileMediaList(Long contentID){
 		ArrayList result=new ArrayList();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
+			stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -1963,6 +2052,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1983,10 +2073,11 @@ public class ContentDAO extends DAO{
 	public void updateContentHtml(String Html, Long contentid)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try
 		{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(UPDATE_CONTENT_HTML_BY_CONTENTID);
+			stmt = conn.prepareStatement(UPDATE_CONTENT_HTML_BY_CONTENTID);
 			stmt.setString(1, Html);
 			stmt.setLong(2, contentid);
 			stmt.executeUpdate();
@@ -1997,6 +2088,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2013,9 +2105,10 @@ public class ContentDAO extends DAO{
 	 */
 	public ContentInfo getContent(Long contentID){
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt  = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_CONTENT_BY_ID);
+			stmt = conn.prepareStatement(SELECT_CONTENT_BY_ID);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -2041,6 +2134,7 @@ public class ContentDAO extends DAO{
 		}
 		finally{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2060,12 +2154,13 @@ public class ContentDAO extends DAO{
 	 */
 	public void removeContent(Long id) throws Exception{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 																	// RUNNING QUERY
-		PreparedStatement stmt = conn.prepareStatement(UPDATE_CONTENT_TO_REMOVE);
+		stmt = conn.prepareStatement(UPDATE_CONTENT_TO_REMOVE);
 		stmt.setLong(1, id);
 		stmt.executeUpdate();
 		
-	
+			stmt.close();
 			conn.close();
 		
 	}
@@ -2081,6 +2176,7 @@ public class ContentDAO extends DAO{
 		PreparedStatement stmt = conn.prepareStatement(UPDATE_CONTENT_TO_DELETE);
 		stmt.setLong(1, id);
 		stmt.executeUpdate();
+		stmt.close();
 		conn.close();
 	}
 	
@@ -2093,6 +2189,8 @@ public class ContentDAO extends DAO{
 																	// RUNNING QUERY
 		PreparedStatement stmt = conn.prepareStatement("Delete Content");
 		stmt.executeUpdate();
+		
+		stmt.close();
 		conn.close();
 	}
 	
@@ -2107,6 +2205,8 @@ public class ContentDAO extends DAO{
 		PreparedStatement stmt = conn.prepareStatement(UPDATE_CONTENT_TO_ACTIVE);
 		stmt.setLong(1, id);
 		stmt.executeUpdate();
+		
+		stmt.close();
 		conn.close();
 	}
 	
@@ -2148,10 +2248,11 @@ public class ContentDAO extends DAO{
 	public JSONArray getContentFileMediaListOfJSON(Long contentID){
 		JSONArray result=new JSONArray();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
+			stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -2170,6 +2271,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2189,9 +2291,10 @@ public class ContentDAO extends DAO{
  */
 	public JSONObject getContentFileOfJSON(Long contentID){
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_CONTENT_DESCRIPTION);
+			stmt = conn.prepareStatement(SELECT_CONTENT_DESCRIPTION);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -2207,6 +2310,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2225,10 +2329,11 @@ public class ContentDAO extends DAO{
 	public void updateContentDescriptionById (Long contentid, String description)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try
 		{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(UPDATE_CONTENT_DESCRIPTION);
+			stmt = conn.prepareStatement(UPDATE_CONTENT_DESCRIPTION);
 			stmt.setString(1, description);
 			stmt.setLong(2,contentid);
 			boolean rs = stmt.execute();
@@ -2236,6 +2341,7 @@ public class ContentDAO extends DAO{
 			log.error("ContentDAO", "updateContentDescriptionById",e.toString());
 		}
 		try {
+			stmt.close();
 			conn.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -2252,11 +2358,12 @@ public class ContentDAO extends DAO{
 	public String getMediaImage (Long contentid)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		String image= "";
 		try
 		{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
+			stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
 			stmt.setLong(1,contentid);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -2272,6 +2379,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2289,11 +2397,12 @@ public class ContentDAO extends DAO{
 	public String getMediaVideo (Long contentid)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		String video= "";
 		try
 		{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
+			stmt = conn.prepareStatement(SELECT_MEDIA_BY_CONTENT_ID);
 			stmt.setLong(1,contentid);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -2309,6 +2418,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2326,9 +2436,10 @@ public class ContentDAO extends DAO{
 	 */
 	public ContentNewsInfo getContentNews2(Long contentID){
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_CONTENT_BY_ID);
+			stmt = conn.prepareStatement(SELECT_CONTENT_BY_ID);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -2345,6 +2456,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2374,9 +2486,10 @@ public class ContentDAO extends DAO{
 	 */
 	public int getMediaContent(String MediaContent) {
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try {
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_KEY_FILE);
+			stmt = conn.prepareStatement(SELECT_BY_KEY_FILE);
 			stmt.setString(1, MediaContent);
 			ResultSet rs = stmt.executeQuery();
 			int key;
@@ -2391,6 +2504,7 @@ public class ContentDAO extends DAO{
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2410,11 +2524,12 @@ public class ContentDAO extends DAO{
 	public int getMediaImageId (Long contentid)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		int key = 0;
 		try
 		{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_IMAGE_MEDIAID);
+			stmt = conn.prepareStatement(SELECT_IMAGE_MEDIAID);
 			stmt.setLong(1, contentid);
 			ResultSet rs = stmt.executeQuery();
 			
@@ -2431,6 +2546,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2495,11 +2611,12 @@ public class ContentDAO extends DAO{
 	public int getChannelIdByChannelName (String channelname)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		int key = 0;
 		try
 		{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_CHANNELID_BY_CHANNELNAME);
+			stmt = conn.prepareStatement(SELECT_CHANNELID_BY_CHANNELNAME);
 			stmt.setString(1, channelname);
 			ResultSet rs = stmt.executeQuery();
 			
@@ -2513,6 +2630,7 @@ public class ContentDAO extends DAO{
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2531,11 +2649,12 @@ public class ContentDAO extends DAO{
 	public Long getGalleryIdForChannel(Long channelid)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		Long key = (long)0;
 		try
 		{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_ContentId);
+			stmt = conn.prepareStatement(SELECT_ContentId);
 			stmt.setLong(1, channelid);
 			ResultSet rs = stmt.executeQuery();
 			
@@ -2549,6 +2668,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2566,10 +2686,11 @@ public class ContentDAO extends DAO{
 	public ArrayList getFileContent(Long contentID){
 		
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		ArrayList item = new ArrayList();
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_CONTENT_BY_ID);
+			stmt = conn.prepareStatement(SELECT_CONTENT_BY_ID);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -2596,6 +2717,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2613,15 +2735,16 @@ public class ContentDAO extends DAO{
 	public void insertContentNews(Long contentid, String content, String image)
 	{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		int lngcontentkey = 0;
 		try
 		{
-			MediaDAO daomedia = new MediaDAO(conn);
+			MediaDAO daomedia = new MediaDAO();
 			
 			String sql2 = "insert into media(Filetype_FiletypeId,MediaName,MediaContent,MediaCreationDate,MediaUpdateDate,MediaSize,MediaIsNew,MediaUse,Folder_FolderId) " +
 		           " values (6,'news" + contentid.toString() +"','"+content.replace("'", "")+"','"+Utils.getToday("-")+"','"+ Utils.getToday("-")+"',"+"1000,0,'E',"+folderSystemNews(daomedia)+")";
 																	//RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(sql2,Statement.RETURN_GENERATED_KEYS);
+			stmt = conn.prepareStatement(sql2,Statement.RETURN_GENERATED_KEYS);
 			stmt.executeUpdate();
 			ResultSet generatedKeys = stmt.getGeneratedKeys();
 			generatedKeys.next();
@@ -2633,6 +2756,7 @@ public class ContentDAO extends DAO{
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2663,10 +2787,11 @@ public class ContentDAO extends DAO{
 	public String getChannel_IDcontent(String channel_id){
 		String result = "";
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(Select_ContentId);
+			stmt = conn.prepareStatement(Select_ContentId);
 			stmt.setString(1, channel_id);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -2679,6 +2804,7 @@ public class ContentDAO extends DAO{
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2693,10 +2819,11 @@ public class ContentDAO extends DAO{
 	public long getChannel_ID (Long contentid){
 		long result = 0 ;
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(Select_Channel_ChannelId);
+			stmt = conn.prepareStatement(Select_Channel_ChannelId);
 			stmt.setLong(1, contentid);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -2710,6 +2837,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2724,9 +2852,10 @@ public class ContentDAO extends DAO{
 	public ArrayList<Long> getContent_ID (Long channel){
 		ArrayList<Long> result = new ArrayList<Long>();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(Selectcontentidvideo);
+			stmt = conn.prepareStatement(Selectcontentidvideo);
 			stmt.setLong(1, channel);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -2740,6 +2869,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2756,10 +2886,11 @@ public class ContentDAO extends DAO{
 	{
 		ContentVideoInfo video = new ContentVideoInfo();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		String blob="";
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECTVIDEO);
+			stmt = conn.prepareStatement(SELECTVIDEO);
 			stmt.setLong(1, channel);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -2773,6 +2904,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2785,10 +2917,11 @@ public class ContentDAO extends DAO{
 	{
 		Connection conn = DSManager.getConnection();
 		ContentVideoInfo video = new ContentVideoInfo();
+		PreparedStatement stmt = null;
 		String blob="";
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECTIMAGEN);
+			stmt = conn.prepareStatement(SELECTIMAGEN);
 			stmt.setLong(1, channel);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -2802,6 +2935,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2814,9 +2948,10 @@ public class ContentDAO extends DAO{
 		ContentInfo result = new ContentInfo();
 		ArrayList<String> nom = new ArrayList<String>();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 															// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_CONTENT_BY_IDVideo);
+			stmt = conn.prepareStatement(SELECT_CONTENT_BY_IDVideo);
 			stmt.setLong(1, contentID);
 			stmt.setLong(2, posicion);
 			ResultSet rs = stmt.executeQuery();
@@ -2833,6 +2968,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2845,9 +2981,10 @@ public class ContentDAO extends DAO{
 	//Metod creado por RJ
 	public void deleteVisitByContentId(Long contentid) {
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 
 		try {
-			PreparedStatement stmt = conn
+			stmt = conn
 					.prepareStatement(DELETE_VISIT_BY_CONTENTID);
 			stmt.setLong(1, contentid);
 
@@ -2858,6 +2995,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2871,9 +3009,10 @@ public class ContentDAO extends DAO{
 		long id;
 		ContentInfo result = new ContentInfo();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_CONTENT_BY_ID_T);
+			stmt = conn.prepareStatement(SELECT_CONTENT_BY_ID_T);
 			stmt.setLong(1, contentID);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -2889,6 +3028,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2902,10 +3042,11 @@ public class ContentDAO extends DAO{
 	public int getMediaId(String blobvideo){
 		int id=0;
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		String query= "select  MediaId from media where Filetype_FiletypeId = 3 and MediaContent=?";
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt = conn.prepareStatement(query);
 			stmt.setString(1, blobvideo);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -2920,6 +3061,7 @@ public class ContentDAO extends DAO{
 		}
 		finally{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -2936,9 +3078,10 @@ public class ContentDAO extends DAO{
 		int id=0;
 		String query= "select  Media_MediaId from contentmedia where Content_ContentId = ? and Media_MediaId != ?";
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt = conn.prepareStatement(query);
 			stmt.setLong(1, contentId);
 			stmt.setInt(2, idmedia);
 			ResultSet rs = stmt.executeQuery();
@@ -2953,6 +3096,7 @@ public class ContentDAO extends DAO{
 			log.error("ContentDAO", "getContent", e.toString());
 		}
 		try {
+			stmt.close();
 			conn.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -2965,10 +3109,11 @@ public class ContentDAO extends DAO{
 	public String Blobimagen(int idmedia){
 		String blob="";
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		String query= "select MediaContent from media where MediaId=?";
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt = conn.prepareStatement(query);
 			stmt.setInt(1, idmedia);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -2984,6 +3129,7 @@ public class ContentDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block

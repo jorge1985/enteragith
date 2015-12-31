@@ -30,8 +30,7 @@ public class Daotos extends HttpServlet {
 		String thisURLintranet = "http://intranet.bbva.com";
 		resp.setContentType("text/html");
 
-		Connection conn = DSManager.getConnection();
-		UserDAO userDao = new UserDAO(conn);
+		UserDAO userDao = new UserDAO();
 
 		String Nombre = req.getParameter("Nombre");
 		String CCorreo = req.getParameter("Correo");
@@ -94,35 +93,20 @@ public class Daotos extends HttpServlet {
 		////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		
 		
-			boolean validar = false;
-			String cuenta = req.getUserPrincipal().getName();
-			boolean dominio = cuenta.endsWith("bbva.com");
-
 			
-
+			String cuenta = req.getUserPrincipal().getName();
+			
 			try {
 				userDao.actualizadatos(cuenta, nombre1, apellpat, apellmat);
-				validar = userDao.validarCorreo(cuenta);
-				if (validar) {
+				
 					if (user != null) {
 						System.out.println("Welcome, " + nombre1);
 					}
 
-					if (dominio) {
+					
 						resp.sendRedirect(thisURL);
-					}
-				} else {
-					if (user != null) {
-						
-						userDao.agregarUsuario(cuenta, nombre1, apellpat, apellmat );
-						System.out.println("Se agrego la cuenta a la BD: "
-								+ cuenta + " Del usuario: "
-								+ user.getNickname());
-						
-						resp.sendRedirect(thisURL);
-					}
-
-				}
+					
+				
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

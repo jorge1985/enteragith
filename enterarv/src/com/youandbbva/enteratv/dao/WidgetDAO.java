@@ -43,10 +43,6 @@ public class WidgetDAO extends DAO{
 		// TODO Auto-generated constructor stub
 	}
 	
-	public WidgetDAO(Connection conn) {
-		// TODO Auto-generated constructor stub
-		super(conn);
-	}
 
 	/**
 	 * Get all banners.
@@ -56,10 +52,11 @@ public class WidgetDAO extends DAO{
 	public JSONArray getBanners(){
 		JSONArray result = new JSONArray();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		
 		try{
 																// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT__BANNNER);
+			stmt = conn.prepareStatement(SELECT__BANNNER);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
 				BannerInfo item = new BannerInfo();
@@ -77,6 +74,7 @@ public class WidgetDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -96,10 +94,10 @@ public class WidgetDAO extends DAO{
 	public JSONArray getBanner(Long bannerID){
 		JSONArray result = new JSONArray();
 		Connection conn = DSManager.getConnection();
-		
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID__BANNNER);
+			stmt = conn.prepareStatement(SELECT_BY_ID__BANNNER);
 			stmt.setLong(1, bannerID);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -117,6 +115,7 @@ public class WidgetDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -137,10 +136,10 @@ public class WidgetDAO extends DAO{
 	public JSONObject getBanner(Long bannerID, Long subID){
 		JSONObject result = new JSONObject();
 		Connection conn = DSManager.getConnection();
-		
+		PreparedStatement stmt = null;
 		try{
 																			//RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_SUB_ID__BANNNER);
+			stmt = conn.prepareStatement(SELECT_BY_SUB_ID__BANNNER);
 			stmt.setLong(1, bannerID);
 			stmt.setLong(2, subID);
 			ResultSet rs = stmt.executeQuery();
@@ -159,6 +158,7 @@ public class WidgetDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -188,6 +188,7 @@ public class WidgetDAO extends DAO{
 		stmt.setInt(3, Integer.parseInt(target));
 		stmt.setLong(4, bannerID);
 		stmt.execute();
+		stmt.close();
 		conn.close();
 	}
 
@@ -203,10 +204,11 @@ public class WidgetDAO extends DAO{
 		String result = "";
 	
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try {
 																// RUNNING QUERY
 			String query ="select MediaContent from media where MediaId = ?";
-			PreparedStatement stmt = conn.prepareStatement(query);
+			stmt = conn.prepareStatement(query);
 			stmt.setInt(1, Integer.parseInt(idMedia));
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -221,6 +223,7 @@ public class WidgetDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -241,9 +244,10 @@ public class WidgetDAO extends DAO{
 	public int getMediaName(String Name) {
 		int result = 0;
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try {
 															// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECTMEDIAID);
+			stmt = conn.prepareStatement(SELECTMEDIAID);
 			stmt.setString(1 , Name);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
@@ -258,6 +262,7 @@ public class WidgetDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block

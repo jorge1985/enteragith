@@ -108,14 +108,14 @@ public class DashboardController extends com.youandbbva.enteratv.Controller{
 			String today = Utils.getYear()+"-"+Utils.getMonth()+"-"+Utils.getDay();
 			String month = Utils.getYear()+"-"+Utils.getMonth()+"-"+Utils.getDay();
 			//dao connection
-			UserDAO userDao = new UserDAO(conn);
+			UserDAO userDao = new UserDAO();
 			Long total_system_user = userDao.getCount('b');
 			Long active_system_user = userDao.getCount('a');
 			// Initialize value.
 			result.put("total_system_user", total_system_user.longValue());
 			result.put("active_system_user", active_system_user.longValue());
 			//dao connection
-			VisitorDAO visitorDao = new VisitorDAO(conn);
+			VisitorDAO visitorDao = new VisitorDAO();
 			
 			Long total_visitor_today = visitorDao.getTodayCount(today);
 			String total_visitor_month = visitorDao.getMonthCount(month);

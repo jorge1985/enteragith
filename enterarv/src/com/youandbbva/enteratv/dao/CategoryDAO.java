@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
 
 import com.youandbbva.enteratv.DAO;
 import com.youandbbva.enteratv.DSManager;
-import com.youandbbva.enteratv.DataSource;
 import com.youandbbva.enteratv.Utils;
 import com.youandbbva.enteratv.domain.ChannelCityInfo;
 import com.youandbbva.enteratv.domain.ChannelDivisionInfo;
@@ -87,10 +86,6 @@ public class CategoryDAO extends DAO{
 	 * constructor
 	 * @param conn
 	 */
-	public CategoryDAO(Connection conn) {
-		// TODO Auto-generated constructor stub
-		super(conn);
-	}
 	
 	/**
 	 * Check whether if same family exist or not.
@@ -100,10 +95,11 @@ public class CategoryDAO extends DAO{
 	 */
 	public boolean isValidFamily(String name){
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 			long result = 0;
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(COUNT_BY_NAME__FAMILY);
+			stmt = conn.prepareStatement(COUNT_BY_NAME__FAMILY);
 			stmt.setString(1, name);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -116,6 +112,7 @@ public class CategoryDAO extends DAO{
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -135,10 +132,11 @@ public class CategoryDAO extends DAO{
 	 */
 	public boolean isValidFamily(String name, Long familyID){
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 			long result = 0;
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(COUNT_BY_NAME2__FAMILY);
+			stmt = conn.prepareStatement(COUNT_BY_NAME2__FAMILY);
 			stmt.setString(1, name);
 			stmt.setLong(2, familyID);
 			ResultSet rs = stmt.executeQuery();
@@ -152,6 +150,7 @@ public class CategoryDAO extends DAO{
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -169,10 +168,11 @@ public class CategoryDAO extends DAO{
 	 */
 	public Long getMaxPosition(){
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 			long result = 0;
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(MAX_POS__FAMILY);
+			stmt = conn.prepareStatement(MAX_POS__FAMILY);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
 				result = rs.getLong(1);
@@ -184,6 +184,7 @@ public class CategoryDAO extends DAO{
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -202,9 +203,10 @@ public class CategoryDAO extends DAO{
 	public JSONArray getFamilyListOfJSON(){
 		JSONArray result = new JSONArray();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT__FAMILY);
+			stmt = conn.prepareStatement(SELECT__FAMILY);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
 				FamilyInfo item = new FamilyInfo();
@@ -221,6 +223,7 @@ public class CategoryDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -241,9 +244,10 @@ public class CategoryDAO extends DAO{
 	public JSONObject getFamilyOfJSON(Long id){
 		JSONObject result = new JSONObject();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID__FAMILY);
+			stmt = conn.prepareStatement(SELECT_BY_ID__FAMILY);
 			stmt.setLong(1, id);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()){
@@ -261,6 +265,7 @@ public class CategoryDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -279,10 +284,11 @@ public class CategoryDAO extends DAO{
 	public ArrayList getFamilyList(){
 		ArrayList result = new ArrayList();
 		Connection conn = null;
+		PreparedStatement stmt = null;
 		try{
 	
-			conn = DataSource.getInstance().getConnection();
-			PreparedStatement stmt = conn.prepareStatement(SELECT__FAMILY);
+			conn = DSManager.getConnection();
+			stmt = conn.prepareStatement(SELECT__FAMILY);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
 				FamilyInfo item = new FamilyInfo();
@@ -297,7 +303,13 @@ public class CategoryDAO extends DAO{
 		}
 		finally
 		{
-			if(conn != null)try{conn.close();}catch (SQLException e){e.printStackTrace();}
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 
 		return result;
@@ -310,12 +322,15 @@ public class CategoryDAO extends DAO{
 	 */
 	public void insertFamily(String family, String visible) throws Exception{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 																	// RUNNING QUERY
-		PreparedStatement stmt = conn.prepareStatement(INSERT__FAMILY);
+		stmt = conn.prepareStatement(INSERT__FAMILY);
 		stmt.setString(1, family);
 		stmt.setLong(2, getMaxPosition()+1);
 		stmt.setString(3, visible);
 		stmt.execute();
+		
+		stmt.close();
 		conn.close();
 	}
 	
@@ -328,7 +343,8 @@ public class CategoryDAO extends DAO{
 	public void updateFamily(String family, String visible, Long id) throws Exception{
 																	// RUNNING QUERY
 		Connection conn = DSManager.getConnection();
-		PreparedStatement stmt = conn.prepareStatement(UPDATE_BY_ID__FAMILY);
+		PreparedStatement stmt = null;
+		stmt = conn.prepareStatement(UPDATE_BY_ID__FAMILY);
 		stmt.setString(1, family);
 		stmt.setString(2, visible);
 		stmt.setLong(3, id);
@@ -345,10 +361,14 @@ public class CategoryDAO extends DAO{
 	public void updateFamilyPosition(Long id, Long position) throws Exception{
 																	// RUNNING QUERY
 		Connection conn = DSManager.getConnection();
-		PreparedStatement stmt = conn.prepareStatement(UPDATE_POSITION__FAMILY);
+		PreparedStatement stmt = null;
+		
+		stmt = conn.prepareStatement(UPDATE_POSITION__FAMILY);
 		stmt.setLong(1, position);
 		stmt.setLong(2, id);
 		stmt.executeUpdate();
+		
+		stmt.close();
 		conn.close();
 	}
 
@@ -360,9 +380,13 @@ public class CategoryDAO extends DAO{
 	public void deleteFamily(Long id) throws Exception{
 		// 															RUNNING QUERY	
 		Connection conn = DSManager.getConnection();
-		PreparedStatement stmt = conn.prepareStatement(DELETE_BY_ID__FAMILY);
+		PreparedStatement stmt = null;
+		
+		stmt = conn.prepareStatement(DELETE_BY_ID__FAMILY);
 		stmt.setLong(1, id);
 		stmt.executeUpdate();
+		
+		stmt.close();
 		conn.close();
 	}
 	
@@ -391,8 +415,10 @@ public class CategoryDAO extends DAO{
 	 */
 	public Long insertChannel(Long familyID, Long parentID, String name, String email, String password, String access_level, String security_level, String people_manager, String newhire) throws Exception{
 																	// RUNNING QUERY
-		//Connection conn = DSManager.getConnection();
-		PreparedStatement stmt = conn.prepareStatement(INSERT__CHANNEL, Statement.RETURN_GENERATED_KEYS);
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
+		
+		stmt = conn.prepareStatement(INSERT__CHANNEL, Statement.RETURN_GENERATED_KEYS);
 		
 		stmt.setLong(1, familyID);
 		stmt.setString(2, name);
@@ -406,10 +432,13 @@ public class CategoryDAO extends DAO{
 		stmt.executeUpdate();
 		ResultSet generatedKeys = stmt.getGeneratedKeys();
 		generatedKeys.next();
+		Long generatedKey =  generatedKeys.getLong(1);
 		
-		//conn.close();
-        return generatedKeys.getLong(1);
+		stmt.close();
+		conn.close();
+        return generatedKey;
 	}
+		
 
 	/**
 	 * Insert Data to Channel.
@@ -429,7 +458,8 @@ public class CategoryDAO extends DAO{
 	public void insertChannel(Long familyID, Long parentID, String name, String email, String password, String access_level, String security_level) throws Exception{
 																	// RUNNING QUERY
 		Connection conn = DSManager.getConnection();
-		PreparedStatement stmt = conn.prepareStatement(INSERT_EXIST__CHANNEL);
+		PreparedStatement stmt = null;
+		stmt = conn.prepareStatement(INSERT_EXIST__CHANNEL);
 		
 		stmt.setLong(1, familyID);
 		stmt.setString(2, name);
@@ -443,6 +473,8 @@ public class CategoryDAO extends DAO{
 		
 		
 		stmt.executeUpdate();
+		
+		stmt.close();
 		conn.close();
 	}
 
@@ -459,6 +491,8 @@ public class CategoryDAO extends DAO{
 		stmt.setLong(1, position);
 		stmt.setLong(2, id);
 		stmt.executeUpdate();
+		
+		stmt.close();
 		conn.close();
 	}
 	
@@ -475,6 +509,7 @@ public class CategoryDAO extends DAO{
 		stmt.setLong(1, parentID);
 		stmt.setLong(2, id);
 		stmt.executeUpdate();
+		stmt.close();
 		conn.close();
 	}
 
@@ -490,6 +525,8 @@ public class CategoryDAO extends DAO{
 		PreparedStatement stmt = conn.prepareStatement(DELETE_BY_ID__CHANNEL);
 		stmt.setLong(1, id);
 		stmt.executeUpdate();
+		
+		stmt.close();
 		conn.close();
 	}
 
@@ -519,6 +556,8 @@ public class CategoryDAO extends DAO{
 		stmt.setLong(3, divisionID);
 		
 		stmt.executeUpdate();
+		
+		stmt.close();
 		conn.close();
 	}
 	
@@ -533,6 +572,8 @@ public class CategoryDAO extends DAO{
 		PreparedStatement stmt = conn.prepareStatement(DELETE_BY_CHANNEL_ID__CHANNEL_DIVISION);
 		stmt.setLong(1, id);
 		stmt.executeUpdate();
+		
+		stmt.close();
 		conn.close();
 	}
 	
@@ -546,9 +587,10 @@ public class CategoryDAO extends DAO{
 	public JSONArray getChannelDivisionListOfJSON(String type, Long channelID){
 		JSONArray result = new JSONArray();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_CHANNEL_ID__CHANNEL_DIVISION);
+			stmt = conn.prepareStatement(SELECT_BY_CHANNEL_ID__CHANNEL_DIVISION);
 			stmt.setString(1, type);
 			stmt.setLong(2, channelID);
 			ResultSet rs = stmt.executeQuery();
@@ -567,6 +609,7 @@ public class CategoryDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -590,9 +633,10 @@ public class CategoryDAO extends DAO{
 	public ChannelInfo getChannelInfo(Long channelID){
 		ChannelInfo item = new ChannelInfo();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID__CHANNEL);
+			stmt = conn.prepareStatement(SELECT_BY_ID__CHANNEL);
 			stmt.setLong(1, channelID);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -612,6 +656,7 @@ public class CategoryDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -638,9 +683,10 @@ public class CategoryDAO extends DAO{
 	public int getChannelInfoName(String ChannelName){
 		int item =0;
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_NAME__CHANNEL);
+			stmt = conn.prepareStatement(SELECT_BY_NAME__CHANNEL);
 			stmt.setString(1, ChannelName);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -652,6 +698,7 @@ public class CategoryDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -672,9 +719,10 @@ public class CategoryDAO extends DAO{
 	public JSONArray getChannelListOfJSON(Long familyID, Long parentID){
 		JSONArray result = new JSONArray();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_PARENT_ID__CHANNEL);
+			stmt = conn.prepareStatement(SELECT_BY_PARENT_ID__CHANNEL);
 			stmt.setLong(1, familyID);
 			stmt.setLong(2, parentID);
 			ResultSet rs = stmt.executeQuery();
@@ -698,6 +746,7 @@ public class CategoryDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -718,9 +767,10 @@ public class CategoryDAO extends DAO{
 	public ArrayList getChannelList(Long familyID, Long parentID){
 		ArrayList result = new ArrayList();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_FAMILY_PARENT_ID__CHANNEL);
+			stmt = conn.prepareStatement(SELECT_BY_FAMILY_PARENT_ID__CHANNEL);
 			stmt.setLong(1, familyID);
 			stmt.setLong(2, parentID);
 			ResultSet rs = stmt.executeQuery();
@@ -742,6 +792,7 @@ public class CategoryDAO extends DAO{
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -761,10 +812,11 @@ public class CategoryDAO extends DAO{
 	public ArrayList getChannelList(Long parentID){
 		Connection conn = null;
 		ArrayList result = new ArrayList();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY		
-			conn = DataSource.getInstance().getConnection();
-			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_PARENT_ID__CHANNEL);
+			conn = DSManager.getConnection();
+			stmt = conn.prepareStatement(SELECT_BY_PARENT_ID__CHANNEL);
 			stmt.setLong(1, parentID);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -786,6 +838,12 @@ public class CategoryDAO extends DAO{
 		}
 		finally
 		{
+			try {
+				stmt.close();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			if(conn != null)try{conn.close();}catch (SQLException e){e.printStackTrace();}
 		}
 
@@ -801,6 +859,7 @@ public class CategoryDAO extends DAO{
 	 */
 	public JSONArray recallChannelList(Long familyID, Long parentID, String type, String channel_id){
 		JSONArray result = new JSONArray();
+		
 		
 		try{
 			ArrayList list = getChannelList(familyID, parentID);
@@ -885,11 +944,12 @@ public void deleteChannelList(Long parentID){
 	public JSONArray getListOfJSON(Long channelID, String table, String field){
 		JSONArray result = new JSONArray();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 			if(table.equals("channelcity"))
 			{
 																	// RUNNING QUERY
-				PreparedStatement stmt = conn.prepareStatement("select * from channelcity where Channel_ChannelId=? ");
+				stmt = conn.prepareStatement("select * from channelcity where Channel_ChannelId=? ");
 				stmt.setLong(1, channelID);
 				ResultSet rs = stmt.executeQuery();
 				while (rs.next())
@@ -904,7 +964,7 @@ public void deleteChannelList(Long parentID){
 			if(table.equals("channelcompany"))
 			{
 																	// RUNNING QUERY
-				PreparedStatement stmt = conn.prepareStatement("select * from channelcompany where Channel_ChannelId=? ");
+				stmt = conn.prepareStatement("select * from channelcompany where Channel_ChannelId=? ");
 				stmt.setLong(1, channelID);
 				ResultSet rs = stmt.executeQuery();
 				while (rs.next())
@@ -919,7 +979,7 @@ public void deleteChannelList(Long parentID){
 			
 			if(table.equals("channelmaindirection"))
 			{														// RUNNING QUERY
-				PreparedStatement stmt = conn.prepareStatement("select * from channelmaindirection where Channel_ChannelId=? ");
+				stmt = conn.prepareStatement("select * from channelmaindirection where Channel_ChannelId=? ");
 				stmt.setLong(1, channelID);
 				ResultSet rs = stmt.executeQuery();
 				while (rs.next()){
@@ -937,6 +997,7 @@ public void deleteChannelList(Long parentID){
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -957,16 +1018,17 @@ public void deleteChannelList(Long parentID){
 
 	public void insertChannelList(Long channelID, Long subID, String table) throws Exception{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		if(table.equals("channelcity"))
 		{																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(" insert into channelcity ( Channel_ChannelId, City_CityId ) values ( ?, ? ) ");
+			stmt = conn.prepareStatement(" insert into channelcity ( Channel_ChannelId, City_CityId ) values ( ?, ? ) ");
 			stmt.setLong(1, channelID);
 			stmt.setLong(2, subID);
 			stmt.executeUpdate();
 		}
 		if(table.equals("channelcompany"))
 		{																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(" insert into channelcompany ( Channel_ChannelId, Company_CompanyId ) values ( ?, ? ) ");
+			stmt = conn.prepareStatement(" insert into channelcompany ( Channel_ChannelId, Company_CompanyId ) values ( ?, ? ) ");
 			stmt.setLong(1, channelID);
 			stmt.setLong(2, subID);
 			stmt.executeUpdate();
@@ -974,34 +1036,37 @@ public void deleteChannelList(Long parentID){
 		
 		if(table.equals("channelmaindirection"))
 		{
-			PreparedStatement stmt = conn.prepareStatement(" insert into channelmaindirection ( Channel_ChannelId, Maindirection_MaindirectionId ) values ( ?, ? ) ");
+			stmt = conn.prepareStatement(" insert into channelmaindirection ( Channel_ChannelId, Maindirection_MaindirectionId ) values ( ?, ? ) ");
 			stmt.setLong(1, channelID);
 			stmt.setLong(2, subID);
 			stmt.executeUpdate();
 		}
+		stmt.close();
 		conn.close();
 	}
 	
 	public void deleteChannelList(Long channelID, String table) throws Exception{
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		if(table.equals("channelcity"))
 		{																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(" delete from channelcity where Channel_ChannelId=? ");
+			stmt = conn.prepareStatement(" delete from channelcity where Channel_ChannelId=? ");
 			stmt.setLong(1, channelID);
 			stmt.executeUpdate();
 		}
 		if(table.equals("channelcompany"))
 		{																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(" delete from channelcompany where Channel_ChannelId=? ");
+			stmt = conn.prepareStatement(" delete from channelcompany where Channel_ChannelId=? ");
 			stmt.setLong(1, channelID);
 			stmt.executeUpdate();
 		}
 		if(table.equals("channelmaindirection"))
 		{																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(" delete from channelmaindirection where Channel_ChannelId=? ");
+			stmt = conn.prepareStatement(" delete from channelmaindirection where Channel_ChannelId=? ");
 			stmt.setLong(1, channelID);
 			stmt.executeUpdate();
 		}
+		stmt.close();
 		conn.close();
 	}
 	
@@ -1017,10 +1082,11 @@ public void deleteChannelList(Long parentID){
 		Connection conn = DSManager.getConnection();
 		long item =0;
 		long resultado=0;
+		PreparedStatement stmt = null;
 		
 		try
 		{																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECTCHANNELFATHER);
+			stmt = conn.prepareStatement(SELECTCHANNELFATHER);
 			
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) 
@@ -1040,6 +1106,7 @@ public void deleteChannelList(Long parentID){
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1081,6 +1148,8 @@ public void deleteChannelList(Long parentID){
 		stmt.setString(8, IsVisible);
 		stmt.setLong(9, channelID);
 		stmt.executeUpdate();
+		
+		stmt.close();
 		conn.close();
 	}
 	
@@ -1098,9 +1167,10 @@ public void deleteChannelList(Long parentID){
 		long item =0;
 		
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try
 		{																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_FAMILYID);
+			stmt = conn.prepareStatement(SELECT_FAMILYID);
 			stmt.setLong(1, ChannelId);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) 
@@ -1117,6 +1187,7 @@ public void deleteChannelList(Long parentID){
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1147,6 +1218,7 @@ public void deleteChannelList(Long parentID){
 		stmt.setLong(1, familyID);
 		stmt.setLong(2, channelID);
 		stmt.executeUpdate();
+		stmt.close();
 		conn.close();
 	}
 	
@@ -1166,10 +1238,11 @@ public void deleteChannelList(Long parentID){
 	{
 		long item =0;
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		
 		try
 		{																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_CHANNELID);
+			stmt = conn.prepareStatement(SELECT_CHANNELID);
 			stmt.setLong(1, ChannelId);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) 
@@ -1187,6 +1260,7 @@ public void deleteChannelList(Long parentID){
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1202,9 +1276,10 @@ public void deleteChannelList(Long parentID){
 		long item =0;
 		
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try
 		{
-			PreparedStatement stmt = conn.prepareStatement(SELECT_CONTENT_BY_CHANNELID);
+			stmt = conn.prepareStatement(SELECT_CONTENT_BY_CHANNELID);
 			stmt.setLong(1, ChannelId);
 			ResultSet rs = stmt.executeQuery();
 			if (rs.next()) 
@@ -1220,6 +1295,7 @@ public void deleteChannelList(Long parentID){
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block

@@ -13,6 +13,7 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.youandbbva.enteratv.DSManager;
+import com.youandbbva.enteratv.UsuarioEnBaseDatos;
 import com.youandbbva.enteratv.dao.UserDAO;
 
 public class LoginT extends HttpServlet {
@@ -30,8 +31,7 @@ public class LoginT extends HttpServlet {
 //		String thisURLintranet = "http://intranet.bbva.com";
 		resp.setContentType("text/html");
 
-		Connection conn = DSManager.getConnection();
-		UserDAO userDao = new UserDAO(conn);
+		UserDAO userDao = new UserDAO();
 //		String cuenta1 = req.getUserPrincipal().getName();
 //		System.out.println(cuenta1);
 		
@@ -40,30 +40,43 @@ public class LoginT extends HttpServlet {
 		String IdEmpleado = req.getParameter("Id");
 				
 		if (req.getUserPrincipal() != null) {
-			boolean validar = false;
+			UsuarioEnBaseDatos validar = UsuarioEnBaseDatos.NOEXISTE;
 			String cuenta = req.getUserPrincipal().getName();
 			boolean dominio = cuenta.endsWith("bbva.com");
 
 			
 
-			//validar = userDao.validarCorreo(cuenta);
-			if (validar) {
+			try {
+				validar = userDao.validarCorreo(cuenta);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if (validar == UsuarioEnBaseDatos.NOMBRECORRECTO) {
+				thisURL = "/user/home.html";
 				if (user != null) {
 					System.out.println("Welcome, " + cuenta);
 				}
 
-				 if (dominio) {
+//				 if (dominio) {
 				resp.sendRedirect(thisURL);
-				 }
+//				 }
 			} else {
-				if (user != null) {
-					userDao.agregarUsuario(cuenta, "aaaa", CCorreo, IdEmpleado );
+				thisURL = "/user/home1.html";
+				if (validar == UsuarioEnBaseDatos.NOEXISTE) 
+				{
+					userDao.agregarUsuario(cuenta, "USUARIO", CCorreo, IdEmpleado );
 					System.out.println("Se agrego la cuenta a la BD: "
 							+ cuenta + " Del usuario: "
 							+ user.getNickname());
-					resp.sendRedirect(thisURL);
 				}
 
+				
+				if (validar == UsuarioEnBaseDatos.NOMBREINCORRECTO) 
+				{
+				}
+				
+				resp.sendRedirect(thisURL);
 			}
 		} else {
 			
@@ -76,19 +89,7 @@ public class LoginT extends HttpServlet {
 					
 		}
 
-	}
-
-	
-	
-	
-	
-	
-	
-	
-	
-
-
-	
+	}	
 	
 }
 

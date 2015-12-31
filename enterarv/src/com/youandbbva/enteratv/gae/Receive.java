@@ -78,7 +78,7 @@ public class Receive extends HttpServlet {
 
 					conn.setAutoCommit(false);
 
-					UserDAO dao = new UserDAO(conn);
+					UserDAO dao = new UserDAO();
 
 					String today = Utils.getTodayWithTime();
 				

@@ -53,10 +53,6 @@ public class UtilityDAO extends DAO{
 		// TODO Auto-generated constructor stub
 	}
 	
-	public UtilityDAO(Connection conn) {
-		// TODO Auto-generated constructor stub
-		super(conn);
-	}
 	
 	/**
 	 * Get Code Data.
@@ -68,9 +64,10 @@ public class UtilityDAO extends DAO{
 	public JSONArray getCodeListOfJSON(String div, String language){
 		JSONArray result = new JSONArray();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_CODE__BY_DIV);
+			stmt = conn.prepareStatement(SELECT_CODE__BY_DIV);
 			stmt.setString(1, div);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -85,6 +82,7 @@ public class UtilityDAO extends DAO{
 		}finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -105,9 +103,10 @@ public class UtilityDAO extends DAO{
 	public ArrayList getCodeList(String div, String language){
 		ArrayList result = new ArrayList();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_CODE__BY_DIV);
+			stmt = conn.prepareStatement(SELECT_CODE__BY_DIV);
 			stmt.setString(1, div);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -122,6 +121,7 @@ public class UtilityDAO extends DAO{
 		}finally
 			{
 				try {
+					stmt.close();
 					conn.close();
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
@@ -140,9 +140,10 @@ public class UtilityDAO extends DAO{
 	public ArrayList getCodeListO(String div, String language){
 		ArrayList result = new ArrayList();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_CODE__BY_DIVL);
+			stmt = conn.prepareStatement(SELECT_CODE__BY_DIVL);
 			stmt.setString(1, div);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -164,6 +165,7 @@ public class UtilityDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -184,9 +186,10 @@ public class UtilityDAO extends DAO{
 	public JSONArray getDivisionListOfJSON(Long id, String language){
 		JSONArray result = new JSONArray();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_DIVISION__BY_PARENT_ID);
+			stmt = conn.prepareStatement(SELECT_DIVISION__BY_PARENT_ID);
 			stmt.setLong(1, id);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -209,6 +212,7 @@ public class UtilityDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -229,9 +233,10 @@ public class UtilityDAO extends DAO{
 	public JSONObject getDivisionOfJSON(Long id, String language){
 		JSONObject result = new JSONObject();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_DIVISION__BY_ID);
+			stmt = conn.prepareStatement(SELECT_DIVISION__BY_ID);
 			stmt.setLong(1, id);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -254,6 +259,7 @@ public class UtilityDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -274,9 +280,10 @@ public class UtilityDAO extends DAO{
 	public ArrayList getDivisionList(Long id, String language){
 		ArrayList result = new ArrayList();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_DIVISION__BY_PARENT_ID);
+			stmt = conn.prepareStatement(SELECT_DIVISION__BY_PARENT_ID);
 			stmt.setLong(1, id);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -299,6 +306,7 @@ public class UtilityDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -319,9 +327,10 @@ public class UtilityDAO extends DAO{
 	public JSONObject getCityOfJSON(Long id, String language){
 		JSONObject result = new JSONObject();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_CITY__BY_ID);
+			stmt = conn.prepareStatement(SELECT_CITY__BY_ID);
 			stmt.setLong(1, id);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -344,6 +353,7 @@ public class UtilityDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -364,9 +374,10 @@ public class UtilityDAO extends DAO{
 	public JSONArray getCityListOfJSON(Long id, String language){
 		JSONArray result = new JSONArray();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_CITY__BY_PARENT_ID);
+			stmt = conn.prepareStatement(SELECT_CITY__BY_PARENT_ID);
 			stmt.setLong(1, id);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -389,6 +400,7 @@ public class UtilityDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -409,9 +421,10 @@ public class UtilityDAO extends DAO{
 	public ArrayList getCityList(Long id, String language){
 		ArrayList result = new ArrayList();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_CITY__BY_PARENT_ID);
+			stmt = conn.prepareStatement(SELECT_CITY__BY_PARENT_ID);
 			stmt.setLong(1, id);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -434,6 +447,7 @@ public class UtilityDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -453,10 +467,11 @@ public class UtilityDAO extends DAO{
 	public JSONArray getJobshrtListOfJSON(){
 		JSONArray result = new JSONArray();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try
 		{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_JOBSHRT);
+			stmt = conn.prepareStatement(SELECT_JOBSHRT);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
 				JobshrtInfo item = new JobshrtInfo();
@@ -471,6 +486,7 @@ public class UtilityDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -489,9 +505,10 @@ public class UtilityDAO extends DAO{
 	public ArrayList getJobshrtList(){
 		ArrayList result = new ArrayList();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_JOBSHRT);
+			stmt = conn.prepareStatement(SELECT_JOBSHRT);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
 				JobshrtInfo item = new JobshrtInfo();
@@ -506,6 +523,7 @@ public class UtilityDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -524,11 +542,14 @@ public class UtilityDAO extends DAO{
 	public ArrayList getList(String table){
 		ArrayList result = new ArrayList();
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmtcity = null;
+		PreparedStatement stmtmain = null;
+		PreparedStatement stmtcompany = null;
 		try{
 			if(table.equals("city"))
 			{
 																	// RUNNING QUERY
-				PreparedStatement stmtcity = conn.prepareStatement(" select * from " + table + " ");
+				stmtcity = conn.prepareStatement(" select * from " + table + " ");
 				ResultSet rscity = stmtcity.executeQuery();
 				while (rscity.next()){
 					CodeInfo item = new CodeInfo();
@@ -541,7 +562,7 @@ public class UtilityDAO extends DAO{
 			if(table.equals("maindirection"))
 			{
 																	// RUNNING QUERY
-				PreparedStatement stmtmain = conn.prepareStatement("select * from " + table + " "+"ORDER BY MaindirectionName ASC");
+				stmtmain = conn.prepareStatement("select * from " + table + " "+"ORDER BY MaindirectionName ASC");
 				ResultSet rsmain = stmtmain.executeQuery();
 				while (rsmain.next()){
 					CodeInfo item = new CodeInfo();
@@ -554,7 +575,7 @@ public class UtilityDAO extends DAO{
 			if(table.equals("company"))
 			{
 																	// RUNNING QUERY
-				PreparedStatement stmtcompany = conn.prepareStatement(" select * from " + table + " ");
+				stmtcompany = conn.prepareStatement(" select * from " + table + " ");
 				ResultSet rscompany = stmtcompany.executeQuery();
 				while (rscompany.next()){
 					CodeInfo item = new CodeInfo();
@@ -569,6 +590,9 @@ public class UtilityDAO extends DAO{
 		finally
 		{
 			try {
+				stmtcity.close();
+				stmtmain.close();
+				stmtcompany.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
