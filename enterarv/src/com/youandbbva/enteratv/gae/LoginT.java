@@ -13,6 +13,7 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.youandbbva.enteratv.DSManager;
+import com.youandbbva.enteratv.UsuarioEnBaseDatos;
 import com.youandbbva.enteratv.dao.UserDAO;
 
 public class LoginT extends HttpServlet {
@@ -39,7 +40,7 @@ public class LoginT extends HttpServlet {
 		String IdEmpleado = req.getParameter("Id");
 				
 		if (req.getUserPrincipal() != null) {
-			boolean validar = false;
+			UsuarioEnBaseDatos validar = UsuarioEnBaseDatos.NOEXISTE;
 			String cuenta = req.getUserPrincipal().getName();
 			boolean dominio = cuenta.endsWith("bbva.com");
 
@@ -51,23 +52,31 @@ public class LoginT extends HttpServlet {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			if (validar) {
+			if (validar == UsuarioEnBaseDatos.NOMBRECORRECTO) {
+				thisURL = "/user/home.html";
 				if (user != null) {
 					System.out.println("Welcome, " + cuenta);
 				}
 
-				 if (dominio) {
+//				 if (dominio) {
 				resp.sendRedirect(thisURL);
-				 }
+//				 }
 			} else {
-				if (user != null) {
+				thisURL = "/user/home1.html";
+				if (validar == UsuarioEnBaseDatos.NOEXISTE) 
+				{
 					userDao.agregarUsuario(cuenta, "USUARIO", CCorreo, IdEmpleado );
 					System.out.println("Se agrego la cuenta a la BD: "
 							+ cuenta + " Del usuario: "
 							+ user.getNickname());
-					resp.sendRedirect(thisURL);
 				}
 
+				
+				if (validar == UsuarioEnBaseDatos.NOMBREINCORRECTO) 
+				{
+				}
+				
+				resp.sendRedirect(thisURL);
 			}
 		} else {
 			

@@ -25,6 +25,7 @@ import org.springframework.stereotype.Repository;
 
 import com.youandbbva.enteratv.DAO;
 import com.youandbbva.enteratv.DSManager;
+import com.youandbbva.enteratv.UsuarioEnBaseDatos;
 import com.youandbbva.enteratv.Utils;
 import com.youandbbva.enteratv.domain.UserInfo;
 
@@ -697,9 +698,8 @@ public class UserDAO extends DAO {
 	// stmt.executeUpdate();
 	// }
 
-	public boolean validarCorreo(String Email)
+	public UsuarioEnBaseDatos validarCorreo(String Email)
 	{
-		boolean validar = false;
 		Connection conn = DSManager.getConnection();
 		PreparedStatement stmt = null;
 		try {
@@ -708,9 +708,17 @@ public class UserDAO extends DAO {
 		
 		ResultSet rs = stmt.executeQuery();
 		if (rs.next()) {
-			return validar = true;
+				
+			String strUsuario = rs.getString("UserName");
+			if (!(strUsuario.equalsIgnoreCase("USUARIO")))
+			{
+				return UsuarioEnBaseDatos.NOMBRECORRECTO;
+			}
+			
+			return UsuarioEnBaseDatos.NOMBREINCORRECTO;
 		}
 			
+		return UsuarioEnBaseDatos.NOEXISTE;
 		} catch (SQLException e) 
 		
 		{
@@ -728,7 +736,7 @@ public class UserDAO extends DAO {
 				e.printStackTrace();
 			}
 		}
-		return validar;
+		return UsuarioEnBaseDatos.NOEXISTE;
 	}
 
 	public void agregarUsuario(String correo, String nombre, String apellpat, String apellmat) {
