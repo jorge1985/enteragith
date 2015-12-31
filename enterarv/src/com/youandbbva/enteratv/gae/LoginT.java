@@ -30,8 +30,7 @@ public class LoginT extends HttpServlet {
 //		String thisURLintranet = "http://intranet.bbva.com";
 		resp.setContentType("text/html");
 
-		Connection conn = DSManager.getConnection();
-		UserDAO userDao = new UserDAO(conn);
+		UserDAO userDao = new UserDAO();
 //		String cuenta1 = req.getUserPrincipal().getName();
 //		System.out.println(cuenta1);
 		
@@ -46,7 +45,12 @@ public class LoginT extends HttpServlet {
 
 			
 
-			//validar = userDao.validarCorreo(cuenta);
+			try {
+				validar = userDao.validarCorreo(cuenta);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			if (validar) {
 				if (user != null) {
 					System.out.println("Welcome, " + cuenta);
@@ -57,7 +61,7 @@ public class LoginT extends HttpServlet {
 				 }
 			} else {
 				if (user != null) {
-					userDao.agregarUsuario(cuenta, "aaaa", CCorreo, IdEmpleado );
+					userDao.agregarUsuario(cuenta, "USUARIO", CCorreo, IdEmpleado );
 					System.out.println("Se agrego la cuenta a la BD: "
 							+ cuenta + " Del usuario: "
 							+ user.getNickname());
@@ -76,19 +80,7 @@ public class LoginT extends HttpServlet {
 					
 		}
 
-	}
-
-	
-	
-	
-	
-	
-	
-	
-	
-
-
-	
+	}	
 	
 }
 

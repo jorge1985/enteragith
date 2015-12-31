@@ -74,7 +74,7 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 		
 		try{
 			//dao connection
-			UtilityDAO codeDao = new UtilityDAO(conn);
+			UtilityDAO codeDao = new UtilityDAO();
 			//handle the form submission
 			mv.addObject("targetlist", codeDao.getCodeList("trgt", session.getLanguage(req.getSession())));
 			
@@ -116,7 +116,7 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 			}
 			
 			//dao connection
-			WidgetDAO dao = new WidgetDAO(conn);
+			WidgetDAO dao = new WidgetDAO();
 			
 			result = setResponse(result, "banner", dao.getBanners());
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
@@ -165,7 +165,7 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			//dao connection
-			WidgetDAO dao = new WidgetDAO(conn);
+			WidgetDAO dao = new WidgetDAO();
 			
 			result = setResponse(result, "banner", dao.getBanner(Utils.getLong(banner), Utils.getLong(sub_banner)));			
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
@@ -210,10 +210,10 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 			conn.setAutoCommit(false);
 			
 			//dao connection
-			WidgetDAO widgetDao = new WidgetDAO(conn);
-			SystemDAO systemDao = new SystemDAO(conn);
-			PublicDAO publicDao = new PublicDAO(conn);
-			MediaDAO mediaDao   = new MediaDAO(conn);
+			WidgetDAO widgetDao = new WidgetDAO();
+			SystemDAO systemDao = new SystemDAO();
+			PublicDAO publicDao = new PublicDAO();
+			MediaDAO mediaDao   = new MediaDAO();
 			
 			long key;
 			
@@ -290,7 +290,7 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 		
 		try{
 			//dao connection
-			SystemDAO dao = new SystemDAO(conn);
+			SystemDAO dao = new SystemDAO();
 			//handle the form submission
 			mv.addObject("features", new Integer(dao.getOptions(Constants.OPTION_FEATURES).toString()));
 			
@@ -418,8 +418,8 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 			conn.setAutoCommit(false);
 			
 			//dao connection
-			PublicDAO publicDao = new PublicDAO(conn);
-			SystemDAO systemDao = new SystemDAO(conn);		
+			PublicDAO publicDao = new PublicDAO();
+			SystemDAO systemDao = new SystemDAO();		
 			
 			result = setResponse(result, "list", publicDao.getLatestNews());			
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
@@ -480,9 +480,9 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 			conn.setAutoCommit(false);
 			
 			//dao connection
-			WidgetDAO widgetDao = new WidgetDAO(conn);
-			SystemDAO systemDao = new SystemDAO(conn);
-			PublicDAO publicDao = new PublicDAO(conn);			
+			WidgetDAO widgetDao = new WidgetDAO();
+			SystemDAO systemDao = new SystemDAO();
+			PublicDAO publicDao = new PublicDAO();			
 
 		}catch (Exception e){ 
 			log.error("WidgetController", "saveFeatures", e.toString());
@@ -532,8 +532,8 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 			
 			conn.setAutoCommit(false);
 			//dao connection
-			SystemDAO systemDao = new SystemDAO(conn);
-			PublicDAO publicDao = new PublicDAO(conn);
+			SystemDAO systemDao = new SystemDAO();
+			PublicDAO publicDao = new PublicDAO();
 
 			if (kind.equals("banner")){
 				systemDao.update(Constants.OPTION_BANNER, template);

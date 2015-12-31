@@ -93,7 +93,7 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 
 		try{
 			//dao connection
-			SystemDAO dao = new SystemDAO(conn);
+			SystemDAO dao = new SystemDAO();
 			
 			result = setResponse(result, Constants.OPTION_ONLINE, dao.getOptions(Constants.OPTION_ONLINE));
 			result = setResponse(result, Constants.OPTION_ALLOW_IP, dao.getOptions(Constants.OPTION_ALLOW_IP));
@@ -143,7 +143,7 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 		try{
 			conn.setAutoCommit(false);
 			//dao connection
-			SystemDAO dao = new SystemDAO(conn);
+			SystemDAO dao = new SystemDAO();
 			
 			dao.update(Constants.OPTION_ONLINE, online);
 			dao.delete(Constants.OPTION_ALLOW_IP);
@@ -206,7 +206,7 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 		
 		try{
 			//dao connection
-			UtilityDAO codeDao = new UtilityDAO(conn);
+			UtilityDAO codeDao = new UtilityDAO();
 			//handle the form submission
 			mv.addObject("securitylist", codeDao.getCodeList("chn1", session.getLanguage(req.getSession())));
 			mv.addObject("levellist", codeDao.getCodeList("usr1", session.getLanguage(req.getSession())));			
@@ -295,7 +295,7 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 
 		try{
 			//dao connection
-			UserDAO dao = new UserDAO(conn);
+			UserDAO dao = new UserDAO();
 			
 			String sql = " select count(userId) from user ";
 			total = dao.getCount(sql);
@@ -392,7 +392,7 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			//dao connection
-			UserDAO dao = new UserDAO(conn);
+			UserDAO dao = new UserDAO();
 			
 			int userId = dao.searchEmployeeNumber(user_id);
 			UserInfo item = dao.getUserInfo(userId);
@@ -524,7 +524,7 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 			conn.setAutoCommit(false);
 			
 			//dao connection
-			UserDAO dao = new UserDAO(conn);
+			UserDAO dao = new UserDAO();
 			
 			Password = DigestUtils.md5Hex(Password + Constants.PASSWORD_HASH);
 			int userId = dao.searchEmployeeNumber(NumberEmpleyoo);
@@ -616,7 +616,7 @@ public class SystemController extends com.youandbbva.enteratv.Controller{
 			conn.setAutoCommit(false);
 			
 			//dao connection
-			UserDAO dao = new UserDAO(conn);
+			UserDAO dao = new UserDAO();
 			
 			int user_id=-1, firstname=-1, lastname=-1, username=-1, email=-1, password=-1;
 			int newhire=-1, manager=-1, owner=-1, promote=-1, jobgrade=-1;

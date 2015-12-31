@@ -39,10 +39,6 @@ public class SystemDAO extends DAO{
 		// TODO Auto-generated constructor stub
 	}
 	
-	public SystemDAO(Connection conn) {
-		// TODO Auto-generated constructor stub
-		super(conn);
-	}
 	
 	/**
 	 * Get Config Data.
@@ -54,9 +50,10 @@ public class SystemDAO extends DAO{
 		JSONArray result = new JSONArray();
 		String str = Constants.DEFAULT_YES;
 		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		try{
 																	// 	RUNNING QUERY
-			PreparedStatement stmt = conn.prepareStatement(SELECT_BY_KEY);
+			stmt = conn.prepareStatement(SELECT_BY_KEY);
 			stmt.setString(1, key);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -76,6 +73,7 @@ public class SystemDAO extends DAO{
 		finally
 		{
 			try {
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -103,6 +101,7 @@ public class SystemDAO extends DAO{
 		stmt.setString(1, key);
 		stmt.setString(2, value);
 		stmt.execute();
+		stmt.close();
 		conn.close();
 	}
 	
@@ -120,6 +119,7 @@ public class SystemDAO extends DAO{
 		stmt.setString(1, value);
 		stmt.setString(2, key);
 		stmt.execute();
+		stmt.close();
 		conn.close();
 	}
 
@@ -135,6 +135,7 @@ public class SystemDAO extends DAO{
 		PreparedStatement stmt = conn.prepareStatement(DELETE_BY_KEY);
 		stmt.setString(1, key);
 		stmt.execute();
+		stmt.close();
 		conn.close();
 	}
 	

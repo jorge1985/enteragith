@@ -153,8 +153,8 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 				return new ModelAndView("redirect:/user/adios.html");
 			}
 			//dao connection
-			UtilityDAO codeDao = new UtilityDAO(conn);
-			ContentDAO contentDao = new ContentDAO(conn);
+			UtilityDAO codeDao = new UtilityDAO();
+			ContentDAO contentDao = new ContentDAO();
 			
 			//handle the form submission
 			mv.addObject("show_in", codeDao.getCodeList("cnt1", session.getLanguage(req.getSession())));
@@ -215,7 +215,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 
 			Long contentID = Utils.getLong(content_id);
 			//dao connection
-			ContentDAO dao = new ContentDAO(conn);
+			ContentDAO dao = new ContentDAO();
 			
 			//handle the form submission
 			mv.addObject("content_id", contentID);
@@ -304,7 +304,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 
 		try{
 			//dao connection
-			ContentDAO dao = new ContentDAO(conn);
+			ContentDAO dao = new ContentDAO();
 			
 			total = dao.getCountByType("A");
 			totalAfterFilter = total;
@@ -401,7 +401,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 		try{
 			String today = Utils.getToday("-");
 			//dao connection
-			ContentDAO dao = new ContentDAO(conn);
+			ContentDAO dao = new ContentDAO();
 			// load existing data.
 			total = dao.getCountByType("E");
 			totalAfterFilter = total;
@@ -497,7 +497,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 
 		try{
 			//dao connection
-			ContentDAO dao = new ContentDAO(conn);
+			ContentDAO dao = new ContentDAO();
 			
 			total = dao.getCountByType("B");
 			totalAfterFilter = total;
@@ -558,7 +558,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 
 			long contentID = Utils.getLong(content_id);
 			//dao connection
-			ContentDAO dao = new ContentDAO(conn);
+			ContentDAO dao = new ContentDAO();
 		
 			result = setResponse(result, "content", dao.getContentOfJSON(contentID));
 			result = setResponse(result, "channel", dao.getContentChannelListOfJSON(contentID));
@@ -611,7 +611,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			long channel = 0;
 			ArrayList<Long> contentidvideo= new ArrayList<Long>();
 			//dao connection
-			ContentDAO dao = new ContentDAO(conn);
+			ContentDAO dao = new ContentDAO();
 			channel = dao.getChannel_ID(contentID);
 			contentidvideo=dao.getContent_ID(channel);
 //			dao.getBlobVideo(channel);
@@ -702,7 +702,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			
 			conn.setAutoCommit(false);
 			//dao connection
-			ContentDAO dao = new ContentDAO(conn);
+			ContentDAO dao = new ContentDAO();
 			Long contentID = (long)0;
 			int channelid = 0;
 			int typecontent = 0;
@@ -766,8 +766,8 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			
 			conn.commit();
 			//dao connection
-			PublicDAO publicDao = new PublicDAO(conn);
-			SystemDAO systemDao = new SystemDAO(conn);
+			PublicDAO publicDao = new PublicDAO();
+			SystemDAO systemDao = new SystemDAO();
 			
 			dao.generateHTML(contentID);
 
@@ -856,7 +856,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			
 			long contentID = Utils.getLong(content_id);
 			//dao connection
-			ContentDAO dao = new ContentDAO(conn);
+			ContentDAO dao = new ContentDAO();
 			conn.setAutoCommit(false);
 			
 			ContentInfo content = dao.getContent(contentID);
@@ -878,8 +878,8 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			conn.commit();
 			
 			//dao connection
-			PublicDAO publicDao = new PublicDAO(conn);
-			SystemDAO systemDao = new SystemDAO(conn);
+			PublicDAO publicDao = new PublicDAO();
+			SystemDAO systemDao = new SystemDAO();
 			String[] html = publicDao.generateSlide();
 			
 			if (content.getType().equals("002")){
@@ -924,8 +924,6 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 
 		content_id = Utils.checkNull(content_id);
 
-		Connection conn = DSManager.getConnection();
-
 		JSONObject result = new JSONObject();
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
@@ -939,7 +937,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 
 			long contentID = Utils.getLong(content_id);
 			//dao connection
-			ContentDAO dao = new ContentDAO(conn);
+			ContentDAO dao = new ContentDAO();
 			result = setResponse(result, "file", dao.getContentFileOfJSON(contentID));
 			result = setResponse(result, "media", dao.getContentFileMediaListOfJSON(contentID));
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
@@ -949,10 +947,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			log.error("ContentController", "loadContentFile", e.toString());
 			
 		}finally{
-			try{
-				if (conn!=null)
-					conn.close();
-			}catch (Exception f){}
+
 		}
 
 		response(res, result);
@@ -986,8 +981,6 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			}
 		}catch (Exception ee){}
 
-		Connection conn = DSManager.getConnection();
-
 		try{
 			UserInfo user = session.getUserInfo(req.getSession());
 			if (user==null){
@@ -995,24 +988,22 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 
-			conn.setAutoCommit(false);
 			//dao connection
-			ContentDAO dao = new ContentDAO(conn);
+			ContentDAO dao = new ContentDAO();
 			Long contentID = Utils.getLong(content_id);
 			
 			try{
 				dao.deleteContentMediaByContentId(contentID);
 
 			}catch (Exception e){}
-			conn.commit();
 
 			dao.updateContentDescriptionById(contentID, description);
 			for (int i=0; i<key.length; i++){
 				dao.insertContentmedia(contentID, dao.getMediaContent(key[i]));
 			}
-			conn.commit();
+
 			dao.generateHTML(contentID);
-			conn.commit();
+
 			ContentInfo content = dao.getContent(contentID);
 			
 			if (content.getStatus().equals("B"))
@@ -1029,12 +1020,11 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			log.error("ContentController", "updateContentFile", e.toString());
 			
 			try{
-				conn.rollback();
+
 			}catch (Exception ex){}
 		}finally{
 			try{
-				if (conn!=null)
-					conn.close();
+
 			}catch (Exception f){}
 		}
 
@@ -1072,7 +1062,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 
 			long contentID = Utils.getLong(content_id);
 			//dao connection
-			ContentDAO dao = new ContentDAO(conn);
+			ContentDAO dao = new ContentDAO();
 
 			result = setResponse(result, "file", dao.getContentFileOfJSON(contentID));
 			result = setResponse(result, "media", dao.getContentFileMediaListOfJSON(contentID));
@@ -1133,7 +1123,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 
 			conn.setAutoCommit(false);
 			//dao connection
-			ContentDAO dao = new ContentDAO(conn);
+			ContentDAO dao = new ContentDAO();
 			
 			Long contentID = Utils.getLong(content_id);
 			
@@ -1209,7 +1199,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 
 			Long contentID = Utils.getLong(content_id);
 			//dao connection
-			ContentDAO dao = new ContentDAO(conn);
+			ContentDAO dao = new ContentDAO();
 			
 			ContentNewsInfo news =  dao.getContentNews(contentID);
 			result = setResponse(result, "news", news.toJSONObject());
@@ -1265,7 +1255,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			
 			conn.setAutoCommit(false);
 			//dao connection
-			ContentDAO dao = new ContentDAO(conn);
+			ContentDAO dao = new ContentDAO();
 			Long contentID = Utils.getLong(content_id);
 			
 			ContentNewsInfo news =  dao.getContentNews(contentID);
@@ -1333,7 +1323,7 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			}
 
 			Long contentID = Utils.getLong(content_id);
-			ContentDAO dao = new ContentDAO(conn);	
+			ContentDAO dao = new ContentDAO();	
 			ContentVideoInfo video =  dao.getContentVideo(contentID);
 
 			result = setResponse(result, "video", video.toJSONObject());
@@ -1379,7 +1369,6 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 		video = Utils.encode(Utils.checkNull(video));
 		image = Utils.encode(Utils.checkNull(image));
 
-		Connection conn = DSManager.getConnection();
 
 		try{
 			UserInfo user = session.getUserInfo(req.getSession());
@@ -1388,26 +1377,26 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			
-			conn.setAutoCommit(false);
+
 			//dao connection
-			ContentDAO dao = new ContentDAO(conn);
+			ContentDAO dao = new ContentDAO();
 			
 			Long contentID = Utils.getLong(content_id);
 			
 			ContentVideoInfo obj =  dao.getContentVideo(contentID);
 			dao.updateContentVideo(contentID, video, image);
-			conn.commit();
+
 			dao.generateHTML(contentID);
 			//dao connection
-			PublicDAO publicDao = new PublicDAO(conn);
-			SystemDAO systemDao = new SystemDAO(conn);
+			PublicDAO publicDao = new PublicDAO();
+			SystemDAO systemDao = new SystemDAO();
 			
 			String[] html = publicDao.generateSlide();
 			systemDao.update(Constants.OPTION_SLIDER_FOR_HTML, html[0]);
 			systemDao.update(Constants.OPTION_SLIDER_NAV_HTML, html[1]);
 			systemDao.update(Constants.OPTION_SLIDER_FOR_HTML+"_mobile", html[2]);
 			systemDao.update(Constants.OPTION_SLIDER_NAV_HTML+"_mobile", html[3]);
-			conn.commit();
+
 			
 			ContentInfo content = dao.getContent(contentID);
 			if (content.getStatus().equals("B"))
@@ -1423,13 +1412,10 @@ public class ContentController extends com.youandbbva.enteratv.Controller{
 			log.error("ContentController", "updateContentVideo", e.toString());
 			
 			try{
-				conn.rollback();
+
 			}catch (Exception ex){}
 		}finally{
-			try{
-				if (conn!=null)
-					conn.close();
-			}catch (Exception f){}
+
 		}
 
 		response(res, result);

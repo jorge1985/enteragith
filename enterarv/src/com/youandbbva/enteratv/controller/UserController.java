@@ -141,13 +141,13 @@ public class UserController extends com.youandbbva.enteratv.Controller{
 			@RequestParam(value = "remember", required = false) String remember,
 			HttpServletRequest req, HttpServletResponse res) throws SQLException{
 
-		Connection conn = DSManager.getConnection();
+		//Connection conn = DSManager.getConnection();
 
 		String EmailLogin = Utils.checkNull(user);
 		remember = Utils.checkNull(remember);
 		
 		EmailLogin = req.getUserPrincipal().getName();
-		UserDAO userDao = new UserDAO(conn); 
+		UserDAO userDao = new UserDAO(); 
 		
 		//userDao.cargaCorreoPrueba();//Agrega el correo para las pruebas
 		//Agregar corro
@@ -192,17 +192,17 @@ public class UserController extends com.youandbbva.enteratv.Controller{
 					session.setFrontUserInfo(req.getSession(), u);
 				
 				try{
-					conn.setAutoCommit(false);
+					//conn.setAutoCommit(false);
 					
 					//dao connection
-					VisitorDAO visitorDao = new VisitorDAO(conn);
+					VisitorDAO visitorDao = new VisitorDAO();
 					
 					String time = Utils.getTodayWithTime();
 					
 					if (!visitorDao.isExist(u.getUserId(),time))
 						visitorDao.insert(u.getUserId(), Constants.LogType.LOGIN.getCode(), time, req.getRemoteAddr());
 					
-					conn.commit();
+//					conn.commit();
 				}catch (Exception ff){}
 				
 				//valida el nivel del perfil
@@ -220,8 +220,8 @@ public class UserController extends com.youandbbva.enteratv.Controller{
 			log.error("UserController", "home", e.toString());
 		}finally{
 			try{
-				if (conn!=null)
-					conn.close();
+//				if (conn!=null)
+//					conn.close();
 			}catch (Exception f){}
 		}
 
@@ -250,7 +250,7 @@ public class UserController extends com.youandbbva.enteratv.Controller{
 			//String certificateS ="MIICizCCAfQCCQCY8tKaMc0BMjANBgkqhkiG9w0BAQUFADCBiTELMAkGA1UEBhMCTk8xEjAQBgNVBAgTCVRyb25kaGVpbTEQMA4GA1UEChMHVU5JTkVUVDEOMAwGA1UECxMFRmVpZGUxGTAXBgNVBAMTEG9wZW5pZHAuZmVpZGUubm8xKTAnBgkqhkiG9w0BCQEWGmFuZHJlYXMuc29sYmVyZ0B1bmluZXR0Lm5vMB4XDTA4MDUwODA5MjI0OFoXDTM1MDkyMzA5MjI0OFowgYkxCzAJBgNVBAYTAk5PMRIwEAYDVQQIEwlUcm9uZGhlaW0xEDAOBgNVBAoTB1VOSU5FVFQxDjAMBgNVBAsTBUZlaWRlMRkwFwYDVQQDExBvcGVuaWRwLmZlaWRlLm5vMSkwJwYJKoZIhvcNAQkBFhphbmRyZWFzLnNvbGJlcmdAdW5pbmV0dC5ubzCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAt8jLoqI1VTlxAZ2axiDIThWcAOXdu8KkVUWaN/SooO9O0QQ7KRUjSGKN9JK65AFRDXQkWPAu4HlnO4noYlFSLnYyDxI66LCr71x4lgFJjqLeAvB/GqBqFfIZ3YK/NrhnUqFwZu63nLrZjcUZxNaPjOOSRSDaXpv1kb5k3jOiSGECAwEAATANBgkqhkiG9w0BAQUFAAOBgQBQYj4cAafWaYfjBU2zi1ElwStIaJ5nyp/s/8B8SAPK2T79McMyccP3wSW13LHkmM1jwKe3ACFXBvqGQN0IbcH49hu0FKhYFM/GPDJcIHFBsiyMBXChpye9vBaTNEBCtU3KjjyG0hRT2mAQ9h+bkPmOvlEo/aH0xR68Z9hw4PF13w==";
 			
 			//dao connection
-			UserDAO userDao = new UserDAO(conn);
+			UserDAO userDao = new UserDAO();
 			
 			UserInfo u = userDao.getUserInfo(Integer.parseInt(userID));
 			if (u!=null){
@@ -269,7 +269,7 @@ public class UserController extends com.youandbbva.enteratv.Controller{
 				try{
 					conn.setAutoCommit(false);
 					//dao connection
-					VisitorDAO visitorDao = new VisitorDAO(conn);
+					VisitorDAO visitorDao = new VisitorDAO();
 
 					String time = Utils.getTodayWithTime();
 					
@@ -321,7 +321,7 @@ public class UserController extends com.youandbbva.enteratv.Controller{
 			String addr = req.getRemoteAddr();
 			
 			//dao connection
-			PublicDAO dao = new PublicDAO(conn);
+			PublicDAO dao = new PublicDAO();
 			UserInfo user = session.getFrontUserInfo(req.getSession());
 			if (!dao.isExistVisitor(user.getUserId()))
 				dao.insertVisitor(user.getUserId(), Constants.LogType.LOGIN.getCode(), today, addr);
@@ -348,15 +348,7 @@ public class UserController extends com.youandbbva.enteratv.Controller{
 	public ModelAndView home1(
 			HttpServletRequest req, HttpServletResponse res){
 		ModelAndView mv = new ModelAndView("datos");
-		
-//		String username = "";
-		
-		try{
 
-		}catch (Exception e){}
-		//handle the form submission
-//		mv.addObject("username", username);
-//	return new ModelAndView("adios");
 		return mv;
 	}
 

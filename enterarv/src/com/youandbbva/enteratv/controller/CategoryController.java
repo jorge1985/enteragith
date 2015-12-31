@@ -20,7 +20,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.youandbbva.enteratv.Constants;
 import com.youandbbva.enteratv.DSManager;
-import com.youandbbva.enteratv.DataSource;
 import com.youandbbva.enteratv.Utils;
 import com.youandbbva.enteratv.dao.CategoryDAO;
 import com.youandbbva.enteratv.dao.ContentDAO;
@@ -108,7 +107,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			//dao connection	
-		CategoryDAO categoryDao = new CategoryDAO(conn);
+		CategoryDAO categoryDao = new CategoryDAO();
 
 		
 		result = setResponse(result, "list", categoryDao.getFamilyListOfJSON());
@@ -176,7 +175,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			//dao connection
-			CategoryDAO categoryDao = new CategoryDAO(conn);
+			CategoryDAO categoryDao = new CategoryDAO();
 			conn.setAutoCommit(false);
 			
 			if (type.equals("add")){
@@ -269,8 +268,8 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 		
 		try{
 			//dao connection
-			CategoryDAO categoryDao = new CategoryDAO(conn);
-			UtilityDAO codeDao = new UtilityDAO(conn);
+			CategoryDAO categoryDao = new CategoryDAO();
+			UtilityDAO codeDao = new UtilityDAO();
 			
 			//handle the form submission
 			mv.addObject("familylist", categoryDao.getFamilyList());
@@ -318,7 +317,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 
 		try{
 			
-			conn = DataSource.getInstance().getConnection();
+			conn =  DSManager.getConnection();
 			
 			UserInfo user = session.getUserInfo(req.getSession());
 			if (user==null){  
@@ -328,7 +327,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 
 			JSONArray div_result = new JSONArray();
 			//dao connection
-			CategoryDAO categoryDao = new CategoryDAO(conn);
+			CategoryDAO categoryDao = new CategoryDAO();
 			ArrayList list = categoryDao.getFamilyList();
 			for (int i=0; i<list.size(); i++){
 				FamilyInfo item = (FamilyInfo) list.get(i);
@@ -395,7 +394,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			//dao connection
-			CategoryDAO categoryDao = new CategoryDAO(conn);
+			CategoryDAO categoryDao = new CategoryDAO();
 			
 			long channelID = Utils.getLong(channel);
 			ChannelInfo c = categoryDao.getChannelInfo(channelID);
@@ -454,7 +453,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			//dao connection
-			UtilityDAO utilityDAO = new UtilityDAO(conn);
+			UtilityDAO utilityDAO = new UtilityDAO();
 			
 			JSONArray div_result = new JSONArray();
 			if (division.equals("all")){
@@ -532,7 +531,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			//dao connection
-			UtilityDAO utilityDAO = new UtilityDAO(conn);
+			UtilityDAO utilityDAO = new UtilityDAO();
 			
 			JSONArray div_result = new JSONArray();
 			if (geographical.equals("all")){
@@ -614,7 +613,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			//dao connection
-			CategoryDAO categoryDAO = new CategoryDAO(conn);		
+			CategoryDAO categoryDAO = new CategoryDAO();		
 			JSONArray div_result = new JSONArray();
 			
 			ArrayList list = categoryDAO.getChannelList(Utils.getLong(family), (long)0);
@@ -727,9 +726,9 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			//dao connection
-			CategoryDAO categoryDAO = new CategoryDAO(conn);
+			CategoryDAO categoryDAO = new CategoryDAO();
 			conn.setAutoCommit(false);
-			ContentDAO  contentDAO = new ContentDAO(conn);			
+			ContentDAO  contentDAO = new ContentDAO();			
 			//evaluated value type
 
 			if (type.equals("add")){
@@ -821,7 +820,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 			// load all family data.
 			JSONArray div_result = new JSONArray();
 			//dao connection
-			CategoryDAO categoryDao = new CategoryDAO(conn);
+			CategoryDAO categoryDao = new CategoryDAO();
 			ArrayList list = categoryDao.getFamilyList();
 			for (int i=0; i<list.size(); i++){
 				FamilyInfo item = (FamilyInfo) list.get(i);
@@ -908,7 +907,7 @@ public class CategoryController extends com.youandbbva.enteratv.Controller{
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			//dao connection
-			CategoryDAO categoryDao = new CategoryDAO(conn);
+			CategoryDAO categoryDao = new CategoryDAO();
 			conn.setAutoCommit(false);
 			
 			if (type.equals("family")){

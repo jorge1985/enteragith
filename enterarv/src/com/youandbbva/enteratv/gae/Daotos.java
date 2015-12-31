@@ -30,8 +30,7 @@ public class Daotos extends HttpServlet {
 		String thisURLintranet = "http://intranet.bbva.com";
 		resp.setContentType("text/html");
 
-		Connection conn = DSManager.getConnection();
-		UserDAO userDao = new UserDAO(conn);
+		UserDAO userDao = new UserDAO();
 
 		String Nombre = req.getParameter("Nombre");
 		String CCorreo = req.getParameter("Correo");

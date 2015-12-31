@@ -90,7 +90,7 @@ public class Import extends HttpServlet {
 			conn.setAutoCommit(false);
 
 			JSONArray data = new JSONArray();
-			UserDAO dao = new UserDAO(conn);
+			UserDAO dao = new UserDAO();
 
 			String today = Utils.getTodayWithTime();
 			BlobKey blobKey = blobKeys.get(0);

@@ -72,12 +72,12 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 	@RequestMapping("home.html")
 	public ModelAndView home(
 			HttpServletRequest req, HttpServletResponse res, ArrayList<String> lista){
-		Connection conn = DSManager.getConnection();
 		
-		ModelAndView mv = new ModelAndView("public_home_p");
+
+		ModelAndView mv = new ModelAndView("public_home");
 		//ModelAndView mv = new ModelAndView("prueba");
 		//dao connection
-		UserDAO user = new UserDAO(conn);
+		UserDAO user = new UserDAO();
 		UserInfo userinfo = new UserInfo();
 		
 		user.getUserInfo(userinfo.getUserId());
@@ -90,8 +90,8 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 
 		try{
 			//dao connection
-			PublicDAO publicDao = new PublicDAO(conn);
-			SystemDAO systemDao = new SystemDAO(conn);
+			PublicDAO publicDao = new PublicDAO();
+			SystemDAO systemDao = new SystemDAO();
 			String ua = req.getHeader("User-Agent");
 			String[] html=null;
 			
@@ -113,23 +113,21 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			systemDao.update(Constants.OPTION_SLIDER_NAV_HTML, html[1]);
 			systemDao.update(Constants.OPTION_SLIDER_FOR_HTML+"_mobile", html[2]);
 			systemDao.update(Constants.OPTION_SLIDER_NAV_HTML+"_mobile", html[3]);
-			
-			
 		
 			String sessionID = req.getSession().getId();
 			String today = Utils.getToday();
 			String time = Utils.getTodayWithTime();
 			String addr = req.getRemoteAddr();
 			
-			conn.setAutoCommit(false);
+			
 			
 			//dao connection
-			//PublicDAO publicDao = new PublicDAO(conn);
+			//PublicDAO publicDao = new PublicDAO();
 			
 			if (!publicDao.isExistVisitor(userinfo.getUserId())){
 				//dao.insertVisitor(userinfo.getUserId(), Constants.LogType.ACCESS.getCode(), time, addr);
 			}
-			conn.commit();
+		
 			
 			String agent = Utils.checkNull(req.getHeader("User-Agent"));
 			System.out.println("CCCCC:"+Utils.isMobile(agent));
@@ -168,35 +166,13 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			mv.addObject("Video4", publicDao.VideoMozillaselect(4));	
 			mv.addObject("Video5", publicDao.VideoMozillaselect(5));
 			
-			mv.addObject("Imagen1", html[4]);
-			mv.addObject("Imagen2", html[5]);
-			mv.addObject("Imagen3", html[6]);
-			mv.addObject("Imagen4", html[7]);
-			mv.addObject("Imagen5", html[8]);
-			
-			
-			
-			System.out.println("imagen1 " + html[4]);
-			System.out.println("imagen1 " + html[5]);
-			System.out.println("imagen1 " + html[6]);
-			System.out.println("imagen1 " + html[7]);
-			System.out.println("imagen1 " + html[8]);
-			
-			
 			
 		}catch (Exception e){ 
 			log.error("PublicController", "home", e.toString());
 
-			try{
-				conn.rollback();
-			}catch (Exception f){}
-		}finally{
 			
 		}
-		try{
-			if (conn!=null)
-				conn.close();
-		}catch (Exception f){}
+		
 
 		return mv;
 	}
@@ -304,13 +280,12 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		channel_id = Utils.checkNull(channel_id);
 		String from = Utils.checkNull(req.getParameter("kind"));
 		
-		Connection conn = DSManager.getConnection();
-
+		
 		try{
 			if (channel_id.length()==0 && from.equals("search")){
 				
 				//dao connection
-				PublicDAO dao = new PublicDAO(conn);
+				PublicDAO dao = new PublicDAO();
 				//handle the form submission
 				mv.addObject("family", dao.getFamilyList());
 				mv.addObject("channel_id", "");
@@ -322,8 +297,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			}else{
 				Long channelID = Utils.getLong(channel_id);
 				
-				conn.setAutoCommit(false);
-				
+								
 				String sessionID = req.getSession().getId();
 				String userID = session.getFrontUserID(req.getSession());
 				String today = Utils.getToday();
@@ -331,8 +305,8 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 				String addr = req.getRemoteAddr();
 				
 				//dao connection
-				PublicDAO dao = new PublicDAO(conn);
-				VisitorDAO visitorDao = new VisitorDAO(conn);
+				PublicDAO dao = new PublicDAO();
+				VisitorDAO visitorDao = new VisitorDAO();
 				ContentDAO cont = new ContentDAO();
 				String strValidar="";
 				strValidar = cont.getChannel_IDcontent(channel_id);
@@ -343,8 +317,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 						visitorDao.insert(Integer.parseInt(userID),cont.getChannel_IDcontent(channel_id)  , time, req.getRemoteAddr());
 				}
 				
-				conn.commit();
-				
+								
 				//ContentInfo content = dao.getContentID(channelID);
 				//JR - Towa
 				ContentInfo content = dao.getCotentIdNew(channelID);
@@ -359,16 +332,8 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		}catch (Exception e){ 
 			log.error("PublicController", "channel", e.toString());
 
-			try{
-				conn.rollback();
-			}catch (Exception f){}
-		}finally{
-			
+		
 		}
-		try{
-			if (conn!=null)
-				conn.close();
-		}catch (Exception f){}
 		//JR
 		//return new ModelAndView("redirect:/public/home.html");
 		return new ModelAndView("redirect:/public/content.html");
@@ -439,7 +404,6 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		    Long total = (long)0;
 		    Long totalAfterFilter = (long)0;
 		    
-		    Connection conn = DSManager.getConnection();
 		    
 		    String additionalSQL = "";
 		    if (channel_id.length()>0){
@@ -451,7 +415,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 
 			try{
 				//dao connection
-				PublicDAO dao = new PublicDAO(conn);
+				PublicDAO dao = new PublicDAO();
 				
 				String sql = " select count(*) from " + table + " c where c.Contenttype_ContenttypeId=2 and c.ContentStatus='A' "/* + additionalSQL*/; 
 				total = dao.getCount(sql);
@@ -493,14 +457,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			}catch (Exception e){ 
 				log.error("PublicController", "loadContent", e.toString());
 
-			}finally{
-				
-			}
-		
-			try{
-				if (conn!=null)
-					conn.close();
-			}catch (Exception f){}
+			}	
 			
 		try{
 			response.setContentType("application/json");
@@ -538,15 +495,14 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		content_id = Utils.checkNull(content_id, "0");
 		channel_id = Utils.checkNull(channel_id);
 
-		Connection conn = DSManager.getConnection();
+		
 
 		try{
 			String agent = Utils.checkNull(req.getHeader("User-Agent"));
 			
 			Long contentID = Utils.getLong(content_id);
 			
-			conn.setAutoCommit(false);
-			
+					
 			String sessionID = req.getSession().getId();
 			String userID = session.getFrontUserID(req.getSession());
 			String today = Utils.getToday();
@@ -554,8 +510,8 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			String addr = req.getRemoteAddr();
 			
 			//dao connection
-			VisitorDAO visitorDao = new VisitorDAO(conn);
-			ContentDAO contentDao = new ContentDAO(conn);
+			VisitorDAO visitorDao = new VisitorDAO();
+			ContentDAO contentDao = new ContentDAO();
 									
 			if (contentID != 0)
 			{
@@ -568,7 +524,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 				}
 			}
 			} 
-			conn.commit();
+			
 			
 			PublicDAO dao = new PublicDAO();
 			//List <String> validacion = new ArrayList<>();
@@ -675,21 +631,14 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		}catch (Exception e){ 
 			log.error("PublicController", "content", e.toString());
 
-			try{
-				conn.rollback();
-			}catch (Exception f){}
+			
 			//handle the form submission
 			mv.addObject("content_id", "");
 			mv.addObject("title", "No se encontraron contenidos");
 			mv.addObject("content", "");
 			mv.addObject("files", new ArrayList());
-		}finally{
-			
 		}
-		try{
-			if (conn!=null)
-			conn.close();
-		}catch (Exception f){}
+		
 		return mv;
 	}
 	
@@ -728,7 +677,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 	    String sqlWhere = " c.ContentStatus='A' ";
 	    String sqlChannel = "";
 	    
-	    Connection conn = DSManager.getConnection();
+	
 	    
 	    try{
 			UserInfo user = session.getFrontUserInfo(req.getSession());
@@ -799,7 +748,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		    
 
 		  //dao connection
-			PublicDAO dao = new PublicDAO(conn);
+			PublicDAO dao = new PublicDAO();
 			
 			sql = " select count(*) from " + sqlFrom + " where " + sqlWhere ;
 			if (additionalSQL.length()>0)
@@ -840,13 +789,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		}catch (Exception e){ 
 			log.error("PublicController", "searchContent", e.toString());
 
-		}finally{
-			
 		}
-	    try{
-			if (conn!=null)
-			conn.close();
-		}catch (Exception f){}
 	    
         response(res, result);
 	}
@@ -875,11 +818,11 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 
 		ModelAndView mv = new ModelAndView("public_gallerys");
 		
-		Connection conn = DSManager.getConnection();
+		
 
 		try{
 			//dao connection
-			PublicDAO dao = new PublicDAO(conn);
+			PublicDAO dao = new PublicDAO();
 			//handle the form submission
 			mv.addObject("family", dao.getFamilyList());
 			mv.addObject("banner_sidebar", dao.getOptionHTML(Constants.OPTION_BANNER_INTERNAL_SIDEBAR_HTML));
@@ -889,13 +832,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		}catch (Exception e){ 
 			log.error("PublicController", "gallerys", e.toString());
 			
-		}finally{
-			
 		}
-		try{
-			if (conn!=null)
-			conn.close();
-		}catch (Exception f){}
 		return mv;
 	}
 	
@@ -914,7 +851,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 	    String sqlWhere = " c.type='005' and c.active='" + Constants.DEFAULT_ACTIVE + "' and c.status='0' and c.validity_end>='" + today + "' and pa.content_id=c.id and ga.content_id=c.id  " ;
 	    String sqlChannel = "";
 	    
-	    Connection conn = DSManager.getConnection();
+	    
 	    
 	    try{
 			UserInfo user = session.getFrontUserInfo(req.getSession());
@@ -971,7 +908,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		    	}
 		    
 		  //dao connection
-			PublicDAO dao = new PublicDAO(conn);
+			PublicDAO dao = new PublicDAO();
 			
 			sql = " select count(*) from " + sqlFrom + " where " + sqlWhere ;
 			if (additionalSQL.length()>0)
@@ -1000,13 +937,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		}catch (Exception e){ 
 			log.error("PublicController", "loadGallery", e.toString());
 
-		}finally{
-			
 		}
-	    try{
-			if (conn!=null)
-			conn.close();
-		}catch (Exception f){}
 				
         response(res, result);
 	}
@@ -1023,17 +954,17 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 
 		content_id = Utils.checkNull(content_id);
 		
-		Connection conn = DSManager.getConnection();
+		
 
 		try{
 			if (content_id.length()==0){
 				return new ModelAndView("redirect:/public/galerias.html");
 			}
 			
-			conn.setAutoCommit(false);
+			
 			
 			//dao connection
-			PublicDAO dao = new PublicDAO(conn);
+			PublicDAO dao = new PublicDAO();
 			
 			String sessionID = req.getSession().getId();
 			//String userID = session.getFrontUserID(req.getSession());
@@ -1055,13 +986,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		}catch (Exception e){ 
 			log.error("PublicController", "gallery", e.toString());
 			
-		}finally{
-			
 		}
-		try{
-			if (conn!=null)
-			conn.close();
-		}catch (Exception f){}
 		
 		return new ModelAndView("redirect:/public/galerias.html");
 	}
@@ -1077,7 +1002,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_FAILED);
 		result = setResponse(result, Constants.ERROR_MSG, reg.getMessage("ACT0002", session.getLanguage(req.getSession())));
 		
-	    Connection conn = DSManager.getConnection();
+	   
 	    
 	    try{
 			UserInfo user = session.getFrontUserInfo(req.getSession());
@@ -1092,7 +1017,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			}
 			
 			//dao connection
-			PublicDAO dao = new PublicDAO(conn);
+			PublicDAO dao = new PublicDAO();
 			
 			result = setResponse(result, "result", dao.getContentGallery(Utils.getLong(content_id)));
 			result = setResponse(result, Constants.ERROR_CODE, Constants.ACTION_SUCCESS);
@@ -1101,12 +1026,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		}catch (Exception e){ 
 			log.error("PublicController", "getGallery", e.toString());
 
-		}finally{
-			
-		}try{
-			if (conn!=null)
-			conn.close();
-		}catch (Exception f){}
+		}
 				
         response(res, result);
 	}

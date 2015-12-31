@@ -111,7 +111,7 @@ public class MediaController extends com.youandbbva.enteratv.Controller {
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			//dao connection
-			MediaDAO dao = new MediaDAO(conn);
+			MediaDAO dao = new MediaDAO();
 
 			result = setResponse(result, "list", dao.recallFolderList((long) 0));
 			result = setResponse(result, Constants.ERROR_CODE,
@@ -169,7 +169,7 @@ public class MediaController extends com.youandbbva.enteratv.Controller {
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			//dao connection
-			MediaDAO dao = new MediaDAO(conn);
+			MediaDAO dao = new MediaDAO();
 
 			result = setResponse(result, "file_id",
 					dao.getFoldersOfJSON(Utils.getLong(folder_id)));
@@ -258,7 +258,7 @@ public class MediaController extends com.youandbbva.enteratv.Controller {
 
 			conn.setAutoCommit(false);
 			//dao connection
-			MediaDAO dao = new MediaDAO(conn);
+			MediaDAO dao = new MediaDAO();
 
 			Long folderID = Utils.getLong(folder_id);
 			FolderInfo info = dao.getFolder(folderID);
@@ -391,7 +391,7 @@ public class MediaController extends com.youandbbva.enteratv.Controller {
 
 			conn.setAutoCommit(false);
 			//dao connection
-			MediaDAO dao = new MediaDAO(conn);
+			MediaDAO dao = new MediaDAO();
 			//evaluated value type
 			if (type.equals("add") || type.equals("edit")) {
 				if (dao.isValidFile(name, Utils.getLong(folder_id))) {
@@ -481,7 +481,7 @@ public class MediaController extends com.youandbbva.enteratv.Controller {
 				throw new Exception(reg.getMessage("ACT0003"));
 			}
 			//dao connection
-			MediaDAO dao = new MediaDAO(conn);
+			MediaDAO dao = new MediaDAO();
 
 			result = setResponse(result, "file",
 					dao.getFileOfJSON(Utils.getLong(file_id)));
