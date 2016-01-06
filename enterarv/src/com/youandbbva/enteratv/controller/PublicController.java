@@ -228,7 +228,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 					// Initialize value.
 					obj.put("parent", item.toJSONObject());
 					obj.put("child", dao.recallChannelList(item.getId(), (long)0, user));
-					div_result.put(obj);					
+					div_result.put(obj);	
 				}				
 			}
 

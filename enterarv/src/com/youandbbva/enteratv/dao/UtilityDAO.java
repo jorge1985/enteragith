@@ -539,18 +539,18 @@ public class UtilityDAO extends DAO{
 	 * @param table
 	 * @return
 	 */
+	@SuppressWarnings("resource")
 	public ArrayList getList(String table){
 		ArrayList result = new ArrayList();
 		Connection conn = DSManager.getConnection();
-		PreparedStatement stmtcity = null;
-		PreparedStatement stmtmain = null;
-		PreparedStatement stmtcompany = null;
+		PreparedStatement stmt = null;
+		
 		try{
 			if(table.equals("city"))
 			{
 																	// RUNNING QUERY
-				stmtcity = conn.prepareStatement(" select * from " + table + " ");
-				ResultSet rscity = stmtcity.executeQuery();
+				stmt = conn.prepareStatement(" select * from " + table + " ");
+				ResultSet rscity = stmt.executeQuery();
 				while (rscity.next()){
 					CodeInfo item = new CodeInfo();
 					item.setId(rscity.getLong(1));
@@ -562,8 +562,8 @@ public class UtilityDAO extends DAO{
 			if(table.equals("maindirection"))
 			{
 																	// RUNNING QUERY
-				stmtmain = conn.prepareStatement("select * from " + table + " "+"ORDER BY MaindirectionName ASC");
-				ResultSet rsmain = stmtmain.executeQuery();
+				stmt = conn.prepareStatement("select * from " + table + " "+"ORDER BY MaindirectionName ASC");
+				ResultSet rsmain = stmt.executeQuery();
 				while (rsmain.next()){
 					CodeInfo item = new CodeInfo();
 					item.setId(rsmain.getLong(1));
@@ -575,8 +575,8 @@ public class UtilityDAO extends DAO{
 			if(table.equals("company"))
 			{
 																	// RUNNING QUERY
-				stmtcompany = conn.prepareStatement(" select * from " + table + " ");
-				ResultSet rscompany = stmtcompany.executeQuery();
+				stmt = conn.prepareStatement(" select * from " + table + " ");
+				ResultSet rscompany = stmt.executeQuery();
 				while (rscompany.next()){
 					CodeInfo item = new CodeInfo();
 					item.setId(rscompany.getLong(1));
@@ -590,9 +590,7 @@ public class UtilityDAO extends DAO{
 		finally
 		{
 			try {
-				stmtcity.close();
-				stmtmain.close();
-				stmtcompany.close();
+				stmt.close();
 				conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
