@@ -22,7 +22,7 @@
   <script>
   
   $(document).ready(function(){
-	  
+debugger
 			 $.ajax({
 			      url: 'https://bbva-gnameindexer-sp.appspot.com/a/<%= user.getAuthDomain()%>/s/search/jsonP?searchText=<%= user.getEmail()%>',
   			      dataType: "jsonp",

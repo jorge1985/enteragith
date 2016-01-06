@@ -229,18 +229,6 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 					obj.put("parent", item.toJSONObject());
 					obj.put("child", dao.recallChannelList(item.getId(), (long)0, user));
 					div_result.put(obj);	
-					
-					JSONArray datos = new JSONArray();
-					ArrayList<?> list1 = new ArrayList(); 
-					Menu menu = new Menu();
-					menu.setList(list);
-				
-					datos = dao.recallChannelList(item.getId(), (long)0, user);
-					menu.setDatos(datos);
-					//System.out.println("datos "+menu.getDatos());
-					System.out.println("datos list1 " + menu.getList());
-					System.out.println("datos item "+ item.toJSONObject());
-					
 				}				
 			}
 

@@ -915,13 +915,13 @@ public String[] generateSlideMozilla(){
 	public ArrayList<ChannelInfo> getChannelList(Long familyID, Long parentID) throws SQLException{
 		ArrayList<ChannelInfo> result = new ArrayList<ChannelInfo>();
 		Connection conn1 = DSManager.getConnection();
-		PreparedStatement stmt = null;
+//		PreparedStatement stmt = null;
 		try{
 													// RUNNING QUERY
 			
 			
 			
-			stmt = conn1.prepareStatement(SELECT_BY_FAMILY_PARENT_ID__CHANNEL);
+			PreparedStatement stmt = conn1.prepareStatement(SELECT_BY_FAMILY_PARENT_ID__CHANNEL);
 			stmt.setLong(1, familyID);
 			stmt.setLong(2, parentID);
 			ResultSet rs = stmt.executeQuery();
@@ -945,7 +945,7 @@ public String[] generateSlideMozilla(){
 		finally
 		{
 			try {
-				stmt.close();
+//				stmt.close();
 				conn1.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -966,11 +966,11 @@ public String[] generateSlideMozilla(){
 		ArrayList<ChannelInfo> result = new ArrayList<ChannelInfo>();
 		
 		Connection conn1 = DSManager.getConnection();
-		PreparedStatement stmt = null;
+//		PreparedStatement stmt = null;
 		
 		try{
 																	// RUNNING QUERY
-			stmt = conn1.prepareStatement(SELECT_BY_PARENT_ID__CHANNEL);
+			PreparedStatement stmt = conn1.prepareStatement(SELECT_BY_PARENT_ID__CHANNEL);
 			stmt.setLong(1, parentID);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -993,7 +993,7 @@ public String[] generateSlideMozilla(){
 		finally
 		{
 			try {
-				stmt.close();
+//				stmt.close();
 				conn1.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
