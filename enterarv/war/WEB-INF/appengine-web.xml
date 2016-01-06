@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
-  <application></application>
-  <version>1</version>
+  <application>au-bbva-bancomer-enteratv</application>
+  <version>site</version>
 
   <!--
     Allows App Engine to send multiple requests to one instance in parallel:
@@ -13,6 +13,7 @@
     <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
   </system-properties>
 
+  
   <!--
     HTTP Sessions are disabled by default. To enable HTTP sessions specify:
 
@@ -27,5 +28,9 @@
     stale session data. For details, see
     http://code.google.com/appengine/docs/java/config/appconfig.html#Enabling_Sessions
   -->
+
+	<sessions-enabled>true</sessions-enabled>
+	<async-session-persistence enabled="true" />
+	<use-google-connector-j>true</use-google-connector-j>
 
 </appengine-web-app>
