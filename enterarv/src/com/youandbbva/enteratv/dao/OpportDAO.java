@@ -79,6 +79,7 @@ public class OpportDAO extends DAO{
 	public OpportDAO() {
 		// TODO Auto-generated constructor stub
 	}
+	
 
 	/**
 	 * Get Code Value.
@@ -149,7 +150,8 @@ public class OpportDAO extends DAO{
 			}
 		}catch (Exception e){
 			log.error("OpportDAO", "getBrandList", e.toString());
-		}finally
+		}
+		finally
 		{
 			try {
 				stmt.close();
@@ -170,9 +172,9 @@ public class OpportDAO extends DAO{
 	 * @return name
 	 */
 	public String getBrandName(Long id){
+		String result = "";
 		Connection conn = DSManager.getConnection();
 		PreparedStatement stmt = null;
-		String result = "";
 		try{
 			stmt = conn.prepareStatement(SELECT_NAME__BRAND);
 			stmt.setLong(1, id);
@@ -245,9 +247,9 @@ public class OpportDAO extends DAO{
 	 * @return name
 	 */
 	public String getStateName(Long id){
+		String result = "";
 		Connection conn = DSManager.getConnection();
 		PreparedStatement stmt = null;
-		String result = "";
 		try{
 			stmt = conn.prepareStatement(SELECT_NAME__STATE);
 			stmt.setLong(1, id);
@@ -257,8 +259,8 @@ public class OpportDAO extends DAO{
 			}
 		}catch (Exception e){
 			log.error("OpportDAO", "getStateName", e.toString());
-		}finally
-		
+		}
+		finally
 		{
 			try {
 				stmt.close();
@@ -297,8 +299,7 @@ public class OpportDAO extends DAO{
 			}
 		}catch (Exception e){
 			log.error("OpportDAO", "getCityListOfJSON", e.toString());
-		}
-		finally
+		}finally
 		{
 			try {
 				stmt.close();
@@ -385,6 +386,7 @@ public class OpportDAO extends DAO{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
 		}
 
 		return result;
@@ -412,12 +414,15 @@ public class OpportDAO extends DAO{
 	 * @param user_id
 	 * @throws Exception
 	 */
-	public void insertCar2(Long brand_id, String desc, Long km, String trans, String color, Long doors, Long adid ) throws Exception{
+	public void insertCar2(Long brand_id, String desc, Long km, String trans, String color, Long doors, Long adid, String today ) throws Exception{
 		//String time = Utils.getTodayWithTime();
 		Connection conn = DSManager.getConnection();
-		PreparedStatement stmt = conn.prepareStatement(INSERT_CAR_OPPORTUNITIES);
+		PreparedStatement stmt = null;
+		
+		stmt = conn.prepareStatement(INSERT_CAR_OPPORTUNITIES);
 		stmt.setLong(1, adid);
-		stmt.setString(2, desc);
+		//stmt.setString(2, desc);
+		stmt.setString(2, today);
 		stmt.setLong(3, doors);
 		stmt.setString(4, color);
 		stmt.setLong(5, km);
@@ -479,8 +484,11 @@ public class OpportDAO extends DAO{
 //	}
 	
 	public void insertAdRs(long Ad_AdId, String AdrsFloors, String AdrsRooms, String AdrsOfferType, String AdrsPropertyType, String AdrsM2, String AdrsParkingPlaces, String AdrsFurnished, String AdrsM2Built) throws SQLException{
+		
 		Connection conn = DSManager.getConnection();
-		PreparedStatement stmt = conn.prepareStatement(INSERT_ADRS_OPPORTUNITIES);
+		PreparedStatement stmt = null;
+		
+		stmt = conn.prepareStatement(INSERT_ADRS_OPPORTUNITIES);
 		
 		stmt.setLong(1, Ad_AdId);
 		stmt.setString(2, AdrsFloors);
@@ -500,6 +508,7 @@ public class OpportDAO extends DAO{
 		stmt.setString(9, AdrsM2Built);
 		
 		stmt.executeUpdate();
+		
 		stmt.close();
 		conn.close();
 	}
@@ -521,8 +530,10 @@ public class OpportDAO extends DAO{
 	 * @throws Exception
 	 */
 	public void insertSrv(String varios, String model, String price, String state, String city, String obs,
-			String telephone, String mobilephone, long file, String public_date, int user, String publish_kind) throws Exception{
+		String telephone, String mobilephone, long file, String public_date, int user, String publish_kind) throws Exception{
 		
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		public_date = Utils.getTodayWithTime();
 		String AdUpdateDate = Utils.getTodayWithTime();
 		boolean AdIsVisible=true;
@@ -540,8 +551,8 @@ public class OpportDAO extends DAO{
 		}else{
 			type = 4;
 		}
-		Connection conn = DSManager.getConnection();
-		PreparedStatement stmt = conn.prepareStatement(INSERT_SRV__AD);
+					
+		stmt = conn.prepareStatement(INSERT_SRV__AD);
 		stmt.setString(1, varios);
 		stmt.setString(2, model);
 		stmt.setString(3, price);
@@ -594,7 +605,9 @@ public class OpportDAO extends DAO{
 			String obs, String color, String doors, String telephone, String mobilephone, String file, Long oppID ) throws Exception{
 		String time = Utils.getTodayWithTime();
 		Connection conn = DSManager.getConnection();
-		PreparedStatement stmt = conn.prepareStatement(UPDATE_CAR__OPPORTUNITIES);
+		PreparedStatement stmt = null;
+		
+		stmt = conn.prepareStatement(UPDATE_CAR__OPPORTUNITIES);
 		stmt.setLong(1, brand_id);
 		stmt.setLong(2, state_id);
 		stmt.setLong(3, city_id);
@@ -644,7 +657,9 @@ public class OpportDAO extends DAO{
 			String telephone, String mobilephone, String file, Long oppID) throws Exception{
 		String time = Utils.getTodayWithTime();
 		Connection conn = DSManager.getConnection();
-		PreparedStatement stmt = conn.prepareStatement(UPDATE_FUR__OPPORTUNITIES);
+		PreparedStatement stmt = null;
+		
+		stmt = conn.prepareStatement(UPDATE_FUR__OPPORTUNITIES);
 		stmt.setLong(1, state_id);
 		stmt.setLong(2, city_id);
 		stmt.setString(3, model);
@@ -664,6 +679,7 @@ public class OpportDAO extends DAO{
 		stmt.setLong(17, oppID);
 		
 		stmt.executeUpdate();
+		
 		stmt.close();
 		conn.close();
 	}
@@ -688,7 +704,9 @@ public class OpportDAO extends DAO{
 			String telephone, String mobilephone, String file, Long oppID ) throws Exception{
 		String time = Utils.getTodayWithTime();
 		Connection conn = DSManager.getConnection();
-		PreparedStatement stmt = conn.prepareStatement(UPDATE_SRV__OPPORTUNITIES);
+		PreparedStatement stmt = null;
+		
+		stmt = conn.prepareStatement(UPDATE_SRV__OPPORTUNITIES);
 		stmt.setLong(1, state_id);
 		stmt.setLong(2, city_id);
 		stmt.setString(3, model);
@@ -714,8 +732,11 @@ public class OpportDAO extends DAO{
 	 * @throws Exception
 	 */
 	public void delete(Long id) throws Exception{
+		
 		Connection conn = DSManager.getConnection();
-		PreparedStatement stmt = conn.prepareStatement(DELETE__OPPORTUNITIES);
+		PreparedStatement stmt = null;
+		
+		stmt = conn.prepareStatement(DELETE__OPPORTUNITIES);
 		stmt.setLong(1, id);
 		stmt.executeUpdate();
 		stmt.close();
@@ -732,8 +753,8 @@ public class OpportDAO extends DAO{
 		OpportunitiesInfo result = new OpportunitiesInfo();
 		Connection conn = DSManager.getConnection();
 		PreparedStatement stmt = null;
+		
 		try{
-			
 			stmt = conn.prepareStatement(SELECT_BY_ID__OPPORTUNITIES);
 			stmt.setLong(1, id);
 			ResultSet rs = stmt.executeQuery();
@@ -774,7 +795,8 @@ public class OpportDAO extends DAO{
 			}
 		}catch (Exception e){
 			log.error("OpportDAO", "getOpportunities", e.toString());
-		}finally
+		}
+		finally
 		{
 			try {
 				stmt.close();
@@ -783,6 +805,7 @@ public class OpportDAO extends DAO{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
 		}
 
 		return null;
@@ -790,9 +813,10 @@ public class OpportDAO extends DAO{
 	
 	//TW JS
 	public OpportunitiesInfo getOportunidades(Long id, String kind){
+		
 		Connection conn = DSManager.getConnection();
-		OpportunitiesInfo result = new OpportunitiesInfo();
 		PreparedStatement stmt = null;
+		OpportunitiesInfo result = new OpportunitiesInfo();
 		try {
 			MediaDAO mediaDao = new MediaDAO();
 			
@@ -867,6 +891,7 @@ public class OpportDAO extends DAO{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		
 		}
 		return null;
 	}
@@ -881,6 +906,7 @@ public class OpportDAO extends DAO{
 		Long result = (long)0;
 		Connection conn = DSManager.getConnection();
 		PreparedStatement stmt = null;
+		
 		try{
 			stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
@@ -890,7 +916,8 @@ public class OpportDAO extends DAO{
 		}catch (Exception e){
 			log.error("OpportDAO", "getCount", e.toString());
 			result = (long)0;
-		}finally
+		}
+		finally
 		{
 			try {
 				stmt.close();
@@ -996,7 +1023,8 @@ public class OpportDAO extends DAO{
 			}
 		}catch (Exception e){
 			log.error("OpportDAO", "getContent", e.toString());
-		}finally
+		}
+		finally
 		{
 			try {
 				stmt.close();
@@ -1012,10 +1040,12 @@ public class OpportDAO extends DAO{
 
 	
 	public void updateVisible() throws Exception{
-		Connection conn = DSManager.getConnection();
 		String today = Utils.getTodayWithTime();
-		PreparedStatement stmt = conn.prepareStatement(" update ad set AdStatus='I' where  AdInactiveDate >= '" + today + "' ");
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
+		stmt = conn.prepareStatement(" update ad set AdStatus='I' where  AdInactiveDate >= '" + today + "' ");
 		stmt.executeUpdate();
+		
 		stmt.close();
 		conn.close();
 	}
@@ -1037,9 +1067,10 @@ public class OpportDAO extends DAO{
 		  }catch (Exception e){}
 		  finally
 		  {
+			  
 			  try {
 				  stmt.close();
-				conn.close();
+				  conn.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -1050,8 +1081,10 @@ public class OpportDAO extends DAO{
 		 }
 	
 	public void execute(String sql){
+		
 		Connection conn = DSManager.getConnection();
 		PreparedStatement stmt = null;
+		
 		try{
 			stmt = conn.prepareStatement(sql);
 			stmt.execute();
@@ -1099,9 +1132,9 @@ public class OpportDAO extends DAO{
 	
 	//Nuevos metodos RJ
 	public JSONArray getContentCar(String typeid, int userid, String searchcriteria){
-		JSONArray result = new JSONArray();
 		Connection conn = DSManager.getConnection();
 		PreparedStatement stmt = null;
+		JSONArray result = new JSONArray();
 		String sql = "";
 		String order = " order by a.AdUpdateDate ";
 		if (userid==0)
@@ -1202,7 +1235,8 @@ public class OpportDAO extends DAO{
 			}
 		}catch (Exception e){
 			log.error("OpportDAO", "getContent", e.toString());
-		}finally
+		}
+		finally
 		{
 			try {
 				stmt.close();
@@ -1221,10 +1255,10 @@ public class OpportDAO extends DAO{
 	
 	public JSONArray getContentRs(String typeid, int userid, String searchcriteria){
 		JSONArray result = new JSONArray();
-		Connection conn = DSManager.getConnection();
-		PreparedStatement stmt = null;
 		String sql = "";
 		String order = " order by a.AdUpdateDate ";
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		if (userid==0)
 		{
 			sql = " select a.*,c.* from ad a,adRs c where a.Adtype_AdtypeId = ? and a.AdIsVisible = 1 and a.AdId = c.Ad_AdId ";
@@ -1350,10 +1384,10 @@ public class OpportDAO extends DAO{
 	
 	public JSONArray getContentSv(String typeid, int userid, String searchcriteria){
 		JSONArray result = new JSONArray();
-		Connection conn = DSManager.getConnection();
-		PreparedStatement stmt = null;
 		String sql = "";
 		String order = " order by a.AdUpdateDate ";
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
 		if (userid==0)
 		{
 			sql = " select * from ad a where a.Adtype_AdtypeId = ? and a.AdIsVisible = 1 ";
@@ -1471,7 +1505,6 @@ public class OpportDAO extends DAO{
 				e.printStackTrace();
 			}
 		}
-		
 		return result;
 	}
 
@@ -1506,6 +1539,7 @@ public class OpportDAO extends DAO{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
 		}
 		
 		return valor;
@@ -1514,7 +1548,7 @@ public class OpportDAO extends DAO{
 // Metodo Nuevo
 	
 	public String getMediaById(Long mediaid){
-		String contenido = "";		
+		String contenido = "";	
 		Connection conn = DSManager.getConnection();
 		PreparedStatement stmt = null;
 		try{
@@ -1530,7 +1564,8 @@ public class OpportDAO extends DAO{
 						
 		}catch (Exception e){
 			log.error("OpportDAO", "getMediaById", e.toString());
-		}finally
+		}
+		finally
 		{
 			try {
 				stmt.close();
@@ -1539,6 +1574,7 @@ public class OpportDAO extends DAO{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
 		}
 		
 		return contenido;
@@ -1548,6 +1584,7 @@ public class OpportDAO extends DAO{
 			String state, String city, String obs, String telephone,
 			String mobilephone, long mediaContent, String public_date,
 			int userId, String publish_id) throws SQLException {
+		
 		Connection conn = DSManager.getConnection();
 		PreparedStatement stmt = null;
 
@@ -1578,6 +1615,7 @@ public class OpportDAO extends DAO{
 		int id = 0;
 		Connection conn = DSManager.getConnection();
 		PreparedStatement stmt = null;
+		
 		try {
 			String sql = "SELECT Media_MediaId FROM ad WHERE AdId = ?";
 			stmt = conn.prepareStatement(sql);
@@ -1601,6 +1639,7 @@ public class OpportDAO extends DAO{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			
 		}
 		return 0;
 	}
@@ -1608,8 +1647,20 @@ public class OpportDAO extends DAO{
 	public void updateAdrRs(String publish_id, String plants, String rooms,
 			String serve_type, String property, String mileage, String string,
 			String amueblado, String model) throws SQLException {
+		
 		Connection conn = DSManager.getConnection();
-		PreparedStatement stmt = conn.prepareStatement(UPDATE_ADRS_AD);
+		PreparedStatement stmt = null;
+		
+		if(serve_type.equals("VENTA"))
+		{
+			serve_type = "1";
+		}
+		else if (serve_type.equals("RENTA"))
+		{
+			serve_type = "2";
+		}
+
+		stmt = conn.prepareStatement(UPDATE_ADRS_AD);
 
 		stmt.setString(1, plants);
 		stmt.setString(2, rooms);
@@ -1629,15 +1680,18 @@ public class OpportDAO extends DAO{
 
 	public void updateAdCar(long parseLong, String model, long parseLong2,
 			String transmission, String color, long parseLong3,
-			String publish_id) throws SQLException{
+			String publish_id, String today) throws SQLException{
+		
 		Connection conn = DSManager.getConnection();
-		PreparedStatement stmt = conn.prepareStatement(UPDATE_CAR_AD);
+		PreparedStatement stmt = null;
 
-		stmt.setLong(1, parseLong);
-		stmt.setString(2, model);
-		stmt.setLong(3, parseLong2);
-		stmt.setString(4, transmission);
-		stmt.setString(5, color);
+		stmt = conn.prepareStatement(UPDATE_CAR_AD);
+
+		stmt.setString(1, today);
+		stmt.setLong(2, parseLong);
+		stmt.setString(3, color);
+		stmt.setLong(4, parseLong2);
+		stmt.setString(5, transmission);
 		stmt.setLong(6, parseLong3);
 		stmt.setString(7, "4");
 		stmt.setString(8, publish_id);
@@ -1649,9 +1703,11 @@ public class OpportDAO extends DAO{
 	}
 
 	public void deleteAd(String publish_id) throws Exception{
-		Connection conn = DSManager.getConnection();
 		
-		PreparedStatement stmt = conn.prepareStatement(DELETE_SRV_AD);
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
+		
+		stmt = conn.prepareStatement(DELETE_SRV_AD);
 		stmt.setString(1, publish_id);
 		stmt.executeUpdate();
 		
@@ -1661,9 +1717,11 @@ public class OpportDAO extends DAO{
 
 	public void deleteAdrs(String publish_id) throws Exception{
 		Connection conn = DSManager.getConnection();
-		PreparedStatement stmt = conn.prepareStatement(DELETE_ADRS_AD);
+		PreparedStatement stmt = null;
+		
+		stmt = conn.prepareStatement(DELETE_ADRS_AD);
 		stmt.setString(1, publish_id);
-		stmt.executeUpdate();	
+		stmt.executeUpdate();
 		
 		stmt.close();
 		conn.close();
@@ -1671,7 +1729,9 @@ public class OpportDAO extends DAO{
 
 	public void deleteAdCar(String publish_id) throws Exception{
 		Connection conn = DSManager.getConnection();
-		PreparedStatement stmt = conn.prepareStatement(DELETE_CAR_AD);
+		PreparedStatement stmt = null;
+		
+		stmt = conn.prepareStatement(DELETE_CAR_AD);
 		stmt.setString(1, publish_id);
 		stmt.executeUpdate();
 		

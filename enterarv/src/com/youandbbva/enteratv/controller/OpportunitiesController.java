@@ -1524,7 +1524,7 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 					
 					i=dao.getId();
 
-					dao.insertCar2(Long.parseLong(brand), model, Long.parseLong(mileage), transmission, color, Long.parseLong(door), i);
+					dao.insertCar2(Long.parseLong(brand), model, Long.parseLong(mileage), transmission, color, Long.parseLong(door), i, today);
 				}
 				
 				if (publish_kind.equals("002")){
@@ -1553,7 +1553,7 @@ public class OpportunitiesController extends com.youandbbva.enteratv.Controller{
 					//TOWA JR
 					mediaDao.updateMedia(dao.idMedia(publish_id),file);
 					dao.updateSrv(varios, model, price, state, city, obs, telephone, mobilephone, mediaDao.getMediaContent(file), public_date, user.getUserId(),publish_id);
-					dao.updateAdCar(Long.parseLong(brand), model, Long.parseLong(mileage), transmission, color, Long.parseLong(door), publish_id);
+					dao.updateAdCar(Long.parseLong(brand), model, Long.parseLong(mileage), transmission, color, Long.parseLong(door), publish_id, today);
 				}
 				
 				if (publish_kind.equals("002")){
