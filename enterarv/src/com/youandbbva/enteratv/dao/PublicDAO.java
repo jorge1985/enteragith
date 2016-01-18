@@ -1847,4 +1847,205 @@ public String[] generateSlideMozilla(){
 		return lista;
 	}
 	
+	
+	public int id_usuario (String correo)
+	{
+		
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
+		
+		int intid_usuario =0;
+		
+		String sql = "select UserId from user where UserEmail=?";
+		try 
+		{
+			
+			
+			
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, correo);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				intid_usuario = rs.getInt("UserId");
+			}
+		} 
+		catch (Exception e) 
+		{
+			log.error("PublicDAO", "getCountT", e.toString());
+			intid_usuario = 0;
+		}
+		finally
+		{
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		return intid_usuario;
+	}
+	
+	
+	public void inservalorescontenido (String id_canal, String id_contenido, int intidusuario)
+	{
+		// RUNNING QUERY
+		//insert into html (html) values (?)";
+		
+		int canal = 0;
+		int contenido =0;
+		
+		canal = Integer.parseInt(id_canal);
+		contenido = Integer.parseInt(id_contenido);
+		
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
+		
+		try
+		{		
+		String sql =" update user set UserAccessLevel = ?, UserToken = ? where UserId = ?";
+		stmt = conn.prepareStatement(sql);
+		stmt.setInt(1, canal);
+		stmt.setInt(2, contenido);
+		stmt.setInt(3, intidusuario);
+		stmt.execute();
+		}
+		catch(Exception e)
+		{
+			log.error("insertvalorescanal", "Error al actualizar " + e);
+		}
+		finally
+		{
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}		
+	}
+	
+	public ArrayList<Integer> Valorescontenido (int usuario_ID)
+	{
+		
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
+		
+		int intcanal = 0;
+		int intcontenido = 0;
+		
+		ArrayList<Integer> lista = new ArrayList<Integer>();
+		
+		String sql = "select UserAccessLevel, UserToken from user where UserId=?";
+		try 
+		{
+			stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, usuario_ID);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				lista.add(rs.getInt("UserAccessLevel"));
+				lista.add(rs.getInt("UserToken"));
+			}
+		} 
+		catch (Exception e) 
+		{
+			log.error("PublicDAO", "getCountT", e.toString());
+			
+		}
+		finally
+		{
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		return lista;
+	}
+	
+	
+	public boolean Existevisita (int usuario_ID)
+	{
+		
+		PreparedStatement stmt = null;
+		Connection conn = null;
+		
+		conn = DSManager.getConnection();
+		
+		
+		boolean visita = false;
+		
+				
+		String sql = "select UserAccessLevel from user where UserAccessLevel != \"\"";
+		try 
+		{
+			stmt = conn.prepareStatement(sql);
+//			stmt.setInt(1, usuario_ID);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				visita = true;
+			}
+		} 
+		catch (Exception e) 
+		{
+			log.error("PublicDAO", "getCountT", e.toString());
+			
+		}
+		finally
+		{
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		return visita;
+	}
+	
+	public void limpiar (int intidusuario)
+	{
+						
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
+		
+		try
+		{		
+		String sql =" update user set UserAccessLevel = null, UserToken = null where UserId = ?";
+		stmt = conn.prepareStatement(sql);
+		
+		stmt.setInt(1, intidusuario);
+		stmt.execute();
+		}
+		catch(Exception e)
+		{
+			log.error("insertvalorescanal", "Error al limpiar " + e);
+		}
+		finally
+		{
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}		
+	}
+	public String Url ()
+	{
+		String strUrl = "";
+		
+		
+		
+		return strUrl;
+	}
 }
