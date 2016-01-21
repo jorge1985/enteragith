@@ -1,8 +1,11 @@
 package com.youandbbva.enteratv.controller;
 
 import java.sql.Connection;
+import java.util.ArrayList;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
+
 import com.youandbbva.enteratv.Constants;
 import com.youandbbva.enteratv.DSManager;
 import com.youandbbva.enteratv.Utils;
@@ -20,7 +24,6 @@ import com.youandbbva.enteratv.dao.PublicDAO;
 import com.youandbbva.enteratv.dao.SystemDAO;
 import com.youandbbva.enteratv.dao.UtilityDAO;
 import com.youandbbva.enteratv.dao.WidgetDAO;
-import com.youandbbva.enteratv.domain.BannerInfo;
 import com.youandbbva.enteratv.domain.UserInfo;
 
 /**
@@ -559,6 +562,24 @@ public class WidgetController extends com.youandbbva.enteratv.Controller{
 		}
 
 		response(res, result);
+	}
+	
+	@RequestMapping("OBTDatos.html")
+	public ModelAndView OBTDatos(HttpServletRequest req, HttpServletResponse res)
+	{
+		
+		ModelAndView mv = new ModelAndView("edit_data");
+		ArrayList<String> Lista = new ArrayList<String>();
+		
+		PublicDAO publicDao = new PublicDAO();		
+//		publicDao.limpia_usu();
+		
+		mv.addObject("datos", publicDao.CorreoUsuario());
+		
+		return mv;
+		
+
+		
 	}
 	
 }

@@ -915,13 +915,13 @@ public String[] generateSlideMozilla(){
 	public ArrayList<ChannelInfo> getChannelList(Long familyID, Long parentID) throws SQLException{
 		ArrayList<ChannelInfo> result = new ArrayList<ChannelInfo>();
 		Connection conn1 = DSManager.getConnection();
-//		PreparedStatement stmt = null;
+		PreparedStatement stmt = null;
 		try{
 													// RUNNING QUERY
 			
 			
 			
-			PreparedStatement stmt = conn1.prepareStatement(SELECT_BY_FAMILY_PARENT_ID__CHANNEL);
+			stmt = conn1.prepareStatement(SELECT_BY_FAMILY_PARENT_ID__CHANNEL);
 			stmt.setLong(1, familyID);
 			stmt.setLong(2, parentID);
 			ResultSet rs = stmt.executeQuery();
@@ -945,7 +945,7 @@ public String[] generateSlideMozilla(){
 		finally
 		{
 			try {
-//				stmt.close();
+				stmt.close();
 				conn1.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -966,11 +966,11 @@ public String[] generateSlideMozilla(){
 		ArrayList<ChannelInfo> result = new ArrayList<ChannelInfo>();
 		
 		Connection conn1 = DSManager.getConnection();
-//		PreparedStatement stmt = null;
+		PreparedStatement stmt = null;
 		
 		try{
 																	// RUNNING QUERY
-			PreparedStatement stmt = conn1.prepareStatement(SELECT_BY_PARENT_ID__CHANNEL);
+			stmt = conn1.prepareStatement(SELECT_BY_PARENT_ID__CHANNEL);
 			stmt.setLong(1, parentID);
 			ResultSet rs = stmt.executeQuery();
 			while (rs.next()){
@@ -993,7 +993,7 @@ public String[] generateSlideMozilla(){
 		finally
 		{
 			try {
-//				stmt.close();
+				stmt.close();
 				conn1.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -1313,13 +1313,13 @@ public String[] generateSlideMozilla(){
 			ArrayList<?> list = getChannelList(familyID, parentID);
 			for (int i=0; i<list.size(); i++){
 				ChannelInfo item = (ChannelInfo) list.get(i);
-				if (checkCondition(item, user)){
+//				if (checkCondition(item, user)){
 					JSONObject obj = new JSONObject();
 					obj.put("parent", item.toJSONObject());
 					obj.put("child", recallChannelList(familyID, item.getId(), user));
 					result.put(obj);
 					
-				}
+//				}
 			}
 			
 		}catch (Exception e){
@@ -1847,4 +1847,265 @@ public String[] generateSlideMozilla(){
 		return lista;
 	}
 	
+	
+	public int id_usuario (String correo)
+	{
+		
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
+		
+		int intid_usuario =0;
+		
+		String sql = "select UserId from user where UserEmail=?";
+		try 
+		{
+			
+			
+			
+			stmt = conn.prepareStatement(sql);
+			stmt.setString(1, correo);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				intid_usuario = rs.getInt("UserId");
+			}
+		} 
+		catch (Exception e) 
+		{
+			log.error("PublicDAO", "getCountT", e.toString());
+			intid_usuario = 0;
+		}
+		finally
+		{
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		return intid_usuario;
+	}
+	
+	
+	public void inservalorescontenido (String id_canal, String id_contenido, int intidusuario)
+	{
+		// RUNNING QUERY
+		//insert into html (html) values (?)";
+		
+		int canal = 0;
+		int contenido =0;
+		
+		canal = Integer.parseInt(id_canal);
+		contenido = Integer.parseInt(id_contenido);
+		
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
+		
+		try
+		{		
+		String sql =" update user set UserAccessLevel = ?, UserToken = ? where UserId = ?";
+		stmt = conn.prepareStatement(sql);
+		stmt.setInt(1, canal);
+		stmt.setInt(2, contenido);
+		stmt.setInt(3, intidusuario);
+		stmt.execute();
+		}
+		catch(Exception e)
+		{
+			log.error("insertvalorescanal", "Error al actualizar " + e);
+		}
+		finally
+		{
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}		
+	}
+	
+	public ArrayList<Integer> Valorescontenido (int usuario_ID)
+	{
+		
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
+		
+		int intcanal = 0;
+		int intcontenido = 0;
+		
+		ArrayList<Integer> lista = new ArrayList<Integer>();
+		
+		String sql = "select UserAccessLevel, UserToken from user where UserId=?";
+		try 
+		{
+			stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, usuario_ID);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				lista.add(rs.getInt("UserAccessLevel"));
+				lista.add(rs.getInt("UserToken"));
+			}
+		} 
+		catch (Exception e) 
+		{
+			log.error("PublicDAO", "getCountT", e.toString());
+			
+		}
+		finally
+		{
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		return lista;
+	}
+	
+	
+	public boolean Existevisita (int usuario_ID)
+	{
+		
+		PreparedStatement stmt = null;
+		Connection conn = null;
+		
+		conn = DSManager.getConnection();
+		
+		
+		boolean visita = false;
+		
+				
+		String sql = "select UserAccessLevel from user where UserAccessLevel != \"\" and UserToken !=\"\"";
+		try 
+		{
+			stmt = conn.prepareStatement(sql);
+//			stmt.setInt(1, usuario_ID);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				visita = true;
+			}
+		} 
+		catch (Exception e) 
+		{
+			log.error("PublicDAO", "getCountT", e.toString());
+			
+		}
+		finally
+		{
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		return visita;
+	}
+	
+	public void limpiar (int intidusuario)
+	{
+						
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
+		
+		try
+		{		
+		String sql =" update user set UserAccessLevel = null, UserToken = null where UserId = ?";
+		stmt = conn.prepareStatement(sql);
+		
+		stmt.setInt(1, intidusuario);
+		stmt.execute();
+		}
+		catch(Exception e)
+		{
+			log.error("insertvalorescanal", "Error al limpiar " + e);
+		}
+		finally
+		{
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}		
+	}
+	public String Url ()
+	{
+		String strUrl = "";
+		
+		
+		
+		return strUrl;
+	}
+	
+	public ArrayList<String> CorreoUsuario()
+	{
+		String sql = "select UserEmail from user";
+		ArrayList<String> correos = new ArrayList<String>();
+		
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
+		 
+		
+		try
+		{
+			stmt = conn.prepareStatement(sql);
+			ResultSet res = stmt.executeQuery();
+			while (res.next())
+			{
+				correos.add(res.getString("UserAccessLevel"));
+				
+			}
+			return correos;
+		}
+		catch (Exception e) 
+		{
+			log.error("Correo usuario", "Error al obtener datos" + e);
+		}	
+		
+		return null;
+	}
+	public void limpia_usu ()
+	{
+		// RUNNING QUERY
+		//insert into html (html) values (?)";
+		
+	
+		
+		Connection conn = DSManager.getConnection();
+		PreparedStatement stmt = null;
+		
+		try
+		{		
+		String sql ="  update user set UserAccessLevel = null, UserToken = null";
+		stmt = conn.prepareStatement(sql);
+		
+		stmt.execute();
+		}
+		catch(Exception e)
+		{
+			log.error("insertvalorescanal", "Error al actualizar " + e);
+		}
+		finally
+		{
+			try {
+				stmt.close();
+				conn.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}		
+	}
 }

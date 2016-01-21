@@ -1,6 +1,5 @@
 package com.youandbbva.enteratv.controller;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.youandbbva.enteratv.Constants;
-import com.youandbbva.enteratv.DSManager;
 import com.youandbbva.enteratv.Utils;
 import com.youandbbva.enteratv.dao.CategoryDAO;
 import com.youandbbva.enteratv.dao.ContentDAO;
@@ -73,6 +71,19 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 	public ModelAndView home(
 			HttpServletRequest req, HttpServletResponse res, ArrayList<String> lista){
 		
+		PublicDAO publicDao = new PublicDAO();
+		
+		String cuenta = req.getUserPrincipal().getName();
+		int intidusuario = 0 ;
+		
+		intidusuario = publicDao.id_usuario(cuenta);
+		
+		if(publicDao.Existevisita(intidusuario))
+		{
+			return new ModelAndView("redirect:/public/content.html");
+			
+		}
+		
 
 		ModelAndView mv = new ModelAndView("public_home");
 		//ModelAndView mv = new ModelAndView("prueba");
@@ -90,7 +101,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 
 		try{
 			//dao connection
-			PublicDAO publicDao = new PublicDAO();
+			
 			SystemDAO systemDao = new SystemDAO();
 			String ua = req.getHeader("User-Agent");
 			String[] html=null;
@@ -467,7 +478,15 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			@RequestParam(value = "channel_id", required = false) String channel_id,
 			@RequestParam(value = "content_blog", required = false) String content_blog,
 			HttpServletRequest req, HttpServletResponse res){
-
+		
+		PublicDAO dao = new PublicDAO();
+		
+		
+		String cuenta = req.getUserPrincipal().getName();
+		int intidusuario = 0 ;
+		
+		intidusuario = dao.id_usuario(cuenta);
+				
 		String access_from = Utils.checkNull(req.getParameter("access_from"));
 		if (access_from.equals("cms")){
 
@@ -475,9 +494,40 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 		
 		UserInfo user = session.getFrontUserInfo(req.getSession());
 		if (user==null){
+			
+//			contentt.setId_canal(channel_id);
+//			contentt.setId_contenido(content_id);
+			
+			dao.inservalorescontenido(channel_id, content_id, intidusuario);
+			
 			return new ModelAndView("redirect:/user/adios.html");
 		}
+		
+		ArrayList <Integer> valorUrl = new ArrayList <Integer>();
+		valorUrl = dao.Valorescontenido(intidusuario);
+		
+		int canall = 0;
+		int contenidol = 0;
+		
+		canall = valorUrl.get(0);
+		contenidol = valorUrl.get(1);
+		
+		if(canall != 0 && contenidol != 0)
+		{
+			channel_id = String.valueOf(valorUrl.get(0));
+			content_id = String.valueOf(valorUrl.get(1));
+			
 
+			dao.limpiar(intidusuario);
+			
+			String strUrl = "";
+			
+			strUrl = Constants.BASEPATH.trim() + "public/content.html?content_id="+content_id+"&channel_id="+channel_id+"&content_blog=null";
+			return new ModelAndView("redirect:"+ strUrl);
+			
+		}
+		
+		
 		ModelAndView mv = new ModelAndView("public_content");
 		
 		content_id = Utils.checkNull(content_id, "0");
@@ -514,7 +564,7 @@ public class PublicController extends com.youandbbva.enteratv.Controller{
 			} 
 			
 			
-			PublicDAO dao = new PublicDAO();
+			
 			//List <String> validacion = new ArrayList<>();
 			if(channel_id.equals(""))
 			{

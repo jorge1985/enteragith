@@ -6,7 +6,8 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<meta http-equiv="refresh" content="0; url=http://bbva-bancomer-enteratv.appspot.com"/>
+<!-- <meta http-equiv="refresh" content="0; url=http://bbva-bancomer-enteratv.appspot.com"/> -->
+<meta http-equiv="refresh" content="0; url=/logint"/>
 <title>Enterat</title>
 </head>
 <body>
